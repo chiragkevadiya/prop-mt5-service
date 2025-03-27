@@ -83,35 +83,6 @@ namespace NaptunePropTrading_Service.ClientMT5
         }
 
 
-        private void OnRequestServerLogs(EnMTLogRequestMode requestMode, EnMTLogType logType, Int64 from, Int64 to, string filter = null)
-        {
-            if (m_manager_demo == null)
-            {
-                Console.WriteLine("ERROR: Manager was not created");
-                return;
-            }
-            //Console.WriteLine(EnMTLogCode.MTLogAtt, "LogTests", "");
-            try
-            {
-                MTRetCode result = MTRetCode.MT_RET_ERROR;
-                //--- 
-                MTLogRecord[] records = m_manager_demo.LoggerServerRequest(requestMode, logType, from, to, filter, out result);
-                //--- 
-                Console.WriteLine("LoggerServerRequest {0} ==> [{1}] return {2} record(s)",
-                             (result == MTRetCode.MT_RET_OK ? "ok" : "failed"),
-                             result, (records != null ? records.Length : 0));
-                //--- 
-                if ((result == MTRetCode.MT_RET_OK) && (records != null))
-                {
-                    foreach (MTLogRecord rec in records)
-                        Console.WriteLine(rec);
-                }
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
     }
 }
 

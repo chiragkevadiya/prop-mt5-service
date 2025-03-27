@@ -27,15 +27,11 @@ namespace NaptunePropTrading_Service
                 });
                 x.RunAsLocalSystem();
 
-                //x.SetDescription("This is a demo of a Windows Service using Topshelf.");
-                //x.SetDisplayName("Self Host Web API Demo");
-                //x.SetServiceName("AspNetSelfHostDemo");
-
                 x.SetDescription("This service manages connections to MT5 (MetaTrader 5).");
-                x.SetDisplayName("MT5 Naptune Prop Trading Services Connection");
-                x.SetServiceName("MT5 Naptune Prop Trading Services Connection");
+                x.SetDisplayName("MT5 Neptune Prop Trading Services Connection");
+                x.SetServiceName("MT5 Neptune Prop Trading Services");
 
-                //x.RunAsLocalService();
+                x.RunAsLocalService();
 
             });
         }

@@ -19,7 +19,7 @@ namespace NaptunePropTrading_Service
             app.Use(async (context, next) =>
             {
                 // Add Header
-                context.Response.Headers["Product"] = "MT5 Services Connection"; //"Web Api Self Host";
+                context.Response.Headers["Product"] = "MT5 Neptune Prop Trading Services"; //"Web Api Self Host";
 
                 // Call next middleware
                 await next.Invoke();

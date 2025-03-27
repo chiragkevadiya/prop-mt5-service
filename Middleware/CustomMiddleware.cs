@@ -14,7 +14,7 @@ namespace NaptunePropTrading_Service.Middleware
 
         public async override Task Invoke(IOwinContext context)
         {
-            context.Response.Headers["MT5Service"] = Environment.MachineName;
+            context.Response.Headers["PropTradingService"] = Environment.MachineName;
 
             await Next.Invoke(context);
         }
