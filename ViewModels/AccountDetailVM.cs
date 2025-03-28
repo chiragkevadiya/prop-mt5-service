@@ -14,6 +14,7 @@ namespace NaptunePropTrading_Service.ViewModels
         public double Margin { get; set; }
         public double MarginFree { get; set; }
         public double Profit { get; set; }
+        public double Credit { get; set; }
         public double Equity { get; set; }
         public string Status { get; set; }
         public DateTime CreatedDate { get; set; }

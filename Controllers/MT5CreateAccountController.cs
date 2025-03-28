@@ -150,7 +150,60 @@ namespace NaptunePropTrading_Service.Controllers
         }
 
         [HttpGet]
-        public AccountDetailVM GetSignalAccount(ulong LoginId)
+        public IEnumerable<AccountDetailVM> GetAllAccount(string Email)
+        {
+            try
+            {
+                List<AccountDetailVM> AccountDetailsVM = new List<AccountDetailVM>();
+
+                CIMTUserArray cIMTUserArray = _manager.UserCreateArray();
+
+                MTRetCode mTRetCode1 = _manager.UserGetByGroup("*", cIMTUserArray);
+
+                if (MTRetCode.MT_RET_OK == mTRetCode1)
+                {
+                    cIMTUserArray.Total();
+
+                    for (uint i = 0; i < cIMTUserArray.Total(); i++)
+                    {
+                        CIMTUser cIMTUser1 = cIMTUserArray.Next(i);
+
+                        if (cIMTUser1.EMail().ToLower().Trim() == Email.ToLower().Trim())
+                        {
+                            AccountDetailVM AccountDetailsVM1 = new AccountDetailVM()
+                            {
+                                Login = cIMTUser1.Login(),
+                                FirstName = cIMTUser1.FirstName(),
+                                LastName = cIMTUser1.LastName(),
+                                Group = cIMTUser1.Group(),
+                                Country = cIMTUser1.Country(),
+                                Credit = cIMTUser1.Credit(),
+                                Balance = cIMTUser1.Balance(),
+                                Leverage = cIMTUser1.Leverage(),
+                                Status = cIMTUser1.Status(),
+                                CreatedDate = DateTimeOffset.FromUnixTimeSeconds(cIMTUser1.Registration()).DateTime,
+                            };
+                            AccountDetailsVM.Add(AccountDetailsVM1);
+                        }
+                    }
+
+                    cIMTUserArray.Clear();
+                    cIMTUserArray.Release();
+                    return AccountDetailsVM;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        [HttpGet]
+        public AccountDetailVM GetSingalAccount(ulong LoginId)
         {
             try
             {
@@ -175,6 +228,7 @@ namespace NaptunePropTrading_Service.Controllers
                     AccountDetail.LastName = cIMTUser.LastName();
                     AccountDetail.Group = cIMTUser.Group();
                     AccountDetail.Leverage = cIMTUser.Leverage();
+                    AccountDetail.Credit = cIMTUser.Credit();
                     AccountDetail.Country = cIMTUser.Country();
                     AccountDetail.CreatedDate = DateTimeOffset.FromUnixTimeSeconds(cIMTUser.Registration()).DateTime;
                 }
