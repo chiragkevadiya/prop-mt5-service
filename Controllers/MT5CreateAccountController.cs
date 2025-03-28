@@ -149,5 +149,50 @@ namespace NaptunePropTrading_Service.Controllers
             }
         }
 
+        [HttpGet]
+        public AccountDetailVM GetSignalAccount(ulong LoginId)
+        {
+            try
+            {
+                AccountDetailVM AccountDetail = new AccountDetailVM();
+
+                CIMTUser cIMTUser = _manager.UserCreate();
+                MTRetCode mTRetCode = _manager.UserGet(LoginId, cIMTUser);
+
+                CIMTAccount cIMTAccountInfo = _manager.UserCreateAccount();
+                MTRetCode mTRetCode1 = _manager.UserAccountGet(LoginId, cIMTAccountInfo);
+
+                if (MTRetCode.MT_RET_OK == mTRetCode)
+                {
+                    AccountDetail.Login = cIMTUser.Login();
+                    AccountDetail.Balance = cIMTAccountInfo.Balance();
+                    AccountDetail.Equity = cIMTAccountInfo.Equity();
+                    AccountDetail.Margin = cIMTAccountInfo.Margin();
+                    AccountDetail.MarginFree = cIMTAccountInfo.MarginFree();
+                    AccountDetail.Profit = cIMTAccountInfo.Profit();
+                    AccountDetail.Status = cIMTUser.Status();
+                    AccountDetail.FirstName = cIMTUser.FirstName();
+                    AccountDetail.LastName = cIMTUser.LastName();
+                    AccountDetail.Group = cIMTUser.Group();
+                    AccountDetail.Leverage = cIMTUser.Leverage();
+                    AccountDetail.Country = cIMTUser.Country();
+                    AccountDetail.CreatedDate = DateTimeOffset.FromUnixTimeSeconds(cIMTUser.Registration()).DateTime;
+                }
+                else
+                {
+                    return null;
+                }
+
+                cIMTUser.Clear();
+                cIMTUser.Release();
+
+                return AccountDetail;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
     }
 }

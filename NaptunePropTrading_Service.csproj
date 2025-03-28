@@ -237,6 +237,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="ViewModels\AccountDetailVM.cs" />
     <Compile Include="ViewModels\DepositAccountVM.cs" />
     <Compile Include="ViewModels\GroupListVM.cs" />
     <Compile Include="ViewModels\GroupwithSymbolVM.cs" />
