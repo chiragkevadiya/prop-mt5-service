@@ -16,7 +16,7 @@ namespace NaptunePropTrading_Service
         public void Start()
         {
 
-            _webapp = WebApp.Start<Startup>("http://localhost:8082");
+            _webapp = WebApp.Start<Startup>("http://localhost:8083");
 
             // Live Maneger  Account
             ClientConnect clientConnect = new ClientConnect();

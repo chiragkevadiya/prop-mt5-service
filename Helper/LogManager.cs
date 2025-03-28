@@ -111,5 +111,19 @@ namespace NaptunePropTrading_Service.Helper
             WriteLog(logDirectory, fileName, logContent);
         }
 
+        public static void LogSuccess_Withdrawal(string logTitle, string logContent)
+        {
+            string logDirectory = Path.Combine(BaseLogDirectory, "Success");
+            string fileName = $"Success_Withdrawal_log_{DateTime.Now:yyyyMMddHHmmssfff}.txt";
+
+            WriteLog(logDirectory, fileName, logContent);
+        }
+        public static void LogError_Withdrawal(string logTitle, string logContent)
+        {
+            string logDirectory = Path.Combine(BaseLogDirectory, "Failed");
+            string fileName = $"Error_Withdrawal_log_{DateTime.Now:yyyyMMddHHmmssfff}.txt";
+
+            WriteLog(logDirectory, fileName, logContent);
+        }
     }
 }
