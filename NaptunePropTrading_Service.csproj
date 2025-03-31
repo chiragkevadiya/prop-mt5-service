@@ -225,11 +225,13 @@
     <Compile Include="Controllers\DepositsController.cs" />
     <Compile Include="Controllers\GroupController.cs" />
     <Compile Include="Controllers\MT5CreateAccountController.cs" />
+    <Compile Include="Controllers\MT5TradeHistoryController.cs" />
     <Compile Include="Controllers\WithdrawalsController.cs" />
     <Compile Include="CustomContentTypeProvider.cs" />
     <Compile Include="Helper\BaseResponse.cs" />
     <Compile Include="Helper\CreateDemoManagerHelper.cs" />
     <Compile Include="Helper\CreateManagerHelper.cs" />
+    <Compile Include="Helper\DateFormatCovert.cs" />
     <Compile Include="Helper\GenerateRandomPass.cs" />
     <Compile Include="Helper\LogManager.cs" />
     <Compile Include="Middleware\CustomMiddleware.cs" />
@@ -243,6 +245,7 @@
     <Compile Include="ViewModels\GroupwithSymbolVM.cs" />
     <Compile Include="ViewModels\MT5CreateAccountResponses.cs" />
     <Compile Include="ViewModels\MT5CreateAccountVM.cs" />
+    <Compile Include="ViewModels\MT5TradingHistoryVM.cs" />
     <Compile Include="WebServer.cs" />
   </ItemGroup>
   <ItemGroup>

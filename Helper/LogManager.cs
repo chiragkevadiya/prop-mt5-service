@@ -125,5 +125,22 @@ namespace NaptunePropTrading_Service.Helper
 
             WriteLog(logDirectory, fileName, logContent);
         }
+
+        public static void LogSuccess_MT5AccountClosed(string logTitle, string logContent)
+        {
+            string logDirectory = Path.Combine(BaseLogDirectory, "MT5AccountClosed");
+            string fileName = $"Success_MT5AccountClosed_log_{DateTime.Now:yyyyMMddHHmmssfff}.txt";
+
+            WriteLog(logDirectory, fileName, logContent);
+        }
+
+        public static void Log_MT5AccountClosedNoAction(string logTitle, string logContent)
+        {
+            string logDirectory = Path.Combine(BaseLogDirectory, "MT5AccountClosedNoAction");
+            string fileName = $"MT5AccountClosedNoAction_log_{DateTime.Now:yyyyMMddHHmmssfff}.txt";
+
+            WriteLog(logDirectory, fileName, logContent);
+        }
+
     }
 }
