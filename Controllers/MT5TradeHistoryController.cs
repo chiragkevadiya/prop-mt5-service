@@ -22,7 +22,7 @@ namespace NaptunePropTrading_Service.Controllers
 
 
         [HttpGet]
-        public BaseResponse GetMT5TradeHistory(ulong LoginId, string fromDate, string toDate, double challengeDailyLossLimit, double challengeTotalLossLimit)
+        public BaseResponse GetMT5TradeHistory(ulong LoginId, string fromDate, string toDate, double challengeDailyLossLimit, double challengeTotalLossLimit, double equity)
         {
             try
             {
@@ -55,31 +55,32 @@ namespace NaptunePropTrading_Service.Controllers
 
 
                     // Convert to percentage (only if initial balance > 0)
-                    double dailyLossPercentage = (totalDailyLoss < 0) ? (totalDailyLoss / todayDeals.Count) * 100 : 0;
-                    double totalLossPercentage = (totalLoss < 0) ? (totalLoss / totalDeals.Count) * 100 : 0;
+                    double dailyLossPercentage = (totalDailyLoss < 0) ? (totalDailyLoss * 100) / equity : 0;
+                    double totalLossPercentage = (totalLoss < 0) ? (totalLoss * 100) / equity : 0;
 
                     double totalDailyLoss1 = Math.Abs(Math.Round(dailyLossPercentage, 2));
                     double totalLoss1 = Math.Abs(Math.Round(totalLossPercentage, 2));
 
+
+                    //Console.WriteLine($"Equity: {equity}, Total Daily Loss: {totalDailyLoss}, Daily Loss Percentage: {dailyLossPercentage}%, Total Loss: {totalLoss}, Total Loss Percentage: {totalLossPercentage}%");
+
+
                     // Define challenge limits and Check conditions and take action
-                    if (totalDailyLoss1 > challengeDailyLossLimit)
+                    if (totalDailyLoss1 > challengeDailyLossLimit && totalDailyLoss1 != 0)
                     {
                         CloseMT5Account(LoginId, "Daily loss exceeded");
-                    }
-                    else
-                    {
-                        LogManager.Log_MT5AccountClosedNoAction("No action", $"No action required {loginIds}.");
-                    }
-                    if (totalLoss1 > challengeTotalLossLimit)
-                    {
-                        CloseMT5Account(LoginId, "Total loss exceeded");
-                    }
-                    else
-                    {
-                        LogManager.Log_MT5AccountClosedNoAction("No action", $"No action required {loginIds}.");
+                        return new BaseResponse { Success = true, Message = "Daily loss exceeded." };
                     }
 
-                    return new BaseResponse { Success = true, Message = "Counts total daily & total deal entries success." };
+                    if (totalLoss1 > challengeTotalLossLimit && totalLoss1 != 0)
+                    {
+                        CloseMT5Account(LoginId, "Total loss exceeded");
+                        return new BaseResponse { Success = true, Message = "Total loss exceeded." };
+                    }
+
+                    // If no conditions were met, log no action
+                    LogManager.Log_MT5AccountClosedNoAction("No action", $"No action required {loginIds}.");
+                    return new BaseResponse { Success = false, Message = "No action required." };
                 }
 
                 return new BaseResponse { Success = false, Message = "No action required." };
