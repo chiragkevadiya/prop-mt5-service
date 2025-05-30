@@ -24,7 +24,7 @@ namespace NaptunePropTrading_Service
 
             #region NeptuneFx
             //Demo
-            clientConnect.Connect("37.27.232.54:1950", 1000, "TestQuorio@2025", 30000);
+            clientConnect.Connect("37.27.232.54:1950", 1000, "Rock@1000", 30000);
             #endregion
 
             #region Pioneer
