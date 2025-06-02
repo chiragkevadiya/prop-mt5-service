@@ -203,44 +203,57 @@ namespace NaptunePropTrading_Service.Controllers
         }
 
         [HttpGet]
-        public AccountDetailVM GetSingalAccount(ulong LoginId)
+        public List<AccountDetailVM> GetLiveAccount(string LoginId)
         {
             try
             {
-                AccountDetailVM AccountDetail = new AccountDetailVM();
+                if (string.IsNullOrWhiteSpace(LoginId))
+                    return new List<AccountDetailVM>();
 
                 CIMTUser cIMTUser = _manager.UserCreate();
-                MTRetCode mTRetCode = _manager.UserGet(LoginId, cIMTUser);
+                List<AccountDetailVM> Data = new List<AccountDetailVM>();
 
-                CIMTAccount cIMTAccountInfo = _manager.UserCreateAccount();
-                MTRetCode mTRetCode1 = _manager.UserAccountGet(LoginId, cIMTAccountInfo);
+                List<ulong> loginIds = LoginId?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => Convert.ToUInt64(x)).ToList();
 
-                if (MTRetCode.MT_RET_OK == mTRetCode)
+                foreach (var item in loginIds)
                 {
-                    AccountDetail.Login = cIMTUser.Login();
-                    AccountDetail.Balance = cIMTAccountInfo.Balance();
-                    AccountDetail.Equity = cIMTAccountInfo.Equity();
-                    AccountDetail.Margin = cIMTAccountInfo.Margin();
-                    AccountDetail.MarginFree = cIMTAccountInfo.MarginFree();
-                    AccountDetail.Profit = cIMTAccountInfo.Profit();
-                    AccountDetail.Status = cIMTUser.Status();
-                    AccountDetail.FirstName = cIMTUser.FirstName();
-                    AccountDetail.LastName = cIMTUser.LastName();
-                    AccountDetail.Group = cIMTUser.Group();
-                    AccountDetail.Leverage = cIMTUser.Leverage();
-                    AccountDetail.Credit = cIMTUser.Credit();
-                    AccountDetail.Country = cIMTUser.Country();
-                    AccountDetail.CreatedDate = DateTimeOffset.FromUnixTimeSeconds(cIMTUser.Registration()).DateTime;
-                }
-                else
-                {
-                    return null;
-                }
+                    MTRetCode mTRetCode = _manager.UserGet(item, cIMTUser);
 
+                    CIMTAccount cIMTAccountInfo = _manager.UserCreateAccount();
+                    MTRetCode mTRetCode1 = _manager.UserAccountGet(item, cIMTAccountInfo);
+
+                    if (MTRetCode.MT_RET_OK == mTRetCode)
+                    {
+                        AccountDetailVM liveAccount = new AccountDetailVM();
+                        liveAccount.Login = cIMTUser.Login();
+                        liveAccount.FirstName = cIMTUser.FirstName();
+                        liveAccount.LastName = cIMTUser.LastName();
+                        liveAccount.Group = cIMTUser.Group();
+                        liveAccount.Country = cIMTUser.Country();
+                        liveAccount.BalancePrevDay = cIMTUser.BalancePrevDay();
+                        liveAccount.EquityPrevDay = cIMTUser.EquityPrevDay();
+                        liveAccount.Credit = cIMTAccountInfo.Credit();
+                        liveAccount.Balance = cIMTAccountInfo.Balance();
+                        liveAccount.Leverage = cIMTUser.Leverage();
+                        liveAccount.Status = cIMTUser.Status();
+                        liveAccount.Margin = cIMTAccountInfo.Margin();
+                        liveAccount.MarginFree = cIMTAccountInfo.MarginFree();
+                        liveAccount.Profit = cIMTAccountInfo.Profit();
+                        liveAccount.Commission = 0;
+                        liveAccount.Equity = cIMTAccountInfo.Equity();
+                        liveAccount.CreatedDate = DateTimeOffset.FromUnixTimeSeconds(cIMTUser.Registration()).DateTime;
+
+                        Data.Add(liveAccount);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
                 cIMTUser.Clear();
                 cIMTUser.Release();
 
-                return AccountDetail;
+                return Data;
             }
             catch (Exception)
             {
