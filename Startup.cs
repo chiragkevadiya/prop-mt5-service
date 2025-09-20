@@ -1,6 +1,6 @@
 ﻿using Microsoft.Owin.FileSystems;
 using Microsoft.Owin.StaticFiles;
-using NaptunePropTrading_Service.Middleware;
+using MT5ConnectionService.Middleware;
 using Owin;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 
-namespace NaptunePropTrading_Service
+namespace MT5ConnectionService
 {
     public class Startup
     {
@@ -19,7 +19,7 @@ namespace NaptunePropTrading_Service
             app.Use(async (context, next) =>
             {
                 // Add Header
-                context.Response.Headers["Product"] = "MT5 Neptune Prop Trading Services"; //"Web Api Self Host";
+                context.Response.Headers["Product"] = "Prop MT5 Services Connection"; //"Web Api Self Host";
 
                 // Call next middleware
                 await next.Invoke();

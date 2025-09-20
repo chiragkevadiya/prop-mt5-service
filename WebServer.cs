@@ -1,12 +1,12 @@
 ﻿using Microsoft.Owin.Hosting;
-using NaptunePropTrading_Service.ClientMT5;
+using MT5ConnectionService.ClientMT5;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NaptunePropTrading_Service
+namespace MT5ConnectionService
 {
     public class WebServer
     {
@@ -16,19 +16,20 @@ namespace NaptunePropTrading_Service
         public void Start()
         {
 
-            _webapp = WebApp.Start<Startup>("http://localhost:8083");
+            _webapp = WebApp.Start<Startup>("http://localhost:8085");
 
             // Live Maneger  Account
             ClientConnect clientConnect = new ClientConnect();
             clientConnect.Initialize();
 
+            // Demo Manager Account
+            ClientConnectDemo clientConnectDemo = new ClientConnectDemo();
+            clientConnectDemo.Initialize_demo();
+
             #region NeptuneFx
             //Demo
             clientConnect.Connect("37.27.232.54:1950", 1000, "Rock@1000", 30000);
-            #endregion
 
-            #region Pioneer
-            //clientConnect.Connect("86.104.251.165:443", 1002, "Q*XaOoF1", 30000);
             #endregion
 
         }

@@ -1,7 +1,11 @@
 ﻿using MetaQuotes.MT5ManagerAPI;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-
-namespace NaptunePropTrading_Service.Helper
+namespace MT5ConnectionService.Helper
 {
     public static class CreateManagerHelper
     {

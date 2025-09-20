@@ -1,13 +1,13 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using NaptunePropTrading_Service.Helper;
+using MT5ConnectionService.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NaptunePropTrading_Service.ClientMT5
+namespace MT5ConnectionService.ClientMT5
 {
     public class ClientConnectDemo
     {
@@ -83,6 +83,35 @@ namespace NaptunePropTrading_Service.ClientMT5
         }
 
 
+        private void OnRequestServerLogs(EnMTLogRequestMode requestMode, EnMTLogType logType, Int64 from, Int64 to, string filter = null)
+        {
+            if (m_manager_demo == null)
+            {
+                Console.WriteLine("ERROR: Manager was not created");
+                return;
+            }
+            //Console.WriteLine(EnMTLogCode.MTLogAtt, "LogTests", "");
+            try
+            {
+                MTRetCode result = MTRetCode.MT_RET_ERROR;
+                //--- 
+                MTLogRecord[] records = m_manager_demo.LoggerServerRequest(requestMode, logType, from, to, filter, out result);
+                //--- 
+                Console.WriteLine("LoggerServerRequest {0} ==> [{1}] return {2} record(s)",
+                             (result == MTRetCode.MT_RET_OK ? "ok" : "failed"),
+                             result, (records != null ? records.Length : 0));
+                //--- 
+                if ((result == MTRetCode.MT_RET_OK) && (records != null))
+                {
+                    foreach (MTLogRecord rec in records)
+                        Console.WriteLine(rec);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
     }
 }
 

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Topshelf;
 
-namespace NaptunePropTrading_Service
+namespace MT5ConnectionService
 {
     class Program
     {
@@ -27,11 +27,15 @@ namespace NaptunePropTrading_Service
                 });
                 x.RunAsLocalSystem();
 
-                x.SetDescription("This service manages connections to MT5 (MetaTrader 5).");
-                x.SetDisplayName("MT5 Neptune Prop Trading Services Connection");
-                x.SetServiceName("MT5 Neptune Prop Trading Services");
+                //x.SetDescription("This is a demo of a Windows Service using Topshelf.");
+                //x.SetDisplayName("Self Host Web API Demo");
+                //x.SetServiceName("AspNetSelfHostDemo");
 
-                x.RunAsLocalService();
+                x.SetDescription("This service manages connections to MT5 (MetaTrader 5).");
+                x.SetDisplayName("Prop MT5 Connection Service");
+                x.SetServiceName("Prop MT5 Connection Service");
+
+                //x.RunAsLocalService();
 
             });
         }

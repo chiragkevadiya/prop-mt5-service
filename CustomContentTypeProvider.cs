@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NaptunePropTrading_Service
+namespace MT5ConnectionService
 {
     public class CustomContentTypeProvider : FileExtensionContentTypeProvider
     {
