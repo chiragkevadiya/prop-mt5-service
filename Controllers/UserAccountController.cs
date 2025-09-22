@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Metadata.Edm;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
@@ -193,10 +194,58 @@ namespace MT5ConnectionService.Controllers
             if (MTRetCode.MT_RET_OK == mTRetCode1)
             {
                 return cIMTUserc.Balance();
+                
             }
 
             return 0;
         }
+        
+        [HttpPost]
+        public MTRetCode DisableUserAndTrading(ulong loginId)
+        {
+            try
+            {
+                // Step 1: Create user object
+                CIMTUser user = _manager.UserCreate();
+                if (user == null)
+                    throw new Exception("Failed to create user object.");
+
+                // Step 2: Fetch user info
+                MTRetCode ret = _manager.UserGet(loginId, user);
+                if (ret != MTRetCode.MT_RET_OK)
+                {
+                    user.Release();
+                    return ret;
+                }
+
+                // Step 3: Get current rights
+                CIMTUser.EnUsersRights rights = user.Rights();
+
+                // Step 4: Disable trading and disable account
+                rights |= CIMTUser.EnUsersRights.USER_RIGHT_TRADE_DISABLED; // block trading
+                rights &= ~CIMTUser.EnUsersRights.USER_RIGHT_ENABLED;       // block login
+
+                // Step 5: Update rights
+                user.Rights(rights);
+
+                // Step 6: Push changes back to MT5
+                ret = _manager.UserUpdate(user);
+
+                // Step 7: Cleanup
+                user.Release();
+
+                return ret;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error disabling user + trading: " + ex.Message, ex);
+            }
+        }
+
+
+
+
+
     }
 
 }

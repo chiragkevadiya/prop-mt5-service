@@ -20,5 +20,6 @@ namespace MT5ConnectionService.ViewModels
         public string Address { get; set; }
         public string Country { get; set; }
         public ulong? LoginId { get; set; }
+        public decimal? Balance { get; set; }
     }
 }

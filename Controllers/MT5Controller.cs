@@ -231,7 +231,7 @@ namespace MT5ConnectionService
                     cIMTUser.Phone(entity.Phone);
                     cIMTUser.Address(entity.Address);
                     cIMTUser.Country(entity.Country);
-
+                    
                     // Set master and investor passwords (replace with your logic)
                     string master_pass = GenerateRandomPass.GenerateMasterPassword(11); // Replace with a valid master password
                     string investor_pass = GenerateRandomPass.GenerateInvestorPassword(9); // Replace with a valid investor password
@@ -272,7 +272,7 @@ namespace MT5ConnectionService
                             master_pass = master_pass, // Set the master password
                             investor_pass = investor_pass, // Set the investor password
                             Leverage = entity.Leverage,
-                            ServerName = "QuorionexMarketsTestOnly-Trade"//"HorizonFXTradings-Server" //"Fxo"
+                            ServerName = "PropTradingMT5"//"HorizonFXTradings-Server" //"Fxo"
                         };
 
                         List<MtfiveaccountVM> userAccounts = new List<MtfiveaccountVM>();
