@@ -33,7 +33,7 @@ namespace MT5ConnectionService.Controllers
 
                 // Split and parse the loginIds from string to ulong[]
                 var loginIdArray = loginId
-                    .Split(',', (char)StringSplitOptions.RemoveEmptyEntries)
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(id => ulong.TryParse(id.Trim(), out var parsed) ? parsed : 0)
                     .Where(id => id > 0)
                     .ToArray();
