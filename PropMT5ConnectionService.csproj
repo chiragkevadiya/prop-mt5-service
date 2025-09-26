@@ -406,6 +406,7 @@
     <Compile Include="Helper\CreateAdminHelper.cs" />
     <Compile Include="Helper\CreateDemoManagerHelper.cs" />
     <Compile Include="Helper\CreateManagerHelper.cs" />
+    <Compile Include="Helper\DipendencyResolver.cs" />
     <Compile Include="Helper\EmailHelper.cs" />
     <Compile Include="Helper\EmailSubjectName.cs" />
     <Compile Include="Helper\EmailTemplateBuilder.cs" />

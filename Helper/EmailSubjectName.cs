@@ -16,7 +16,7 @@
         public const string AdminProfitShare = "AdminProfitShare";
         public const string ChallengePurchased = "PurchasedChallengeEmail";
 
-        // ✅ Newly added entries
+        // Newly added entries
         public const string MoveToNextPhase = "MoveToNextPhase";
         public const string ChallengeClosed = "ChallengeClosed"; //deactivated due to failure
         public const string PropPasswordChanged = "PropPasswordChanged";
