@@ -92,26 +92,24 @@ namespace PropMT5ConnectionService.Services
                     // Breach check
                     if (currentEquity <= liquidationLimit)
                     {
-                        string postURL = $"UserAccount?loginId={phase.UserAccountId}";
-                        ResponseHttpMessage responseContent =
-                            await _httpClientService.PostAsync(_configuration["MT5ServiceApiUrl"], postURL);
+                        // close the challenge as failed    
+                        await CloseChallengeAsync(
+                            phase,
+                            currentEquity,
+                            ChallengeStatus.Failed,
+                            phase.ProfitSplitPercentage,
+                            $"Challenge closed due to liquidation breach. Equity={currentEquity}, Limit={liquidationLimit}"
+                        );
 
-                        if (responseContent.Success)
-                        {
-                            await CloseChallengeAsync(
-                                phase,
-                                currentEquity,
-                                ChallengeStatus.Failed,
-                                phase.ProfitSplitPercentage,
-                                $"Challenge closed due to liquidation breach. Equity={currentEquity}, Limit={liquidationLimit}"
-                            );
-                            DisableUserAndTrading(loginIds);
-                            successCount++;
-                        }
-                        else
-                        {
-                            errors.Add($"Failed to disable account {phase.UserAccountId} in MT5: {responseContent.Message}");
-                        }
+                        //disable account in MT5    
+                        DisableUserAndTrading(loginIds);
+                        successCount++;
+
+                    }
+
+                    else
+                    {
+                        errors.Add($"Failed to disable account {phase.UserAccountId} in MT5");
                     }
                 }
 
@@ -248,7 +246,7 @@ namespace PropMT5ConnectionService.Services
                 .FirstOrDefaultAsync();
             return adminUser?.UserId;
         }
-
+        
         public Dictionary<ulong, MTRetCode> DisableUserAndTrading(List<long> loginIds)
         {
             var results = new Dictionary<ulong, MTRetCode>();
@@ -264,25 +262,50 @@ namespace PropMT5ConnectionService.Services
 
                 try
                 {
-                    MTRetCode ret = _manager.UserGet(loginId, user);
+                    // 1️ Fetch user
+                    var ret = _manager.UserGet(loginId, user);
                     if (ret != MTRetCode.MT_RET_OK)
                     {
                         results[loginId] = ret;
                         continue;
                     }
 
-                    // Disable trading and login
+                    // 2️ Disable trading and login rights
                     var rights = user.Rights();
                     rights |= CIMTUser.EnUsersRights.USER_RIGHT_TRADE_DISABLED;
                     rights &= ~CIMTUser.EnUsersRights.USER_RIGHT_ENABLED;
                     user.Rights(rights);
 
                     ret = _manager.UserUpdate(user);
-                    results[loginId] = ret;
+                    if (ret != MTRetCode.MT_RET_OK)
+                    {
+                        results[loginId] = ret;
+                        continue;
+                    }
+
+                    // 3️ Force-close all open positions using CIMTAdminAPI
+                    CIMTPositionArray positions = _manager.PositionCreateArray();
+                    ret = _manager.PositionRequest(loginId, positions); // get all positions for this login
+
+                    if (ret == MTRetCode.MT_RET_OK)
+                    {
+                        for (uint i = 0; i < positions.Total(); i++)
+                        {
+                            CIMTPosition pos = positions.Next(i);
+                            if (pos == null) continue;
+
+                            var deleteRet = _manager.PositionDelete(pos); // force close
+                            Console.WriteLine($"Position {pos.Symbol()} for login {loginId} deleted, result={deleteRet}");
+                        }
+                    }
+                    positions.Release();
+
+                    results[loginId] = MTRetCode.MT_RET_OK;
+                    Console.WriteLine($"Account {loginId}: disabled and all positions force-closed successfully!");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error disabling account {loginId}: {ex.Message}");
+                    Console.WriteLine($"Error processing account {loginId}: {ex.Message}");
                     results[loginId] = MTRetCode.MT_RET_ERROR;
                 }
                 finally

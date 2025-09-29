@@ -30,7 +30,7 @@ namespace PropMT5ConnectionService.Helper
         {
             // The root service provider is not disposed by this resolver.
         }
-
+         
         public object GetService(Type serviceType)
         {
             return _serviceProvider.GetService(serviceType);

@@ -242,52 +242,7 @@ namespace MT5ConnectionService.Controllers
         //        throw new Exception("Error disabling user + trading: " + ex.Message, ex);
         //    }
         //}
-        [HttpPost]
-        public Dictionary<ulong, MTRetCode> DisableUserAndTrading(IEnumerable<ulong> loginIds)
-        {
-            var results = new Dictionary<ulong, MTRetCode>();
-
-            foreach (var loginId in loginIds)
-            {
-                CIMTUser user = _manager.UserCreate();
-                if (user == null)
-                {
-                    results[loginId] = MTRetCode.MT_RET_ERROR;
-                    continue;
-                }
-
-                try
-                {
-                    MTRetCode ret = _manager.UserGet(loginId, user);
-                    if (ret != MTRetCode.MT_RET_OK)
-                    {
-                        results[loginId] = ret;
-                        continue;
-                    }
-
-                    // Disable trading and login
-                    var rights = user.Rights();
-                    rights |= CIMTUser.EnUsersRights.USER_RIGHT_TRADE_DISABLED;
-                    rights &= ~CIMTUser.EnUsersRights.USER_RIGHT_ENABLED;
-                    user.Rights(rights);
-
-                    ret = _manager.UserUpdate(user);
-                    results[loginId] = ret;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error disabling account {loginId}: {ex.Message}");
-                    results[loginId] = MTRetCode.MT_RET_ERROR;
-                }
-                finally
-                {
-                    user.Release();
-                }
-            }
-
-            return results;
-        }
-
+        
 
 
 
