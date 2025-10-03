@@ -37,13 +37,13 @@ namespace PropMT5ConnectionService.Services
             _manager = manager;
         }
 
-        public async Task<BaseResponseObject<object>> CheckAndLiquidateAccounts()
+        public async Task<BaseResponseObject<object>> CheckAndLiquidateAccounts(long accountId = 0)
         {
             try
             {
                 // 1. Get active phases
                 var activePhases = await _dbContext.UserChallengePhase
-                    .Where(x => x.ChallengePhaseStatus == ChallengePhaseStatus.Active).ToListAsync();
+                    .Where(x => x.ChallengePhaseStatus == ChallengePhaseStatus.Active && (accountId != 0 ? x.UserAccountId == accountId : true)).ToListAsync();
 
                 if (!activePhases.Any())
                 {
@@ -87,7 +87,15 @@ namespace PropMT5ConnectionService.Services
                     // Limits
                     decimal dailyLossLimit = currentEquity * (phase.DailyLossPercent / 100m);
                     decimal maxLossLimit = accountSize * (phase.OverallLossPercent / 100m);
-                    decimal liquidationLimit = currentEquity - dailyLossLimit;
+                    decimal liquidationLimit = Math.Max(dailyLossLimit, maxLossLimit);
+                    LiquidationMode liquidationMode;
+
+
+                    phase.LiquidationMode = liquidationLimit == dailyLossLimit ? LiquidationMode.DailyLoss : LiquidationMode.MaxLoss;
+                    phase.ModifiedBy = accountId;
+                    phase.ModifiedDate = DateTime.UtcNow;
+                    _dbContext.UserChallengePhase.Update(phase);
+                    await _dbContext.SaveChangesAsync();
 
                     // Breach check
                     if (currentEquity <= liquidationLimit)
@@ -98,7 +106,7 @@ namespace PropMT5ConnectionService.Services
                             currentEquity,
                             ChallengeStatus.Failed,
                             phase.ProfitSplitPercentage,
-                            $"Challenge closed due to liquidation breach. Equity={currentEquity}, Limit={liquidationLimit}"
+                            $"Challenge closed due to ({phase.LiquidationMode}) limit breach. Equity={currentEquity}, Limit={liquidationLimit}"
                         );
 
                         //disable account in MT5    
@@ -246,7 +254,7 @@ namespace PropMT5ConnectionService.Services
                 .FirstOrDefaultAsync();
             return adminUser?.UserId;
         }
-        
+
         public Dictionary<ulong, MTRetCode> DisableUserAndTrading(List<long> loginIds)
         {
             var results = new Dictionary<ulong, MTRetCode>();

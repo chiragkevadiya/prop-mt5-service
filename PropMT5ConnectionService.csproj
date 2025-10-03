@@ -26,7 +26,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <AutorunEnabled>true</AutorunEnabled>
-    <ApplicationRevision>83</ApplicationRevision>
+    <ApplicationRevision>86</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -371,7 +371,9 @@
     <Compile Include="Controllers\DemoMT5AccountInActive.cs" />
     <Compile Include="Controllers\DemoMT5Controller.cs" />
     <Compile Include="Controllers\MT5AccountDeleteController.cs" />
+    <Compile Include="Controllers\MT5DisabledUserAndTrading.cs" />
     <Compile Include="Controllers\MT5LeaderBoardController.cs" />
+    <Compile Include="Controllers\MT5LiquidationController.cs" />
     <Compile Include="Controllers\MT5ProfitBySymbolController.cs" />
     <Compile Include="Controllers\DemoMT5LiveGroupNameUpdateController.cs" />
     <Compile Include="Controllers\DemoMT5TradingHistoryController.cs" />

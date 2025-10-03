@@ -27,6 +27,7 @@ namespace PropMT5ConnectionService.Models
         public bool TradingLocked { get; set; } = false;
         public string Comment { get; set; }
         public ChallengePhaseStatus ChallengePhaseStatus { get; set; }
+        public LiquidationMode LiquidationMode { get; set; }
         public DateTime? StartedAt { get; set; }
         public DateTime? CompletedAt { get; set; }
     }

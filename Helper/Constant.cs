@@ -80,7 +80,11 @@ namespace PropMT5ConnectionService.Helper
             [Description("Account")]
             Account = 3,
         }
-
+        public enum LiquidationMode
+        {
+            MaxLoss = 1,
+            DailyLoss = 2,
+        }
         public enum TicketStatus
         {
             [Description("Open")]
