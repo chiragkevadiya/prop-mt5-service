@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PropMT5ConnectionService.Models;
+using PropMT5ConnectionService.Models.Email;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -19,6 +20,12 @@ namespace PropMT5ConnectionService.Data
 
         public DbSet<PropAccountMaster> PropAccountMaster { get; set; }
         public DbSet<UserMaster> UserMasters { get; set; }
+        public DbSet<MailRequestLog> MailRequestLog { get; set; }
+        public DbSet<EmailTemplatesMaster> EmailTemplatesMasters { get; set; }
+        public DbSet<EmailTemplatesStaticKeyValueMaster> EmailTemplatesStaticKeyValueMaster { get; set; }
+        public DbSet<EmailTemplatesDetailsMaster> EmailTemplatesDetailsMaster { get; set; }
+        public DbSet<EmailTemplateAttachmentsMaster> EmailTemplateAttachmentsMaster { get; set; }
+        public DbSet<EmailVariablesMaster> EmailVariablesMaster { get; set; }
 
 /*        public DbSet<EmailTemplateAttachmentsMaster> EmailTemplateAttachmentsMaster { get; set; }
         public DbSet<EmailTemplatesDetailsMaster> EmailTemplatesDetailsMaster { get; set; }

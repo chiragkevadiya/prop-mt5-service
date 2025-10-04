@@ -14,6 +14,10 @@ namespace PropMT5ConnectionService.Controllers
     public class MT5DisabledUserAndTradingController : ApiController
     {
         CIMTManagerAPI _manager = CreateManagerHelper.GetManager();
+        public MT5DisabledUserAndTradingController()
+        {
+
+        }
 
         [HttpPost]
         public Dictionary<ulong, MTRetCode> DisableUserAndTrading(List<long> loginIds)

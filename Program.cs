@@ -238,8 +238,9 @@ namespace MT5ConnectionService
 
             // Register your services that depend on the CIMTManagerAPI.
             // These should be Singleton because the CIMTManagerAPI is a Singleton.
-            services.AddSingleton<ILiqudationService, LiquidationService>();
-            services.AddSingleton<IHttpClientService, HttpClientService>(); // Example of another service
+            services.AddScoped<ILiqudationService, LiquidationService>();
+            services.AddScoped<IHttpClientService, HttpClientService>();
+            
 
             // Register the WebServer service itself
             services.AddSingleton<WebServer>();

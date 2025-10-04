@@ -25,16 +25,18 @@ namespace PropMT5ConnectionService.Services
         private readonly IHttpClientService _httpClientService;
         private readonly IConfiguration _configuration;
         private readonly CIMTManagerAPI _manager;
+        private readonly IEmailService _emailService;
 
         public LiquidationService(
             PropTradingDBContext dbContext,
             IHttpClientService httpClientService,
-            IConfiguration configuration, CIMTManagerAPI manager)
+            IConfiguration configuration, CIMTManagerAPI manager, IEmailService emailService)
         {
             _dbContext = dbContext;
             _httpClientService = httpClientService;
             _configuration = configuration;
             _manager = manager;
+            _emailService = emailService;
         }
 
         public async Task<BaseResponseObject<object>> CheckAndLiquidateAccounts(long accountId = 0)
@@ -220,10 +222,10 @@ namespace PropMT5ConnectionService.Services
                         FailureReason = failureReason ?? "Failed due to violate some condition",
                     };
 
-                    //await _emailService.SendEmailAsync(
-                    //    EmailSubjectName.ChallengeClosed,
-                    //    account.Email,
-                    //    new[] { failureVariables });
+                    await _emailService.SendEmailAsync(
+                        EmailSubjectName.ChallengeClosed,
+                        account.Email,
+                        new[] { failureVariables });
                 }
 
                 await _dbContext.SaveChangesAsync();

@@ -222,7 +222,7 @@ namespace MT5ConnectionService
                     await _liquidationService.CheckAndLiquidateAccounts(0);
 
                     // wait 60 minutes before checking again
-                    await Task.Delay(TimeSpan.FromSeconds(2), token);
+                    await Task.Delay(TimeSpan.FromSeconds(3600), token);
                 }
                 catch (TaskCanceledException) { /* Swallow exception on shutdown */ }
                 catch (Exception ex)
