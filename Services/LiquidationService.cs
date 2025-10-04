@@ -39,13 +39,13 @@ namespace PropMT5ConnectionService.Services
             _emailService = emailService;
         }
 
-        public async Task<BaseResponseObject<object>> CheckAndLiquidateAccounts(long accountId = 0)
+        public async Task<BaseResponseObject<object>> CheckAndLiquidateAccounts()
         {
             try
             {
                 // 1. Get active phases
                 var activePhases = await _dbContext.UserChallengePhase
-                    .Where(x => x.ChallengePhaseStatus == ChallengePhaseStatus.Active && (accountId != 0 ? x.UserAccountId == accountId : true)).ToListAsync();
+                    .Where(x => x.ChallengePhaseStatus == ChallengePhaseStatus.Active).ToListAsync();
 
                 if (!activePhases.Any())
                 {
@@ -94,7 +94,7 @@ namespace PropMT5ConnectionService.Services
 
 
                     phase.LiquidationMode = liquidationLimit == dailyLossLimit ? LiquidationMode.DailyLoss : LiquidationMode.MaxLoss;
-                    phase.ModifiedBy = accountId;
+                    phase.ModifiedBy = phase.UserAccountId;
                     phase.ModifiedDate = DateTime.UtcNow;
                     _dbContext.UserChallengePhase.Update(phase);
                     await _dbContext.SaveChangesAsync();

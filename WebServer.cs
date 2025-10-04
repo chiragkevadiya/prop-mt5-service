@@ -219,7 +219,7 @@ namespace MT5ConnectionService
                 try
                 {
                     Console.WriteLine("[INFO] Running liquidation job...");
-                    await _liquidationService.CheckAndLiquidateAccounts(0);
+                    await _liquidationService.CheckAndLiquidateAccounts();
 
                     // wait 60 minutes before checking again
                     await Task.Delay(TimeSpan.FromSeconds(3600), token);

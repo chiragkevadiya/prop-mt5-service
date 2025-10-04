@@ -14,7 +14,7 @@ namespace PropMT5ConnectionService.Services
 {
     public interface ILiqudationService
     {
-        Task<BaseResponseObject<object>> CheckAndLiquidateAccounts(long accountId);
+        Task<BaseResponseObject<object>> CheckAndLiquidateAccounts();
         Task<Dictionary<long, AccountDetailsVM>> GetAccountsDetailsBulk(List<long> terminalIds);
         Task<ChallengeSettlementResult> CloseChallengeAsync(UserChallengePhase ch, decimal currentEquity, ChallengeStatus status, decimal? overrideSplitPercentage = null, string failureReason = null);
         Task<long?> GetAdminUserIdAsync();

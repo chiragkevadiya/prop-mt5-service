@@ -34,7 +34,7 @@ namespace PropMT5ConnectionService.Controllers
         {
             try
             {
-                var result = await _liqudationService.CheckAndLiquidateAccounts(accountId);
+                var result = await _liqudationService.CheckAndLiquidateAccounts();
 
                 return Ok(new BaseResponseObject<object>
                 {
