@@ -101,6 +101,7 @@ namespace PropMT5ConnectionService.Services
                     // Breach check
                     if (currentEquity <= liquidationLimit)
                     {
+                        Console.WriteLine($"Start closing challenge due to ({phase.LiquidationMode}) limit breach. Equity={currentEquity}, Limit={liquidationLimit}");
                         // close the challenge as failed    
                         await CloseChallengeAsync(
                             phase,
@@ -248,12 +249,20 @@ namespace PropMT5ConnectionService.Services
 
         public async Task<long?> GetAdminUserIdAsync()
         {
-            // Find the first admin user (adjust RoleId/IsAdmin as per your schema)
-            var adminUser = await _dbContext.UserMasters
-                .Where(u => u.IsAdmin && u.RoleId == RoleType.Admin && u.IsActive && !u.IsDelete)
-                .OrderBy(u => u.UserId)
-                .FirstOrDefaultAsync();
-            return adminUser?.UserId;
+            try
+            {
+                // Find the first admin user (adjust RoleId/IsAdmin as per your schema)
+                var adminUser = await _dbContext.UserMaster
+                    .Where(u => u.IsAdmin && u.RoleId == RoleType.Admin && u.IsActive && !u.IsDelete)
+                    .OrderBy(u => u.UserId)
+                    .FirstOrDefaultAsync();
+
+                return adminUser?.UserId;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public Dictionary<ulong, MTRetCode> DisableUserAndTrading(List<long> loginIds)

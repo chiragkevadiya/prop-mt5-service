@@ -19,9 +19,9 @@ namespace PropMT5ConnectionService.Data
         }
 
         public DbSet<PropAccountMaster> PropAccountMaster { get; set; }
-        public DbSet<UserMaster> UserMasters { get; set; }
+        public DbSet<UserMaster> UserMaster { get; set; }
         public DbSet<MailRequestLog> MailRequestLog { get; set; }
-        public DbSet<EmailTemplatesMaster> EmailTemplatesMasters { get; set; }
+        public DbSet<EmailTemplatesMaster> EmailTemplatesMaster { get; set; }
         public DbSet<EmailTemplatesStaticKeyValueMaster> EmailTemplatesStaticKeyValueMaster { get; set; }
         public DbSet<EmailTemplatesDetailsMaster> EmailTemplatesDetailsMaster { get; set; }
         public DbSet<EmailTemplateAttachmentsMaster> EmailTemplateAttachmentsMaster { get; set; }

@@ -481,7 +481,7 @@ namespace PropMT5ConnectionService.Services
 
         private async Task<List<EmailTemplateETKeyVM>> GetEmailTemplateByETKey(string etKey)
         {
-            var emailTemplate = await (from etm in _dbContext.EmailTemplatesMasters
+            var emailTemplate = await (from etm in _dbContext.EmailTemplatesMaster
                                        join etdm in _dbContext.EmailTemplatesDetailsMaster
                                             on etm.Id equals etdm.EmailTemplateId
                                        join etam in _dbContext.EmailTemplateAttachmentsMaster
