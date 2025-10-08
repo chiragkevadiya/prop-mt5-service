@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PropTradingMT5.Helpers
+namespace PropMT5ConnectionService.Helper
 {
     public class MailRequestAPI
     {

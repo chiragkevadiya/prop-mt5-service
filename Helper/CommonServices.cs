@@ -6,7 +6,7 @@ using System.Reflection;
 using static PropMT5ConnectionService.Helper.Constant;
 
 
-namespace PropTradingMT5.Helpers
+namespace PropMT5ConnectionService.Helper
 {
     public static class CommonServices
     {

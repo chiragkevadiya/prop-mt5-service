@@ -1,4 +1,4 @@
-﻿namespace PropTradingMT5.Helpers
+﻿namespace MT5ConnectionService.Helper
 {
     public static class ProjectHelper
     {

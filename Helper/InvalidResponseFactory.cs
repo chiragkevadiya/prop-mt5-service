@@ -4,7 +4,7 @@ using PropMT5ConnectionService.Helper;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PropTradingMT5.Helpers
+namespace PropMT5ConnectionService.Helper
 {
     public static class InvalidResponseFactory
     {

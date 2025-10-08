@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 
-namespace PropTradingMT5.Helpers
+namespace PropMT5ConnectionService.Helper
 {
     public class MailRequest
     {

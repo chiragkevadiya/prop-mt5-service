@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PropTradingMT5.Helpers
+namespace PropMT5ConnectionService.Helper
 {
     public class EmailTemplateBuilder
     {

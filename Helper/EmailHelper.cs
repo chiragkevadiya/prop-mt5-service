@@ -10,7 +10,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace PropTradingMT5.Helpers
+namespace MT5ConnectionService.Helper
 {
     public class ClientEmailSetting
     {

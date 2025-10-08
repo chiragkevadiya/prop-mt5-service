@@ -164,7 +164,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MT5ConnectionService.ClientMT5;
+using MT5ConnectionService.Helper;
 using PropMT5ConnectionService.Data;
+using PropMT5ConnectionService.Helper;
 using PropMT5ConnectionService.Services;
 using System;
 using Topshelf;
@@ -203,7 +205,7 @@ namespace MT5ConnectionService
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")),
                 ServiceLifetime.Scoped
             );
-
+            //services.Configure<MailSettings>(configuration.GetSection("ClientEmailSetting"));
             // Register the MT5 Manager API as a Singleton. The factory method ensures
             // that the API is initialized and logged in before it's ever used.
             services.AddSingleton<CIMTManagerAPI>(provider =>
@@ -236,10 +238,21 @@ namespace MT5ConnectionService
                 return connector.m_manager;
             });
 
+            services.Configure<ClientEmailSetting>(options =>
+            {
+                options.Host = configuration["ClientEmailSetting:Host"];
+                options.Port = int.Parse(configuration["ClientEmailSetting:Port"]);
+                options.User = configuration["ClientEmailSetting:User"];
+                options.Password = configuration["ClientEmailSetting:Password"];
+                options.Mail = configuration["ClientEmailSetting:Mail"];
+            });
+            // Register EmailHelper and EmailService
+            services.AddSingleton<EmailHelper>();
             // Register your services that depend on the CIMTManagerAPI.
             // These should be Singleton because the CIMTManagerAPI is a Singleton.
             services.AddScoped<ILiqudationService, LiquidationService>();
             services.AddScoped<IHttpClientService, HttpClientService>();
+            services.AddScoped<IEmailService, EmailService>();
             
 
             // Register the WebServer service itself

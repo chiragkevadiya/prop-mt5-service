@@ -9,7 +9,6 @@ using PropMT5ConnectionService.Data;
 using PropMT5ConnectionService.Helper;
 using PropMT5ConnectionService.Models;
 using PropMT5ConnectionService.ViewModels.ChallengeSettlement;
-using PropTradingMT5.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
