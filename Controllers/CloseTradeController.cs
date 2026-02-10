@@ -9,6 +9,7 @@ using static MetaQuotes.MT5CommonAPI.CIMTDeal;
 
 namespace MT5ConnectionService.Controllers
 {
+    [RoutePrefix("api/close-trade")] // Updated route prefix for consistency
     public class CloseTradeController : ApiController
     {
         CIMTManagerAPI _manager = CreateManagerHelper.GetManager();
@@ -19,6 +20,7 @@ namespace MT5ConnectionService.Controllers
         }
 
         [HttpPost]
+        [Route("trades-orders-close")] // Explicit route for the action
         public BaseResponseModel<List<ClosedTradeResponse>> TradesOrdersClose([FromBody] ClosePositionRequest entity)
         {
             try

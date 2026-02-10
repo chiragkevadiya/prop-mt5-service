@@ -8,6 +8,7 @@ using System.Web.Http;
 
 namespace MT5ConnectionService.Controllers
 {
+    [RoutePrefix("api/account-performance")] // Updated route prefix for consistency
     public class AccountPerformanceController : ApiController
     {
         CIMTManagerAPI _manager = CreateManagerHelper.GetManager();
@@ -17,6 +18,7 @@ namespace MT5ConnectionService.Controllers
         }
 
         [HttpGet]
+        [Route("performance")] // Explicit route for the action
         public BaseResponseModel<List<AccountPerformanceVM>> AccountPerformance()
         {
             try

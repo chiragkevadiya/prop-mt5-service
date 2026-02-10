@@ -10,11 +10,13 @@ using System.Web.Http;
 
 namespace MT5ConnectionService.Controllers
 {
+    [RoutePrefix("api/account-profit-chart")] // Updated route prefix for consistency
     public class AccountProfitChartByDateController : ApiController
     {
         private readonly CIMTManagerAPI _manager = CreateManagerHelper.GetManager();
 
         [HttpGet]
+        [Route("profit-chart")] // Explicit route for the action
         public async Task<BaseResponseModel<ChartProfitVM>> GetProfitChartByDateRange(ulong loginId, string fromDate, string toDate)
         {
             var response = new BaseResponseModel<ChartProfitVM>();

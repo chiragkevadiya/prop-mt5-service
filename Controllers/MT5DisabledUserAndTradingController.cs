@@ -7,6 +7,7 @@ using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
 {
+    [RoutePrefix("api/mt5/account")]
     public class MT5DisabledUserAndTradingController : ApiController
     {
         CIMTManagerAPI _manager = CreateManagerHelper.GetManager();
@@ -16,7 +17,8 @@ namespace PropMT5ConnectionService.Controllers
         }
 
         [HttpPost]
-        public Dictionary<ulong, MTRetCode> DisableUserAndTrading(List<long> loginIds)
+        [Route("disable")]
+        public Dictionary<ulong, MTRetCode> DisableUserAndTrading([FromBody] List<long> loginIds)
         {
             var results = new Dictionary<ulong, MTRetCode>();
 

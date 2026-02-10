@@ -7,6 +7,7 @@ using System.Web.Http;
 
 namespace MT5ConnectionService.Controllers
 {
+    [RoutePrefix("api/credit-in-out")] // Updated route prefix for consistency
     public class CreditInOutController : ApiController
     {
         CIMTManagerAPI _manager = CreateManagerHelper.GetManager();
@@ -16,6 +17,7 @@ namespace MT5ConnectionService.Controllers
         }
 
         [HttpPost]
+        [Route("balance")] // Explicit route for the action
         public MTRetCode CreadiInOutBalance([FromBody] MTFiveDepositBalanceVM entity)
         {
             try

@@ -1,5 +1,4 @@
 ﻿using MailKit.Net.Smtp;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using MimeKit;

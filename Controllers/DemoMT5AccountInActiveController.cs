@@ -6,11 +6,13 @@ using System.Web.Http;
 
 namespace MT5ConnectionService.Controllers
 {
+    [RoutePrefix("api/demo/account")]
     public class DemoMT5AccountInActiveController : ApiController
     {
         CIMTManagerAPI _managerDemo = CreateDemoManagerHelper.GetManagerDemo();
 
         [HttpPost]
+        [Route("inactive")]
         public BaseResponseModel<int> DemoMT5AccountInActive([FromBody] MT5AccountInActiveVM entity)
         {
             try

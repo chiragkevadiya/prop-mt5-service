@@ -170,6 +170,7 @@
 //}
 
 using Microsoft.Owin.Hosting;
+using MT5ConnectionService.ClientMT5;
 using PropMT5ConnectionService.Services;
 using System;
 using System.Threading;
@@ -187,16 +188,21 @@ namespace MT5ConnectionService
 
         // Inject both the service provider and the specific service you need.
         // This is a common pattern to bridge DI and OWIN.
-        public WebServer(IServiceProvider serviceProvider, ILiqudationService liquidationService)
+        public WebServer(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-            _liquidationService = liquidationService;
+           // ILiqudationService liquidationService_liquidationService = liquidationService;
         }
 
         public void Start()
         {
             Console.WriteLine("[INFO] WebServer starting...");
             string baseUri = "http://localhost:8086";
+
+            // Initialize MT5 Clients
+            ClientConnect clientConnect = new ClientConnect();
+            clientConnect.Initialize();
+            clientConnect.Connect("37.27.232.54:1950", 1000, "Rock@1000", 30000);
 
             // Pass the service provider to the OWIN Startup class
             _webapp = WebApp.Start(baseUri, appBuilder =>
@@ -218,7 +224,7 @@ namespace MT5ConnectionService
                 try
                 {
                     Console.WriteLine("[INFO] Running liquidation job...");
-                    await _liquidationService.CheckAndLiquidateAccounts();
+                    //await _liquidationService.CheckAndLiquidateAccounts();
 
                     // wait 60 minutes before checking again
                     await Task.Delay(TimeSpan.FromSeconds(3600), token);

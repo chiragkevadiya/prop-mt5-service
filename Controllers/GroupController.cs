@@ -9,6 +9,7 @@ using System.Web.Http;
 
 namespace MT5ConnectionService.Controllers
 {
+    [RoutePrefix("api/{controller}")]
     public class GroupController : ApiController
     {
         CIMTManagerAPI _manager = CreateManagerHelper.GetManager();

@@ -7,11 +7,13 @@ using System.Web.Http;
 
 namespace MT5ConnectionService.Controllers
 {
+    [RoutePrefix("api/account-availability")] // Updated route prefix for consistency
     public class AccountAvailabilityCheckController : ApiController
     {
         private readonly CIMTManagerAPI _manager = CreateManagerHelper.GetManager();
 
         [HttpPost]
+        [Route("deleted")] // Explicit route for the action
         public BaseResponseModel<List<ulong>> GetAllDeletedAccount([FromBody] List<ulong> loginIds)
         {
             var responseList = new List<ulong>();

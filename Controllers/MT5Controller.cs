@@ -15,6 +15,8 @@ using HttpPostAttribute = System.Web.Http.HttpPostAttribute;
 namespace MT5ConnectionService
 {
 
+
+    [RoutePrefix("api/mt5")]
     public class MT5Controller : ApiController
     {
         CIMTManagerAPI _manager = CreateManagerHelper.GetManager();
@@ -24,18 +26,21 @@ namespace MT5ConnectionService
         }
 
         [HttpGet]
-        public MtGetAllLiveAccountVM UserGetSingleLiveAccount(ulong LoginId)
+        [Route("account/{loginId:long}")]
+        public MtGetAllLiveAccountVM UserGetSingleLiveAccount(long LoginId)
         {
-            return MT5AccountOperations.GetSingleAccount(_manager, LoginId);
+            return MT5AccountOperations.GetSingleAccount(_manager, (ulong)LoginId);
         }
 
         [HttpGet]
+        [Route("accounts")]
         public IEnumerable<MtGetAllLiveAccountVM> GetAllLiveAccount()
         {
             return MT5AccountOperations.GetAllAccounts(_manager);
         }
 
         [HttpPost]
+        [Route("account/create")]
         public IEnumerable<MtfiveaccountVM> CreateLiveAccount([FromBody] UserIdModel entity)
         {
             try
