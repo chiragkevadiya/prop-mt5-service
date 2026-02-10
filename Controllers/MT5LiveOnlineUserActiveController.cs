@@ -4,9 +4,6 @@ using MT5ConnectionService.Helper;
 using MT5ConnectionService.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace MT5ConnectionService.Controllers
@@ -51,8 +48,8 @@ namespace MT5ConnectionService.Controllers
                         CIMTUser user = userArray.Next(i);
                         uint userRights = (uint)user.Rights();
 
-                       // var userLogin = new UserLogin { Login = user.Login() };
-                       
+                        // var userLogin = new UserLogin { Login = user.Login() };
+
                         if ((userRights & (uint)CIMTUser.EnUsersRights.USER_RIGHT_TRADE_DISABLED) > 0)
                         {
                             //mT5LiveOnlineUserActiveVM.InActiveTrader.Add(userLogin);

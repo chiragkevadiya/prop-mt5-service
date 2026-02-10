@@ -1,9 +1,4 @@
 ﻿using MetaQuotes.MT5ManagerAPI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MT5ConnectionService.Helper
 {

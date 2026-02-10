@@ -1,12 +1,9 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
 using MT5ConnectionService.Helper;
-using Nancy.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace MT5ConnectionService.Controllers
@@ -24,7 +21,7 @@ namespace MT5ConnectionService.Controllers
                     Message = $"Please enter LoginIds",
                     Success = false,
                     MTRetErrorCode = 0
-                }; 
+                };
 
             List<ulong> loginIds = accoount?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => Convert.ToUInt64(x)).ToList();
 

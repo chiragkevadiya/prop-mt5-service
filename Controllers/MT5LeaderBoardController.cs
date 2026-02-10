@@ -8,8 +8,6 @@ using MT5ConnectionService.ViewModels.LeaderBoard;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Http;
 using HttpGetAttribute = System.Web.Http.HttpGetAttribute;
 
@@ -207,7 +205,7 @@ namespace MT5ConnectionService.Controllers
                     .Distinct()
                     .ToArray();
 
-                if (loginIdArray.Length == 0) 
+                if (loginIdArray.Length == 0)
                     return new BaseResponseModel<LeaderboardResponse> { Success = false, Message = "Invalid LoginIds provided." };
 
                 // --- 1) Collect user + account info ---

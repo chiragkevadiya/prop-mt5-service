@@ -1,9 +1,4 @@
-﻿using MT5ConnectionService.ViewModels.GroupName;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace MT5ConnectionService.ViewModels.SymbolName
 {

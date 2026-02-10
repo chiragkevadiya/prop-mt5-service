@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static PropMT5ConnectionService.Helper.Constant;
+﻿using static PropMT5ConnectionService.Helper.Constant;
 
 namespace PropMT5ConnectionService.Models
 {

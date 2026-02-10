@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MT5ConnectionService.ViewModels
+﻿namespace MT5ConnectionService.ViewModels
 {
     public class UserDetailsAccountVM
     {
@@ -19,7 +13,7 @@ namespace MT5ConnectionService.ViewModels
 
     public class AccountDetailsVM
     {
-        public ulong Login {  get; set; }
+        public ulong Login { get; set; }
         public double Balance { get; set; }
         public double Credit { get; set; }
         public double Equity { get; set; }

@@ -57,15 +57,12 @@
 //    }
 //}
 
-using Microsoft.Owin.FileSystems;
 using Microsoft.Owin.StaticFiles;
-using MT5ConnectionService.Helper;
 using MT5ConnectionService.Middleware;
 using Owin;
+using PropMT5ConnectionService.Helper;
 using System;
 using System.Web.Http;
-using Microsoft.Extensions.DependencyInjection;
-using PropMT5ConnectionService.Helper;
 
 namespace MT5ConnectionService
 {

@@ -2,13 +2,7 @@
 using MetaQuotes.MT5ManagerAPI;
 using MT5ConnectionService.Helper;
 using MT5ConnectionService.StaticMethod;
-using MT5ConnectionService.ViewModels;
 using MT5ConnectionService.ViewModels.Password;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace MT5ConnectionService.Controllers

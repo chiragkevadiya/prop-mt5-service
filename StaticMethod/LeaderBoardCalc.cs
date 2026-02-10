@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MT5ConnectionService.StaticMethod
 {
@@ -24,7 +22,7 @@ namespace MT5ConnectionService.StaticMethod
         public static (int win, int loss) CurrentStreaks(IEnumerable<TradeData> closedDealsOrderedByTimeAsc)
         {
             var list = closedDealsOrderedByTimeAsc.OrderBy(d => d.Time1).ToList();
-            int win = 0, loss = 0;  
+            int win = 0, loss = 0;
 
             for (int i = list.Count - 1; i >= 0; i--)
             {

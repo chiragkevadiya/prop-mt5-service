@@ -2,10 +2,6 @@
 using MetaQuotes.MT5ManagerAPI;
 using MT5ConnectionService.Helper;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MT5ConnectionService.ClientMT5
 {
@@ -107,7 +103,7 @@ namespace MT5ConnectionService.ClientMT5
                         Console.WriteLine(rec);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }

@@ -4,9 +4,6 @@ using MT5ConnectionService.Helper;
 using MT5ConnectionService.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Http;
 using static MetaQuotes.MT5CommonAPI.CIMTDeal;
 
@@ -38,7 +35,7 @@ namespace MT5ConnectionService.Controllers
 
                 MTRetCode res = _manager.PositionGet(entity.LoginId, positions);
                 if (res != MTRetCode.MT_RET_OK || positions.Total() == 0)
-                    return new BaseResponseModel<List<ClosedTradeResponse>> { Success = false, Message = "No positions found for user." , MTRetErrorCode = res};
+                    return new BaseResponseModel<List<ClosedTradeResponse>> { Success = false, Message = "No positions found for user.", MTRetErrorCode = res };
 
                 var closedTrades = new List<ClosedTradeResponse>();
                 for (uint i = 0; i < positions.Total(); i++)
@@ -74,7 +71,7 @@ namespace MT5ConnectionService.Controllers
                             Message = $"Failed to perform deal for position {position.Position()}, code: {dealResult}"
                         };
                     }
-                    else if(dealResult == MTRetCode.MT_RET_OK)
+                    else if (dealResult == MTRetCode.MT_RET_OK)
                     {
                         closedTrades.Add(new ClosedTradeResponse
                         {
@@ -116,6 +113,6 @@ namespace MT5ConnectionService.Controllers
                 };
             }
         }
-    
+
     }
 }

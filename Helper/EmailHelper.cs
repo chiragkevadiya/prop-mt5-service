@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using PropMT5ConnectionService.Data;
 using PropMT5ConnectionService.Helper;
 using PropMT5ConnectionService.Models.Email;
 using System;
@@ -25,13 +24,11 @@ namespace MT5ConnectionService.Helper
     {
         private readonly ClientEmailSetting _emailSettings;
         private readonly IConfiguration _configuration;
-        private readonly PropTradingDBContext _dbcontext;
 
-        public EmailHelper(IOptions<ClientEmailSetting> emailSettings, IConfiguration configuration, PropTradingDBContext appDbContext)
+        public EmailHelper(IOptions<ClientEmailSetting> emailSettings, IConfiguration configuration)
         {
             _emailSettings = emailSettings.Value;
             _configuration = configuration;
-            _dbcontext = appDbContext;
         }
 
         public async Task<BaseResponse> SendEmail(string to, string subject, string body, string attachmentUrl = null, string fileName = null)
@@ -86,8 +83,6 @@ namespace MT5ConnectionService.Helper
                     Status = "Sucess",
                     RequestDate = DateTime.UtcNow,
                 };
-                _dbcontext.Add(mailrequestlog);
-                _dbcontext.SaveChanges();
 
                 // Connect to the SMTP server and send the email  
                 using (var client = new SmtpClient())
@@ -100,16 +95,16 @@ namespace MT5ConnectionService.Helper
                 }
                 return new BaseResponse { Success = true };
             }
-            catch (SmtpCommandException smtpEx)
+            catch (SmtpCommandException)
             {
                 return new BaseResponse { Success = false };
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return new BaseResponse { Success = false };
             }
         }
-       
+
         private string GetMimeType(string filePath)
         {
             // Always get the extension and convert to lowercase for reliable matching

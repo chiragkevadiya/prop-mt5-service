@@ -3,10 +3,7 @@ using MetaQuotes.MT5ManagerAPI;
 using MT5ConnectionService.Helper;
 using MT5ConnectionService.ViewModels;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace MT5ConnectionService.Controllers
@@ -68,7 +65,7 @@ namespace MT5ConnectionService.Controllers
                             .Select(pair => new SymbolProfitVM
                             {
                                 Symbol = pair.Symbol,
-                                TotalProfit = Math.Round(pair.TotalProfit,3),
+                                TotalProfit = Math.Round(pair.TotalProfit, 3),
                                 TradeCount = pair.TradeCount
                             })
                             .OrderByDescending(p => p.TotalProfit)
@@ -106,7 +103,7 @@ namespace MT5ConnectionService.Controllers
                         Pairs = dayGroup.Select(pair => new SymbolProfitVM
                         {
                             Symbol = pair.Symbol,
-                            TotalProfit = Math.Round(pair.TotalProfit,3),
+                            TotalProfit = Math.Round(pair.TotalProfit, 3),
                             TradeCount = pair.TradeCount
                         }).OrderByDescending(x => x.TotalProfit).ToList()
                     }).OrderBy(x => x.Date).ToList();

@@ -40,7 +40,7 @@ namespace MT5ConnectionService.Controllers
 
                 if (dealArray == null)
                     throw new InvalidOperationException("Failed to create CIMTDealArray.");
-    
+
                 try
                 {
                     MTRetCode requestCode = _manager.DealRequestByLogins(loginIds, fromTimestamp, toTimestamp, dealArray);

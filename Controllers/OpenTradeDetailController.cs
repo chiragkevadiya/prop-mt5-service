@@ -1,11 +1,7 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
 using MT5ConnectionService.Helper;
-using MT5ConnectionService.StaticMethod;
-using MT5ConnectionService.ViewModels;
 using MT5ConnectionService.ViewModels.TradePosition;
-using Nancy.Extensions;
-using Nancy.ViewEngines;
 using System;
 using System.Collections.Generic;
 using System.Linq;

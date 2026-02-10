@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 
@@ -60,7 +58,7 @@ namespace PropMT5ConnectionService.Helper
             StatusCode = statusCode;
             return this;
         }
-      
+
     }
 
     public class BaseResponseModel<T>
@@ -109,7 +107,7 @@ namespace PropMT5ConnectionService.Helper
         public HttpMethod Method { get; set; }
         public string Url { get; set; }
         public object Body { get; set; }
-        public Dictionary<string, string> Headers { get; set; } 
+        public Dictionary<string, string> Headers { get; set; }
         public bool IsJsonRequest { get; set; } = true;
     }
 

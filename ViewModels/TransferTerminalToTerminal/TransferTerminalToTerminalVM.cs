@@ -1,12 +1,4 @@
-﻿using MetaQuotes.MT5CommonAPI;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MT5ConnectionService.ViewModels
+﻿namespace MT5ConnectionService.ViewModels
 {
     public class TransferTerminalToTerminalVM
     {
@@ -14,7 +6,7 @@ namespace MT5ConnectionService.ViewModels
         public ulong From { get; set; }
         public ulong To { get; set; }
     }
-    
+
     public class TransferTerminalToTerminalResponse
     {
         public ulong SenderLoginId { get; set; }

@@ -1,10 +1,5 @@
-﻿using PropMT5ConnectionService.Helper;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static PropMT5ConnectionService.Helper.Constant;
 
 namespace PropMT5ConnectionService.Models

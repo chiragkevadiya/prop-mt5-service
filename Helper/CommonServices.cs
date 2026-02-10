@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
-using static PropMT5ConnectionService.Helper.Constant;
 
 
 namespace PropMT5ConnectionService.Helper

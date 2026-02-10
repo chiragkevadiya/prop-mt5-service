@@ -1,16 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using PropMT5ConnectionService.APIResponse;
-using PropMT5ConnectionService.Extension;
-using PropMT5ConnectionService.Helper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+﻿using PropMT5ConnectionService.APIResponse;
 using System.Net.Http;
-using System.Security.Authentication;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace PropMT5ConnectionService.Services

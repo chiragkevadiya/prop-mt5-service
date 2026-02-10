@@ -384,10 +384,10 @@
     <Compile Include="Controllers\CreditInOutController.cs" />
     <Compile Include="Controllers\DemoGetUserAccountController.cs" />
     <Compile Include="Controllers\DemoGroupController.cs" />
-    <Compile Include="Controllers\DemoMT5AccountInActive.cs" />
+    <Compile Include="Controllers\DemoMT5AccountInActiveController.cs" />
     <Compile Include="Controllers\DemoMT5Controller.cs" />
     <Compile Include="Controllers\MT5AccountDeleteController.cs" />
-    <Compile Include="Controllers\MT5DisabledUserAndTrading.cs" />
+    <Compile Include="Controllers\MT5DisabledUserAndTradingController.cs" />
     <Compile Include="Controllers\MT5LeaderBoardController.cs" />
     <Compile Include="Controllers\MT5LiquidationController.cs" />
     <Compile Include="Controllers\MT5ProfitBySymbolController.cs" />
@@ -418,6 +418,7 @@
     <Compile Include="Controllers\MT5Controller.cs" />
     <Compile Include="Data\PropTradingDBContext.cs" />
     <Compile Include="Extension\JsonExtensions.cs" />
+    <Compile Include="Helper\AccountLogHelper.cs" />
     <Compile Include="Helper\BaseResponse.cs" />
     <Compile Include="Helper\CommonServices.cs" />
     <Compile Include="Helper\Constant.cs" />
@@ -432,6 +433,9 @@
     <Compile Include="Helper\MailRequest.cs" />
     <Compile Include="Helper\MailRequestAPI.cs" />
     <Compile Include="Helper\MailSettings.cs" />
+    <Compile Include="Helper\MT5AccountOperations.cs" />
+    <Compile Include="Helper\MT5SymbolOperations.cs" />
+    <Compile Include="Helper\MT5UserMapper.cs" />
     <Compile Include="Helper\ProjectHelper.cs" />
     <Compile Include="Middleware\CustomMiddleware.cs" />
     <Compile Include="Models\BaseEntity.cs" />
@@ -489,21 +493,13 @@
     <Compile Include="WebServer.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ProjectOverview.html" />
     <None Include="App.config" />
-    <Content Include="appsettings.Development.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Include="appsettings.json" />
-    <Content Include="appsettings.Production.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Include="Assets\data.json" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\MetaQuotes.MT5CommonAPI.dll" />
     <Content Include="Assets\MetaQuotes.MT5ManagerAPI.dll" />
-    <Content Include="Assets\testfile.txt" />
     <Content Include="mt5service.ico" />
   </ItemGroup>
   <ItemGroup>

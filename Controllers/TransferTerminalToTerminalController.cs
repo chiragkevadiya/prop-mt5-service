@@ -3,7 +3,6 @@ using MetaQuotes.MT5ManagerAPI;
 using MT5ConnectionService.Helper;
 using MT5ConnectionService.ViewModels;
 using System;
-using System.Collections.Generic;
 using System.Web.Http;
 
 namespace MT5ConnectionService.Controllers
@@ -161,7 +160,7 @@ namespace MT5ConnectionService.Controllers
                     }
                 };
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return new BaseResponseModel<TransferTerminalToTerminalResponse>
                 {

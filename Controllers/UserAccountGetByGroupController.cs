@@ -2,15 +2,10 @@
 using MetaQuotes.MT5ManagerAPI;
 using MT5ConnectionService.Helper;
 using MT5ConnectionService.ViewModels;
-using MT5ConnectionService.ViewModels.GroupName;
-using Nancy;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace MT5ConnectionService.Controllers

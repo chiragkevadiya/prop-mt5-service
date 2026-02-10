@@ -3,10 +3,7 @@ using MT5ConnectionService.ViewModels;
 using PropMT5ConnectionService.Helper;
 using PropMT5ConnectionService.Models;
 using PropMT5ConnectionService.ViewModels.ChallengeSettlement;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using static PropMT5ConnectionService.Helper.Constant;
 

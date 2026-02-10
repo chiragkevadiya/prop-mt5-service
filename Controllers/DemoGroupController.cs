@@ -4,9 +4,6 @@ using MT5ConnectionService.Helper;
 using MT5ConnectionService.ViewModels.GroupName;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace MT5ConnectionService.Controllers
@@ -110,37 +107,6 @@ namespace MT5ConnectionService.Controllers
                     GroupList = groupNameVMs,
                     GroupCommissionList = groupCommissionLists
                 };
-
-                //List<GroupNameVM> groupNameVMs = new List<GroupNameVM>();
-
-                //uint totalGroups = _managerDemo.GroupTotal();
-
-                //for (uint i = 0; i < totalGroups; i++)
-                //{
-                //    CIMTConGroup cIMTConGroup = _managerDemo.GroupCreate();
-                //    MTRetCode mTRetCode = _managerDemo.GroupNext(i, cIMTConGroup);
-
-                //    if (mTRetCode == MTRetCode.MT_RET_OK)
-                //    {
-                //        GroupNameVM groupNameVM = new GroupNameVM()
-                //        {
-                //            GroupName = cIMTConGroup.Group(),
-                //            MarginCall = cIMTConGroup.MarginCall(),
-                //            StopOutLevel = cIMTConGroup.MarginStopOut(),
-                //            Currency = cIMTConGroup.Currency(),
-                //            CurrencyDigits = cIMTConGroup.CurrencyDigits(),
-                //        };
-                //        groupNameVMs.Add(groupNameVM);
-                //    }
-                //}
-
-                //GroupListVM groupListVM = new GroupListVM
-                //{
-                //    GroupTotal = totalGroups,
-                //    GroupList = groupNameVMs
-                //};
-
-                //return groupListVM;
             }
             catch (Exception)
             {

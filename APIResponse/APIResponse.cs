@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PropMT5ConnectionService.APIResponse
+﻿namespace PropMT5ConnectionService.APIResponse
 {
     public class ResponseHttpMessage
     {

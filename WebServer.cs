@@ -169,12 +169,11 @@
 //    }
 //}
 
+using Microsoft.Owin.Hosting;
+using PropMT5ConnectionService.Services;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Owin.Hosting;
-using PropMT5ConnectionService.Services;
 
 namespace MT5ConnectionService
 {

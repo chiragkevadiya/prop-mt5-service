@@ -2,10 +2,6 @@
 using MetaQuotes.MT5ManagerAPI;
 using MT5ConnectionService.Helper;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MT5ConnectionService.ClientMT5
 {
@@ -55,7 +51,7 @@ namespace MT5ConnectionService.ClientMT5
             }
             //--- All is well 
             Console.WriteLine("Using ManagerAPI v. {0}", version);
-            
+
             return (res);
 
             //--- Create an instance Admin
@@ -150,7 +146,7 @@ namespace MT5ConnectionService.ClientMT5
                         Console.WriteLine(rec);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }

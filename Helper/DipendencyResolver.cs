@@ -1,9 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Http.Dependencies;
 
 namespace PropMT5ConnectionService.Helper
@@ -30,7 +27,7 @@ namespace PropMT5ConnectionService.Helper
         {
             // The root service provider is not disposed by this resolver.
         }
-         
+
         public object GetService(Type serviceType)
         {
             return _serviceProvider.GetService(serviceType);

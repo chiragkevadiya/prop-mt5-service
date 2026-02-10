@@ -1,12 +1,8 @@
-﻿using MetaQuotes.MT5CommonAPI;
+using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
 using MT5ConnectionService.Helper;
-using MT5ConnectionService.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
@@ -35,7 +31,7 @@ namespace PropMT5ConnectionService.Controllers
 
                 try
                 {
-                    // 1️ Fetch user
+                    // 1? Fetch user
                     var ret = _manager.UserGet(loginId, user);
                     if (ret != MTRetCode.MT_RET_OK)
                     {
@@ -43,7 +39,7 @@ namespace PropMT5ConnectionService.Controllers
                         continue;
                     }
 
-                    // 2️ Disable trading and login rights
+                    // 2? Disable trading and login rights
                     var rights = user.Rights();
                     rights |= CIMTUser.EnUsersRights.USER_RIGHT_TRADE_DISABLED;
                     rights &= ~CIMTUser.EnUsersRights.USER_RIGHT_ENABLED;
@@ -56,7 +52,7 @@ namespace PropMT5ConnectionService.Controllers
                         continue;
                     }
 
-                    // 3️ Force-close all open positions using CIMTAdminAPI
+                    // 3? Force-close all open positions using CIMTAdminAPI
                     CIMTPositionArray positions = _manager.PositionCreateArray();
                     ret = _manager.PositionRequest(loginId, positions); // get all positions for this login
 

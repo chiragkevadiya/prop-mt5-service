@@ -5,11 +5,7 @@ using MT5ConnectionService.StaticMethod;
 using MT5ConnectionService.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace MT5ConnectionService.Controllers
@@ -17,49 +13,25 @@ namespace MT5ConnectionService.Controllers
     public class MT5TradingHistoryController : ApiController
     {
         CIMTManagerAPI _manager = CreateManagerHelper.GetManager();
-        public MT5TradingHistoryController()
-        {
-
-        }
-
 
         [HttpGet]
         public IEnumerable<MT5TradingHistoryVM> TradingHistoryFromDateToDate(ulong LoginId, string fromDatet, string toDatet)
         {
             try
             {
-                //List<MT5TradingHistoryVM> ListTradingHistoryVM = new List<MT5TradingHistoryVM>();
-
                 ulong[] LoginIds = { LoginId };
 
-                #region
-                //// Assuming currentDate is a DateTimeOffset representing the current date and time
-                //DateTimeOffset currentDate = DateTimeOffset.Now;
-
-                //// Calculate the start date (e.g., 7 days ago from the current date)
-                //DateTimeOffset startDate = currentDate.AddDays(-1);
-
-                //// Calculate the start date and end date in seconds since 01.01.1970
-                //long fromDate = (long)(startDate - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds;
-                //long toDate = (long)(currentDate - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds;
-                #endregion
-
-                // Assuming DateFormatCovert has a static method FormatDate that returns DateTimeOffset
                 DateTimeOffset dateFromString = DateFormatCovert.FormatDate(fromDatet);
                 DateTimeOffset dateToString = DateFormatCovert.FormatDate(toDatet);
 
-                DateTimeOffset startDate = dateFromString; //.AddDays(-1);
+                DateTimeOffset startDate = dateFromString;
                 DateTimeOffset endDate = dateToString.AddDays(1);
 
                 long fromDateAss = (long)(startDate - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds;
                 long toDateAss = (long)(endDate - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds;
 
-
                 CIMTDealArray ciMTDealArray = _manager.DealCreateArray();
                 MTRetCode mTRetCode12 = _manager.DealRequestByLogins(LoginIds, fromDateAss, toDateAss, ciMTDealArray);
-
-                //CIMTDeal ciMTDeal = _manager.DealCreate();
-                //MTRetCode MTRetCode45 = _manager.DealRequest(LoginId, fromDate, toDate, ciMTDealArray);
 
                 if (MTRetCode.MT_RET_OK == mTRetCode12)
                 {
@@ -113,44 +85,6 @@ namespace MT5ConnectionService.Controllers
                         mTRetCodeError = mTRetCode12
                     }).OrderByDescending(x => x.Time).ToList();
 
-                    //foreach (var Item in ciMTDealArray.ToArray())
-                    //{
-
-                    //    MT5TradingHistoryVM liveAccountVM1 = new MT5TradingHistoryVM()
-                    //    {
-                    //        Time1 = DateTimeOffset.FromUnixTimeSeconds(Item.Time()).DateTime,
-                    //        Order = Item.Order(),
-                    //        Symbol = Item.Symbol(),
-                    //        //Type = Item.GetType(),
-                    //        Volume = Item.Volume(),
-                    //        Price = Item.Price(),
-                    //        PriceSL = Item.PriceSL(),
-                    //        PriceTP = Item.PriceTP(),
-                    //        Time2 = DateTimeOffset.FromUnixTimeSeconds(Item.Time()).DateTime,
-                    //        Profit = Item.Profit(),
-
-                    //        //Change = Item.Change()
-
-                    //        // Additional properties
-
-                    //        //Commission = Item.Commission().,
-                    //        //DealVolume = Item.Volume(),
-
-                    //        Comment = Item.Comment(),
-                    //        Deal = Item.Deal(),
-                    //        Login = Item.Login(),
-                    //        MarketAsk = Item.MarketAsk(),
-                    //        MarketBid = Item.MarketBid(),
-                    //        PositionID = Item.PositionID(),
-                    //        Print = Item.Print(),
-                    //        RateProfit = Item.RateProfit(),
-                    //        RateMargin = Item.RateMargin()
-
-                    //    };
-
-                    //    ListTradingHistoryVM.Add(liveAccountVM1);
-                    //}
-
                     ciMTDealArray.Clear();
                     ciMTDealArray.Release();
 
@@ -161,18 +95,12 @@ namespace MT5ConnectionService.Controllers
                     MT5TradingHistoryVM liveAccountVM1 = new MT5TradingHistoryVM();
                     liveAccountVM1.mTRetCodeError = mTRetCode12;
 
-                    // Create a list containing the single object
                     List<MT5TradingHistoryVM> resultList = new List<MT5TradingHistoryVM> { liveAccountVM1 };
-
                     return resultList;
-
                 }
-
-
             }
             catch (Exception)
             {
-
                 throw;
             }
         }

@@ -6,10 +6,7 @@ using MT5ConnectionService.ViewModels;
 using MT5ConnectionService.ViewModels.TradePosition;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace MT5ConnectionService
@@ -18,7 +15,7 @@ namespace MT5ConnectionService
     {
         CIMTManagerAPI _manager = CreateManagerHelper.GetManager();
         public TradeAccountOverviewController()
-        {   
+        {
 
         }
 

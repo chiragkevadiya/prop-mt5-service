@@ -3,15 +3,9 @@ using MetaQuotes.MT5ManagerAPI;
 using MT5ConnectionService.Helper;
 using MT5ConnectionService.ViewModels;
 using MT5ConnectionService.ViewModels.GroupName;
-using Nancy.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Http;
-using System.Xml.Linq;
-using static MT5ConnectionService.Controllers.GroupController;
 
 namespace MT5ConnectionService.Controllers
 {
