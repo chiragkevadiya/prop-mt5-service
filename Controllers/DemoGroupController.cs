@@ -1,16 +1,16 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using MT5ConnectionService.Helper;
-using MT5ConnectionService.ViewModels.GroupName;
+using PropMT5ConnectionService.Helpers;
+using PropPropMT5ConnectionService.ViewModels.GroupName;
 using System;
 using System.Collections.Generic;
 using System.Web.Http;
 
-namespace MT5ConnectionService.Controllers
+namespace PropMT5ConnectionService.Controllers
 {
     public class DemoGroupController : ApiController
     {
-        CIMTManagerAPI _managerDemo = CreateDemoManagerHelper.GetManagerDemo();
+        CIMTManagerAPI _managerDemo = Mt5DemoManagerFactory.GetManagerDemo();
 
         public DemoGroupController()
         {

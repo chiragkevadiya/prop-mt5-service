@@ -1,5 +1,5 @@
 ﻿//using Microsoft.Owin.Hosting;
-//using MT5ConnectionService.ClientMT5;
+//using PropMT5ConnectionService.Mt5Client;
 //using PropMT5ConnectionService.Services;
 //using System;
 //using System.Collections.Generic;
@@ -21,11 +21,11 @@
 //    //        _webapp = WebApp.Start<Startup>("http://localhost:8086");
 
 //    //        // Live Maneger  Account
-//    //        ClientConnect clientConnect = new ClientConnect();
+//    //        Mt5LiveClient clientConnect = new Mt5LiveClient();
 //    //        clientConnect.Initialize();
 
 //    //        // Demo Manager Account
-//    //        ClientConnectDemo clientConnectDemo = new ClientConnectDemo();
+//    //        Mt5DemoClient clientConnectDemo = new Mt5DemoClient();
 //    //        clientConnectDemo.Initialize_demo();
 
 //    //        #region NeptuneFx
@@ -53,9 +53,9 @@
 //            _webapp = WebApp.Start<Startup>("http://localhost:8086");
 
 //            // Initialize MT5 Clients
-//            ClientConnect clientConnect = new ClientConnect();
+//            Mt5LiveClient clientConnect = new Mt5LiveClient();
 //            clientConnect.Initialize();
-//            ClientConnectDemo clientConnectDemo = new ClientConnectDemo();
+//            Mt5DemoClient clientConnectDemo = new Mt5DemoClient();
 //            clientConnectDemo.Initialize_demo();
 //            clientConnect.Connect("37.27.232.54:1950", 1000, "Rock@1000", 30000);
 
@@ -97,7 +97,7 @@
 
 
 //using Microsoft.Owin.Hosting;
-//using MT5ConnectionService.ClientMT5;
+//using PropMT5ConnectionService.Mt5Client;
 //using PropMT5ConnectionService.Services;
 //using System;
 //using System.Threading;
@@ -110,10 +110,10 @@
 //        private IDisposable _webapp;
 //        private CancellationTokenSource _cts;
 //        private Task _backgroundTask;
-//        private readonly ILiqudationService _liquidationService;
+//        private readonly ILiquidationService _liquidationService;
 
 //        // Inject services through constructor
-//        public WebServer(ILiqudationService liquidationService)
+//        public WebServer(ILiquidationService liquidationService)
 //        {
 //            _liquidationService = liquidationService;
 //        }
@@ -123,10 +123,10 @@
 //            _webapp = WebApp.Start<Startup>("http://localhost:8086");
 
 //            // Initialize MT5 Clients
-//            var clientConnect = new ClientConnect();
+//            var clientConnect = new Mt5LiveClient();
 //            clientConnect.Initialize();
 
-//            var clientConnectDemo = new ClientConnectDemo();
+//            var clientConnectDemo = new Mt5DemoClient();
 //            clientConnectDemo.Initialize_demo();
 
 //            clientConnect.Connect("37.27.232.54:1950", 1000, "Rock@1000", 30000);
@@ -170,7 +170,7 @@
 //}
 
 using Microsoft.Owin.Hosting;
-using MT5ConnectionService.ClientMT5;
+using PropMT5ConnectionService.Mt5Client;
 using PropMT5ConnectionService.Services;
 using System;
 using System.Threading;
@@ -181,7 +181,7 @@ namespace MT5ConnectionService
     public class WebServer
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly ILiqudationService _liquidationService;
+        private readonly ILiquidationService _liquidationService;
         private IDisposable _webapp;
         private CancellationTokenSource _cts;
         private Task _backgroundTask;
@@ -191,7 +191,7 @@ namespace MT5ConnectionService
         public WebServer(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-           // ILiqudationService liquidationService_liquidationService = liquidationService;
+           // ILiquidationService liquidationService_liquidationService = liquidationService;
         }
 
         public void Start()
@@ -200,7 +200,7 @@ namespace MT5ConnectionService
             string baseUri = "http://localhost:8086";
 
             // Initialize MT5 Clients
-            ClientConnect clientConnect = new ClientConnect();
+            Mt5LiveClient clientConnect = new Mt5LiveClient();
             clientConnect.Initialize();
             clientConnect.Connect("37.27.232.54:1950", 1000, "Rock@1000", 30000);
 

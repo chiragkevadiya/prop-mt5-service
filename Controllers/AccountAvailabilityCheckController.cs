@@ -1,16 +1,16 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using MT5ConnectionService.Helper;
+using PropMT5ConnectionService.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Web.Http;
 
-namespace MT5ConnectionService.Controllers
+namespace PropMT5ConnectionService.Controllers
 {
     [RoutePrefix("api/account-availability")] // Updated route prefix for consistency
     public class AccountAvailabilityCheckController : ApiController
     {
-        private readonly CIMTManagerAPI _manager = CreateManagerHelper.GetManager();
+        private readonly CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
 
         [HttpPost]
         [Route("deleted")] // Explicit route for the action

@@ -1,17 +1,17 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using MT5ConnectionService.Helper;
-using MT5ConnectionService.ViewModels.TradePosition;
+using PropMT5ConnectionService.Helpers;
+using PropPropMT5ConnectionService.ViewModels.TradePosition;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 
-namespace MT5ConnectionService.Controllers
+namespace PropMT5ConnectionService.Controllers
 {
     public class OpenTradeDetailController : ApiController
     {
-        CIMTManagerAPI _manager = CreateManagerHelper.GetManager();
+        CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
 
         [HttpGet]
         public BaseResponseModel<List<TradeOpenClosedVM>> OpenTradeDetail(string loginId)

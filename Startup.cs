@@ -1,6 +1,6 @@
 ﻿//using Microsoft.Owin.FileSystems;
 //using Microsoft.Owin.StaticFiles;
-//using MT5ConnectionService.Middleware;
+//using PropMT5ConnectionService.Middleware;
 //using Owin;
 //using System;
 //using System.Collections.Generic;
@@ -58,9 +58,9 @@
 //}
 
 using Microsoft.Owin.StaticFiles;
-using MT5ConnectionService.Middleware;
+using PropMT5ConnectionService.Middleware;
 using Owin;
-using PropMT5ConnectionService.Helper;
+using PropPropMT5ConnectionService.Helpers;
 using System;
 using System.Web.Http;
 
@@ -91,7 +91,7 @@ namespace MT5ConnectionService
             var config = new HttpConfiguration();
 
             // Set the dependency resolver to use the .NET Core DI container
-            config.DependencyResolver = new ServiceProviderDependencyResolver(_serviceProvider);
+            config.DependencyResolver = new DependencyResolver(_serviceProvider);
 
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",

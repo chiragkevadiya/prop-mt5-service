@@ -1,0 +1,11 @@
+﻿namespace PropMT5ConnectionService.ViewModels
+{
+    public class Mt5DashboardVM
+    {
+        public uint MT5OnlineUsers { get; set; }
+        public uint MT5TotalAccounts { get; set; }
+        public int MT5ActiveAccounts { get; set; }
+        public int MT5InactiveAccounts { get; set; }
+        public double MT5ActualProfitLoss { get; set; }
+    }
+}

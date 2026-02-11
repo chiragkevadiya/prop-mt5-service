@@ -1,5 +1,5 @@
 ﻿//using MetaQuotes.MT5ManagerAPI;
-//using MT5ConnectionService.Helper;
+//using PropMT5ConnectionService.Helpers;
 //using PropMT5ConnectionService.Services;
 //using System;
 //using System.Collections.Generic;
@@ -51,8 +51,8 @@
 //using Microsoft.EntityFrameworkCore;
 //using Microsoft.Extensions.Configuration;
 //using Microsoft.Extensions.DependencyInjection;
-//using MT5ConnectionService.ClientMT5;
-//using MT5ConnectionService.Helper;
+//using PropMT5ConnectionService.Mt5Client;
+//using PropMT5ConnectionService.Helpers;
 //using PropMT5ConnectionService.Data;
 //using PropMT5ConnectionService.Services;
 //using System;
@@ -95,11 +95,11 @@
 
 //            // Register services
 //            services.AddScoped<IHttpClientService, HttpClientService>();
-//            services.AddScoped<ILiqudationService, LiquidationService>();
+//            services.AddScoped<ILiquidationService, LiquidationService>();
 //            services.AddSingleton<CIMTManagerAPI>(provider =>
 //            {
 //                // 1. Instantiate your connection class
-//                var connector = new ClientConnect();
+//                var connector = new Mt5LiveClient();
 
 //                // 2. Initialize the API factory
 //                MTRetCode initResult = connector.Initialize();
@@ -141,7 +141,7 @@
 //                x.Service<WebServer>(s =>
 //                {
 //                    s.ConstructUsing(name =>
-//                        new WebServer(serviceProvider.GetRequiredService<ILiqudationService>())
+//                        new WebServer(serviceProvider.GetRequiredService<ILiquidationService>())
 //                    );
 //                    s.WhenStarted(tc => tc.Start());
 //                    s.WhenStopped(tc => tc.Stop());
@@ -162,8 +162,8 @@ using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MT5ConnectionService.ClientMT5;
-using MT5ConnectionService.Helper;
+using PropMT5ConnectionService.Mt5Client;
+using PropMT5ConnectionService.Helpers;
 using PropMT5ConnectionService.Services;
 using System;
 using Topshelf;
@@ -201,7 +201,7 @@ namespace MT5ConnectionService
             // that the API is initialized and logged in before it's ever used.
             services.AddSingleton<CIMTManagerAPI>(provider =>
             {
-                var connector = new ClientConnect();
+                var connector = new Mt5LiveClient();
                 MTRetCode initResult = connector.Initialize();
                 if (initResult != MTRetCode.MT_RET_OK)
                 {
@@ -241,7 +241,7 @@ namespace MT5ConnectionService
             //services.AddSingleton<EmailHelper>();
             // Register your services that depend on the CIMTManagerAPI.
             // These should be Singleton because the CIMTManagerAPI is a Singleton.
-            //services.AddScoped<ILiqudationService, LiquidationService>();
+            //services.AddScoped<ILiquidationService, LiquidationService>();
             services.AddScoped<IHttpClientService, HttpClientService>();
 
             // Register the WebServer service itself
@@ -257,7 +257,7 @@ namespace MT5ConnectionService
                     s.ConstructUsing(name =>
                     {
                         // Resolve the WebServer from the container.
-                        // This automatically injects ILiqudationService.
+                        // This automatically injects ILiquidationService.
                         return serviceProvider.GetService<WebServer>();
                     });
                     s.WhenStarted(tc => tc.Start());

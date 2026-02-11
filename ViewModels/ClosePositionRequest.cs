@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace MT5ConnectionService.ViewModels
+namespace PropMT5ConnectionService.ViewModels
 {
     public class ClosePositionRequest
     {

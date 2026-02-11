@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MT5ConnectionService.ViewModels
+namespace PropMT5ConnectionService.ViewModels
 {
     public class GetUserAccountSummary
     {
