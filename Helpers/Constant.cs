@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Security.Cryptography;
 
-namespace PropPropMT5ConnectionService.Helpers
+namespace PropMT5ConnectionService.Helpers
 {
     public class Constant
     {

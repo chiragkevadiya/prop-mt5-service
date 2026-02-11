@@ -1,7 +1,7 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
 using PropMT5ConnectionService.Helpers;
-using PropPropMT5ConnectionService.ViewModels.TradePosition;
+using PropMT5ConnectionService.ViewModels.TradePosition;
 using System;
 using System.Collections.Generic;
 using System.Linq;

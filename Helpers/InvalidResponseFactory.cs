@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PropPropMT5ConnectionService.Helpers
+namespace PropMT5ConnectionService.Helpers
 {
     public static class InvalidResponseFactory
     {

@@ -1,11 +1,11 @@
 ﻿using PropMT5ConnectionService.Models.Email;
-using PropPropMT5ConnectionService.ViewModels.Email;
+using PropMT5ConnectionService.ViewModels.Email;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PropPropMT5ConnectionService.Helpers
+namespace PropMT5ConnectionService.Helpers
 {
     public class EmailTemplateBuilder
     {

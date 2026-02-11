@@ -176,7 +176,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MT5ConnectionService
+namespace PropMT5ConnectionService
 {
     public class WebServer
     {

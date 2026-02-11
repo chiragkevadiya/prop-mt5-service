@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.Http;
 
-namespace PropPropMT5ConnectionService.Helpers
+namespace PropMT5ConnectionService.Helpers
 {
     // Base response without data
     public class BaseResponse

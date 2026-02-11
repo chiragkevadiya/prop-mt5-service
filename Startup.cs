@@ -60,11 +60,11 @@
 using Microsoft.Owin.StaticFiles;
 using PropMT5ConnectionService.Middleware;
 using Owin;
-using PropPropMT5ConnectionService.Helpers;
+using PropMT5ConnectionService.Helpers;
 using System;
 using System.Web.Http;
 
-namespace MT5ConnectionService
+namespace PropMT5ConnectionService
 {
     public class Startup
     {

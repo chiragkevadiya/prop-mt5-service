@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Web.Http.Dependencies;
 
-namespace PropPropMT5ConnectionService.Helpers
+namespace PropMT5ConnectionService.Helpers
 {
     /// <summary>
     /// An adapter that allows Web API to use the Microsoft.Extensions.DependencyInjection container.

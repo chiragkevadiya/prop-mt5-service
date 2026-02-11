@@ -3,13 +3,13 @@ using MetaQuotes.MT5ManagerAPI;
 using PropMT5ConnectionService.Helpers;
 using PropMT5ConnectionService.Utilities;
 using PropMT5ConnectionService.ViewModels;
-using PropPropMT5ConnectionService.ViewModels.TradePosition;
+using PropMT5ConnectionService.ViewModels.TradePosition;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 
-namespace MT5ConnectionService
+namespace PropMT5ConnectionService
 {
     public class TradeAccountOverviewController : ApiController
     {

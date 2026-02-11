@@ -1,4 +1,4 @@
-﻿namespace PropMT5ConnectionService.APIResponse
+﻿namespace PropMT5ConnectionService.ApiResponse
 {
     public class ResponseHttpMessage
     {

@@ -2,7 +2,7 @@
 using MetaQuotes.MT5ManagerAPI;
 using PropMT5ConnectionService.Helpers;
 using PropMT5ConnectionService.Utilities;
-using PropPropMT5ConnectionService.ViewModels.Password;
+using PropMT5ConnectionService.ViewModels.Password;
 using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers

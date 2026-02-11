@@ -1,11 +1,11 @@
-﻿using PropPropMT5ConnectionService.Helpers;
+﻿using PropMT5ConnectionService.Helpers;
 using PropMT5ConnectionService.Services;
 using System;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 
-namespace PropPropMT5ConnectionService.Controllers
+namespace PropMT5ConnectionService.Controllers
 {
     public class LiquidationController : ApiController
     {

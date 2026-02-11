@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace PropPropMT5ConnectionService.ViewModels.SymbolName
+namespace PropMT5ConnectionService.ViewModels.SymbolName
 {
     public class SymbolNameVM
     {

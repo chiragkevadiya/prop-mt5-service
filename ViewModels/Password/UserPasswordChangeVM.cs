@@ -1,6 +1,6 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 
-namespace PropPropMT5ConnectionService.ViewModels.Password
+namespace PropMT5ConnectionService.ViewModels.Password
 {
     public class UserPasswordChangeVM
     {

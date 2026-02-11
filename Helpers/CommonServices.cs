@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 
 
-namespace PropPropMT5ConnectionService.Helpers
+namespace PropMT5ConnectionService.Helpers
 {
     public static class CommonServices
     {

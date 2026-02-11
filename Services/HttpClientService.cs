@@ -1,4 +1,4 @@
-﻿using PropMT5ConnectionService.APIResponse;
+﻿using PropMT5ConnectionService.ApiResponse;
 using System.Net.Http;
 using System.Threading.Tasks;
 

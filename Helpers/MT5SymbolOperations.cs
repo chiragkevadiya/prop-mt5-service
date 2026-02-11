@@ -1,6 +1,6 @@
 using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using PropPropMT5ConnectionService.ViewModels.SymbolName;
+using PropMT5ConnectionService.ViewModels.SymbolName;
 using System.Collections.Generic;
 
 namespace PropMT5ConnectionService.Helpers

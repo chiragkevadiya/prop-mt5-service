@@ -1,11 +1,11 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using PropMT5ConnectionService.ViewModels;
-using PropPropMT5ConnectionService.Helpers;
+using PropMT5ConnectionService.Helpers;
 using PropMT5ConnectionService.Models;
-using PropPropMT5ConnectionService.ViewModels.ChallengeSettlement;
+using PropMT5ConnectionService.ViewModels.ChallengeSettlement;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using static PropPropMT5ConnectionService.Helpers.Constant;
+using static PropMT5ConnectionService.Helpers.Constant;
 
 namespace PropMT5ConnectionService.Services
 {

@@ -5,9 +5,9 @@
 //using MimeKit;
 //using PropMT5ConnectionService.Helpers;
 //using Newtonsoft.Json;
-//using PropPropMT5ConnectionService.Helpers;
+//using PropMT5ConnectionService.Helpers;
 //using PropMT5ConnectionService.Models.Email;
-//using PropPropMT5ConnectionService.ViewModels.Email;
+//using PropMT5ConnectionService.ViewModels.Email;
 //using System;
 //using System.Collections.Generic;
 //using System.IO;

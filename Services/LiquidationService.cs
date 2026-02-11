@@ -2,14 +2,14 @@
 using MetaQuotes.MT5ManagerAPI;
 using Microsoft.Extensions.Configuration;
 using PropMT5ConnectionService.ViewModels;
-using PropPropMT5ConnectionService.Helpers;
+using PropMT5ConnectionService.Helpers;
 using PropMT5ConnectionService.Models;
-using PropPropMT5ConnectionService.ViewModels.ChallengeSettlement;
+using PropMT5ConnectionService.ViewModels.ChallengeSettlement;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static PropPropMT5ConnectionService.Helpers.Constant;
+using static PropMT5ConnectionService.Helpers.Constant;
 
 namespace PropMT5ConnectionService.Services
 {

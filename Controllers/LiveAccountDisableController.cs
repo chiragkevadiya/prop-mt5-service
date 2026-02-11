@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Web.Http;
 
-namespace PropPropMT5ConnectionService.Controllers
+namespace PropMT5ConnectionService.Controllers
 {
     [RoutePrefix("api/mt5/account")]
     public class LiveAccountDisableController : ApiController

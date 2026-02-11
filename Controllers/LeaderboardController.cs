@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PropMT5ConnectionService.Helpers;
 using PropMT5ConnectionService.Utilities;
 using PropMT5ConnectionService.ViewModels;
-using PropPropMT5ConnectionService.ViewModels.LeaderBoard;
+using PropMT5ConnectionService.ViewModels.LeaderBoard;
 using System;
 using System.Collections.Generic;
 using System.Linq;

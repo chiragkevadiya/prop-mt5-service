@@ -168,7 +168,7 @@ using PropMT5ConnectionService.Services;
 using System;
 using Topshelf;
 
-namespace MT5ConnectionService
+namespace PropMT5ConnectionService
 {
     class Program
     {

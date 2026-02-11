@@ -12,7 +12,7 @@ using HttpGetAttribute = System.Web.Http.HttpGetAttribute;
 using HttpPostAttribute = System.Web.Http.HttpPostAttribute;
 
 
-namespace MT5ConnectionService
+namespace PropMT5ConnectionService
 {
 
 

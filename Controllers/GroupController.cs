@@ -2,7 +2,7 @@
 using MetaQuotes.MT5ManagerAPI;
 using PropMT5ConnectionService.Helpers;
 using PropMT5ConnectionService.ViewModels;
-using PropPropMT5ConnectionService.ViewModels.GroupName;
+using PropMT5ConnectionService.ViewModels.GroupName;
 using System;
 using System.Collections.Generic;
 using System.Web.Http;

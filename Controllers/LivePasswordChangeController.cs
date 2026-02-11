@@ -1,7 +1,7 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
 using PropMT5ConnectionService.Helpers;
-using PropPropMT5ConnectionService.ViewModels.Password;
+using PropMT5ConnectionService.ViewModels.Password;
 using System;
 using System.Web.Http;
 

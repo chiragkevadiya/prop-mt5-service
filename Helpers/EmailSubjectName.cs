@@ -1,4 +1,4 @@
-﻿namespace PropPropMT5ConnectionService.Helpers
+﻿namespace PropMT5ConnectionService.Helpers
 {
     public class EmailSubjectName
     {

@@ -1,4 +1,4 @@
-﻿using static PropPropMT5ConnectionService.Helpers.Constant;
+﻿using static PropMT5ConnectionService.Helpers.Constant;
 
 namespace PropMT5ConnectionService.Models
 {

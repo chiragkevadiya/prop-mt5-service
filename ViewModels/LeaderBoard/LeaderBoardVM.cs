@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace PropPropMT5ConnectionService.ViewModels.LeaderBoard
+namespace PropMT5ConnectionService.ViewModels.LeaderBoard
 {
     public class TraderLeaderboardVM
     {

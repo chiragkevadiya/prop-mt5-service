@@ -1,6 +1,6 @@
 ﻿using MetaQuotes.MT5ManagerAPI;
 using PropMT5ConnectionService.Helpers;
-using PropPropMT5ConnectionService.ViewModels.SymbolName;
+using PropMT5ConnectionService.ViewModels.SymbolName;
 using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers

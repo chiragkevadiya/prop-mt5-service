@@ -1,6 +1,6 @@
 ﻿using Microsoft.Owin.StaticFiles.ContentTypes;
 
-namespace MT5ConnectionService
+namespace PropMT5ConnectionService
 {
     public class CustomContentTypeProvider : FileExtensionContentTypeProvider
     {
