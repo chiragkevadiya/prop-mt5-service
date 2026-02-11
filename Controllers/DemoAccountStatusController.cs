@@ -13,7 +13,7 @@ namespace PropMT5ConnectionService.Controllers
 
         [HttpPost]
         [Route("inactive")]
-        public BaseResponseModel<int> DemoMT5AccountInActive([FromBody] Mt5AccountStatusVM entity)
+        public Helpers.BaseResponseModel<int> DemoMT5AccountInActive([FromBody] Mt5AccountStatusVM entity)
         {
             try
             {

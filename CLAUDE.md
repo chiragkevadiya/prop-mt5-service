@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**PropMT5ConnectionService** — A .NET Framework 4.8 Windows Service that provides a REST API for managing MetaTrader 5 (MT5) trading accounts. It acts as an intermediary between client applications and MT5 broker servers, handling account management, liquidation monitoring, trading operations, and email notifications for a proprietary trading firm.
+**Prop MT5 Connection Service** — A self-hosted Windows Service for MetaTrader 5 proprietary trading management. It provides a REST API for managing MT5 trading accounts, acting as an intermediary between client applications and MT5 broker servers — handling account management, liquidation monitoring, trading operations, and email notifications.
 
 ## Tech Stack
 
@@ -38,53 +38,60 @@ NuGet packages are managed via `packages.config` (95 packages). Restore with `nu
 ## Architecture
 
 ```
-HTTP Request → OWIN Pipeline (port 8086)
-  → Custom Headers Middleware
-  → CustomMiddleware
-  → ASP.NET Web API (api/{controller}/{id})
-  → Controllers → Services/Helpers → MT5 Manager API / PostgreSQL DB
+HTTP Request --> OWIN Pipeline (port 8086)
+  --> Custom Headers Middleware
+  --> CustomMiddleware
+  --> ASP.NET Web API (api/{controller}/{id})
+  --> Controllers --> Services/Helpers --> MT5 Manager API / PostgreSQL DB
 ```
 
-- **Entry point:** `Program.cs` → `StartTopshelf()` → `WebServer` class hosts the OWIN pipeline
+- **Entry point:** `Program.cs` -> `StartTopshelf()` -> `WebServer` class hosts the OWIN pipeline
 - **Background jobs:** Liquidation check runs on a separate thread (60-min interval) in `WebServer.cs`
-- **Two MT5 connections:** Live (`ClientConnect`) and Demo (`ClientConnectDemo`)
+- **Two MT5 connections:** Live (`Mt5LiveClient`) and Demo (`Mt5DemoClient`)
 
 ## Directory Structure
 
 | Directory | Purpose |
 |-----------|---------|
-| `Controllers/` | 42+ API endpoint controllers (MT5*, Demo*, User*, Group*, Symbol*) |
-| `Services/` | Business logic (LiquidationService, EmailService, HttpClientService) |
-| `Helper/` | Utility classes (~20 files), constants/enums in `Constant.cs` |
-| `models/` | EF Core entity models (UserMaster, PropAccountMaster, etc.) |
-| `ViewModels/` | DTOs organized by feature (ChallengeSettlement, LeaderBoard, etc.) |
-| `Data/` | `PropTradingDBContext.cs` — EF Core DbContext |
-| `ClientMT5/` | MT5 manager connection classes (Live & Demo) |
+| `Controllers/` | 39 API endpoint controllers (`Live*`, `Demo*`, `Account*`, etc.) |
+| `Services/` | Business logic (`LiquidationService`, `EmailService`, `HttpClientService`) |
+| `Helpers/` | Utility classes (~20 files), constants/enums in `Constant.cs` |
+| `Models/` | EF Core entity models (`UserMaster`, `PropAccountMaster`, etc.) |
+| `ViewModels/` | DTOs organized by feature (`ChallengeSettlement/`, `LeaderBoard/`, etc.) |
+| `Data/` | `PropTradingDBContext.cs` -- EF Core DbContext |
+| `Mt5Client/` | MT5 manager connection classes (`Mt5LiveClient`, `Mt5DemoClient`) |
 | `Middleware/` | OWIN middleware (`CustomMiddleware.cs`) |
-| `StaticMethod/` | Static utilities (ConnectionString, DateFormat, LeaderBoardCalc) |
-| `APIResponse/` | API response models |
+| `Utilities/` | Static utilities (`ConnectionString`, `DateFormatConverter`, `PasswordGenerator`) |
+| `ApiResponse/` | API response wrapper models |
 | `Assets/` | MT5 Manager API binary DLLs |
-| `Extension/` | Extension methods (JsonExtensions) |
+| `Extensions/` | Extension methods (`JsonExtensions`) |
 
 ## Naming Conventions
 
-- **Controllers:** `[Feature][Environment?]Controller.cs` — e.g., `MT5LeaderBoardController`, `DemoMT5Controller`
-- **Entity models:** `*Master.cs` for core entities, `*History.cs` for tracking — e.g., `UserMaster`, `UserChallengeHistory`
+- **Namespace root:** `PropMT5ConnectionService` (consistent across all files)
+- **Controllers:** `[Environment?][Feature]Controller.cs` -- e.g., `LiveAccountController`, `DemoAccountController`, `LeaderboardController`
+  - Live environment: `Live*Controller` (e.g., `LiveTradingHistoryController`, `LivePasswordChangeController`)
+  - Demo environment: `Demo*Controller` (e.g., `DemoAccountStatusController`, `DemoGroupUpdateController`)
+  - Shared/general: No prefix (e.g., `LeaderboardController`, `LiquidationController`, `AccountTransferController`)
+- **Entity models:** `*Master.cs` for core entities, `*History.cs` for tracking -- e.g., `UserMaster`, `UserChallengeHistory`
 - **Base classes:** `BaseEntity`, `BaseGUID`, `BaseEntityCreatedModifiedDeleted`
-- **ViewModels/DTOs:** `*VM.cs` — e.g., `MT5TradingDataVM`, `AccountPerformanceVM`
+- **ViewModels/DTOs:** `*VM.cs` with `Mt5` prefix for MT5-specific -- e.g., `Mt5TradingDataVM`, `Mt5LiveAccountVM`, `AccountPerformanceVM`
 - **Services:** `*Service.cs` with `I*Service.cs` interfaces
-- **Helpers:** `*Helper.cs` or `*Operations.cs`
-- **Enums:** PascalCase, defined in `Helper/Constant.cs`
+- **Helpers:** `*Helper.cs`, `*Operations.cs`, or `*Factory.cs` -- e.g., `Mt5ManagerFactory`, `MT5AccountOperations`
+- **Utilities:** Descriptive names -- `PasswordGenerator`, `DateFormatConverter`, `LeaderboardCalculator`
+- **Enums:** PascalCase, defined in `Helpers/Constant.cs`
 
 ## Key Files
 
-- `Program.cs` — Service bootstrap, MT5 credential configuration, DI setup
-- `WebServer.cs` — OWIN host setup, background job runner
-- `Startup.cs` — OWIN middleware pipeline & Web API route configuration
-- `Helper/Constant.cs` — All enums and constants (large file)
-- `Data/PropTradingDBContext.cs` — Database context and entity mappings
-- `Services/LiquidationService.cs` — Account liquidation monitoring logic
-- `Services/EmailService.cs` — Email template rendering and sending
+- `Program.cs` -- Service bootstrap, MT5 credential configuration, DI setup
+- `WebServer.cs` -- OWIN host setup, background job runner
+- `Startup.cs` -- OWIN middleware pipeline & Web API route configuration
+- `Helpers/Constant.cs` -- All enums and constants (large file)
+- `Data/PropTradingDBContext.cs` -- Database context and entity mappings
+- `Services/LiquidationService.cs` -- Account liquidation monitoring logic
+- `Services/EmailService.cs` -- Email template rendering and sending
+- `Mt5Client/Mt5LiveClient.cs` -- Live MT5 manager connection
+- `Mt5Client/Mt5DemoClient.cs` -- Demo MT5 manager connection
 
 ## External Dependencies
 
@@ -94,6 +101,5 @@ HTTP Request → OWIN Pipeline (port 8086)
 
 ## Known Issues
 
-- Typo in interface name: `ILiqudationService` (missing 'i' in Liquidation)
 - Background liquidation job is currently disabled in code
 - Some commented-out code blocks remain in `Program.cs` and `WebServer.cs`

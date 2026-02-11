@@ -12,7 +12,7 @@ namespace PropMT5ConnectionService.Controllers
         CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
 
         [HttpPost]
-        public BaseResponseModel<int> MT5AccountInActive([FromBody] Mt5AccountStatusVM entity)
+        public Helpers.BaseResponseModel<int> MT5AccountInActive([FromBody] Mt5AccountStatusVM entity)
         {
             try
             {

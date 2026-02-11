@@ -1,4 +1,4 @@
-﻿namespace PropMT5ConnectionService.Extension
+﻿namespace PropMT5ConnectionService.Extensions
 {
     public static class JsonExtensions
     {
