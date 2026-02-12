@@ -21,11 +21,9 @@ namespace MT5ConnectionService.Helper
 
     public class CreateLiquidationHelper
     {
-        // FIX: Corrected typo from ILiqudationService to ILiquidationService
-        private ILiqudationService _liquidationInstance;
+        private ILiquidationService _liquidationInstance;
 
-        // Renamed method for clarity
-        public CreateLiquidationHelper(ILiqudationService service)
+        public CreateLiquidationHelper(ILiquidationService service)
         {
             if (service == null)
             {
@@ -34,8 +32,7 @@ namespace MT5ConnectionService.Helper
             _liquidationInstance = service;
         }
 
-        // Renamed method for clarity
-        public ILiqudationService GetLiquidationService()
+        public ILiquidationService GetLiquidationService()
         {
             if (_liquidationInstance == null)
             {

@@ -9,7 +9,7 @@ using static PropMT5ConnectionService.Helper.Constant;
 
 namespace PropMT5ConnectionService.Services
 {
-    public interface ILiqudationService
+    public interface ILiquidationService
     {
         Task<BaseResponseObject<object>> CheckAndLiquidateAccounts();
         Task<Dictionary<long, AccountDetailsVM>> GetAccountsDetailsBulk(List<long> terminalIds);

@@ -13,7 +13,7 @@ using static PropMT5ConnectionService.Helper.Constant;
 
 namespace PropMT5ConnectionService.Services
 {
-    public class LiquidationService : ILiqudationService
+    public class LiquidationService : ILiquidationService
     {
         private readonly IHttpClientService _httpClientService;
         private readonly IConfiguration _configuration;

@@ -9,14 +9,12 @@ namespace PropMT5ConnectionService.Controllers
 {
     public class MT5LiquidationController : ApiController
     {
-        private readonly ILiqudationService _liqudationService;
+        private readonly ILiquidationService _liquidationService;
 
         public MT5LiquidationController()
         {
-
         }
 
-        //}
         /// <summary>
         /// Check and liquidate accounts (all or specific account by ID)
         /// </summary>
@@ -26,7 +24,7 @@ namespace PropMT5ConnectionService.Controllers
         {
             try
             {
-                var result = await _liqudationService.CheckAndLiquidateAccounts();
+                var result = await _liquidationService.CheckAndLiquidateAccounts();
 
                 return Ok(new BaseResponseObject<object>
                 {

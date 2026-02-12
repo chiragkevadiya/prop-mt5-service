@@ -6,7 +6,6 @@ namespace MT5ConnectionService
     {
         public NancyDemo()
         {
-            //Get["/nancy/demo"] = parameters => new string[] { "Hello", "World" };
         }
     }
 }
