@@ -69,7 +69,7 @@ namespace MT5ConnectionService
     public class Startup
     {
         private readonly IServiceProvider _serviceProvider;
-
+        
         public Startup(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
@@ -98,6 +98,23 @@ namespace MT5ConnectionService
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
+
+            // Swagger (Swashbuckle) can be enabled here for Web API documentation.
+            // To enable Swagger UI, install the Swashbuckle NuGet package for Web API
+            // (for example: "Install-Package Swashbuckle -Version 5.6.0") and then add
+            // the following code back into this method:
+            //
+            // config.EnableSwagger(c =>
+            // {
+            //     c.SingleApiVersion("v1", "Prop MT5 API");
+            //     c.PrettyPrint();
+            // })
+            // .EnableSwaggerUi(c =>
+            // {
+            //     c.DocumentTitle = "Prop MT5 API Documentation";
+            // });
+            //
+            // Leaving this commented avoids compile errors when the package is not installed.
 
             // Web Api
             app.UseWebApi(config);

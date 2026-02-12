@@ -8,11 +8,11 @@ using System.Web.Http;
 
 namespace MT5ConnectionService.Controllers
 {
-    [RoutePrefix("api/account-performance")] // Updated route prefix for consistency
-    public class AccountPerformanceController : ApiController
+    [RoutePrefix("api/account-performance-data")] // Updated route prefix for consistency
+    public class AccountPerformanceDataController : ApiController // Renamed class for consistency
     {
         CIMTManagerAPI _manager = CreateManagerHelper.GetManager();
-        public AccountPerformanceController()
+        public AccountPerformanceDataController()
         {
 
         }

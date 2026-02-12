@@ -7,11 +7,11 @@ using System.Web.Http;
 
 namespace MT5ConnectionService.Controllers
 {
-    [RoutePrefix("api/credit-in-out")] // Updated route prefix for consistency
-    public class CreditInOutController : ApiController
+    [RoutePrefix("api/credit-operations")] // Updated route prefix for consistency
+    public class CreditOperationsController : ApiController // Renamed class for consistency
     {
         CIMTManagerAPI _manager = CreateManagerHelper.GetManager();
-        public CreditInOutController()
+        public CreditOperationsController()
         {
 
         }

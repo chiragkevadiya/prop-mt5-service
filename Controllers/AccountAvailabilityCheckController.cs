@@ -7,8 +7,8 @@ using System.Web.Http;
 
 namespace MT5ConnectionService.Controllers
 {
-    [RoutePrefix("api/account-availability")] // Updated route prefix for consistency
-    public class AccountAvailabilityCheckController : ApiController
+    [RoutePrefix("api/account-availability-check")] // Updated route prefix for consistency
+    public class AccountAvailabilityController : ApiController // Renamed class for consistency
     {
         private readonly CIMTManagerAPI _manager = CreateManagerHelper.GetManager();
 
