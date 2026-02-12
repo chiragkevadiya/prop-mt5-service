@@ -8,6 +8,7 @@ using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
 {
+    [RoutePrefix("api/liveonlineuser")]
     public class LiveOnlineUserController : ApiController
     {
         CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();

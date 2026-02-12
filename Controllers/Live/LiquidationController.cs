@@ -7,6 +7,7 @@ using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
 {
+    [RoutePrefix("api/liquidation")]
     public class LiquidationController : ApiController
     {
         private readonly ILiquidationService _liquidationService;

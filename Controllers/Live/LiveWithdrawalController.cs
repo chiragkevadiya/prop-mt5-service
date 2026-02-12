@@ -7,6 +7,7 @@ using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
 {
+    [RoutePrefix("api/livewithdrawal")]
     public class LiveWithdrawalController : ApiController
     {
         CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();

@@ -14,7 +14,7 @@ namespace PropMT5ConnectionService
     /// <summary>
     /// Controller for managing Live MT5 accounts
     /// </summary>
-    //[RoutePrefix("api/mt5")]
+    [RoutePrefix("api/mt5")]
     public class LiveAccountController : BaseApiController
     {
         private readonly IMT5AccountService _accountService;

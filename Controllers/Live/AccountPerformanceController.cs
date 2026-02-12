@@ -1,6 +1,5 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Helpers;
 using PropMT5ConnectionService.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -8,17 +7,15 @@ using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
 {
-    [RoutePrefix("api/account-performance-data")] // Updated route prefix for consistency
-    public class AccountPerformanceDataController : ApiController // Renamed class for consistency
+    [RoutePrefix("api/accountperformance")]
+    public class AccountPerformanceDataController : BaseApiController
     {
-        CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
-        public AccountPerformanceDataController()
+        public AccountPerformanceDataController(CIMTManagerAPI manager) : base(manager)
         {
-
         }
 
         [HttpGet]
-        [Route("performance")] // Explicit route for the action
+        [Route("performance")]
         public BaseResponseModel<List<AccountPerformanceVM>> AccountPerformance()
         {
             try

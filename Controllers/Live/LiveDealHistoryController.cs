@@ -9,6 +9,7 @@ using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
 {
+    [RoutePrefix("api/livedealhistory")]
     public class LiveDealHistoryController : ApiController
     {
         CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();

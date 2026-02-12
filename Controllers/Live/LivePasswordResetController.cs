@@ -7,6 +7,7 @@ using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
 {
+    [RoutePrefix("api/livepasswordreset")]
     public class LivePasswordResetController : ApiController
     {
         CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();

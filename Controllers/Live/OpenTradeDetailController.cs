@@ -9,6 +9,7 @@ using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
 {
+    [RoutePrefix("api/opentradedetail")]
     public class OpenTradeDetailController : ApiController
     {
         CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();

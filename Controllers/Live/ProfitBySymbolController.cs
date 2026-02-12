@@ -8,6 +8,7 @@ using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
 {
+    [RoutePrefix("api/profitbysymbol")]
     public class ProfitBySymbolController : ApiController
     {
         private readonly CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();

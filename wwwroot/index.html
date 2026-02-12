@@ -268,6 +268,35 @@
             transform: scale(1.05);
         }
 
+        .loading-spinner {
+            display: inline-block;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .status-healthy {
+            color: #28a745 !important;
+            font-weight: 700;
+        }
+
+        .status-unhealthy {
+            color: #dc3545 !important;
+            font-weight: 700;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
         @media (max-width: 768px) {
             .container {
                 margin: 10px;
@@ -347,10 +376,14 @@
             <!-- Service Status -->
             <section id="status" class="section">
                 <h2>✅ Service Status</h2>
-                <div class="status-card">
+                
+                <!-- Real-time Status Card -->
+                <div class="status-card" id="serviceStatusCard">
                     <div class="status-item">
                         <span class="status-label">🟢 Service Status:</span>
-                        <span class="status-value">RUNNING</span>
+                        <span class="status-value" id="serviceStatus">
+                            <span class="loading-spinner">●</span> Checking...
+                        </span>
                     </div>
                     <div class="status-item">
                         <span class="status-label">📍 Base URL:</span>
@@ -358,20 +391,55 @@
                     </div>
                     <div class="status-item">
                         <span class="status-label">🔢 API Version:</span>
-                        <span class="status-value">v1.0</span>
+                        <span class="status-value" id="apiVersion">v1.0</span>
                     </div>
                     <div class="status-item">
                         <span class="status-label">🕐 Server Time (UTC):</span>
                         <span class="status-value" id="serverTime"></span>
                     </div>
                     <div class="status-item">
+                        <span class="status-label">⏱️ Service Uptime:</span>
+                        <span class="status-value" id="serviceUptime">--</span>
+                    </div>
+                    <div class="status-item">
                         <span class="status-label">🔌 MT5 Live Connection:</span>
-                        <span class="status-value">CONNECTED</span>
+                        <span class="status-value" id="mt5LiveStatus">
+                            <span class="loading-spinner">●</span> Checking...
+                        </span>
                     </div>
                     <div class="status-item">
                         <span class="status-label">🔌 MT5 Demo Connection:</span>
-                        <span class="status-value">OPTIONAL</span>
+                        <span class="status-value" id="mt5DemoStatus">OPTIONAL</span>
                     </div>
+                    <div class="status-item">
+                        <span class="status-label">🌍 Environment:</span>
+                        <span class="status-value" id="environment">Production</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">🔄 Last Health Check:</span>
+                        <span class="status-value" id="lastHealthCheck">--</span>
+                    </div>
+                </div>
+
+                <!-- Health Check Details -->
+                <div style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+                    <h3 style="color: #764ba2; margin-bottom: 15px;">🔍 System Health Details</h3>
+                    <div id="healthDetails" style="font-family: 'Courier New', monospace; font-size: 0.9em; color: #666;">
+                        Loading health check data...
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div style="margin-top: 20px; display: flex; gap: 15px; flex-wrap: wrap;">
+                    <button onclick="refreshStatus()" style="padding: 12px 24px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                        🔄 Refresh Status
+                    </button>
+                    <a href="/api/health" target="_blank" style="padding: 12px 24px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; text-decoration: none; display: inline-block;">
+                        🏥 View Raw Health Data
+                    </a>
+                    <a href="/api/mt5/accounts" target="_blank" style="padding: 12px 24px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; text-decoration: none; display: inline-block;">
+                        👥 View Accounts
+                    </a>
                 </div>
             </section>
 
@@ -812,6 +880,82 @@ curl http://localhost:8086/api/mt5/accounts</div>
         }
         updateTime();
         setInterval(updateTime, 1000);
+
+        // Fetch health status from API
+        async function fetchHealthStatus() {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                
+                // Update service status
+                const statusElement = document.getElementById('serviceStatus');
+                if (data.status === 'Healthy' || data.success) {
+                    statusElement.innerHTML = '<span class="status-healthy">🟢 RUNNING</span>';
+                    document.getElementById('serviceStatusCard').style.background = 'linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)';
+                } else {
+                    statusElement.innerHTML = '<span class="status-unhealthy">🔴 UNHEALTHY</span>';
+                    document.getElementById('serviceStatusCard').style.background = 'linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%)';
+                }
+
+                // Update version
+                if (data.version) {
+                    document.getElementById('apiVersion').textContent = data.version;
+                }
+
+                // Update uptime
+                if (data.uptime) {
+                    document.getElementById('serviceUptime').textContent = data.uptime;
+                }
+
+                // Update environment
+                if (data.environment) {
+                    document.getElementById('environment').textContent = data.environment;
+                }
+
+                // Update MT5 status
+                if (data.checks) {
+                    const mt5Status = data.checks.mt5 || data.checks.owin || 'Unknown';
+                    const mt5Element = document.getElementById('mt5LiveStatus');
+                    if (mt5Status === 'OK' || mt5Status === 'Connected') {
+                        mt5Element.innerHTML = '<span class="status-healthy">✅ CONNECTED</span>';
+                    } else {
+                        mt5Element.innerHTML = '<span class="status-unhealthy">❌ ' + mt5Status + '</span>';
+                    }
+                }
+
+                // Update last health check time
+                const now = new Date();
+                document.getElementById('lastHealthCheck').textContent = now.toLocaleTimeString();
+
+                // Display detailed health info
+                const healthDetailsElement = document.getElementById('healthDetails');
+                healthDetailsElement.innerHTML = '<pre style="margin: 0; overflow-x: auto;">' + 
+                    JSON.stringify(data, null, 2) + '</pre>';
+
+            } catch (error) {
+                console.error('Failed to fetch health status:', error);
+                document.getElementById('serviceStatus').innerHTML = '<span class="status-unhealthy">🔴 UNREACHABLE</span>';
+                document.getElementById('mt5LiveStatus').innerHTML = '<span class="status-unhealthy">❌ UNKNOWN</span>';
+                document.getElementById('serviceStatusCard').style.background = 'linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%)';
+                document.getElementById('healthDetails').textContent = 'Failed to fetch health data: ' + error.message;
+            }
+        }
+
+        // Refresh status function
+        function refreshStatus() {
+            // Show loading state
+            document.getElementById('serviceStatus').innerHTML = '<span class="loading-spinner">●</span> Refreshing...';
+            document.getElementById('mt5LiveStatus').innerHTML = '<span class="loading-spinner">●</span> Checking...';
+            
+            // Fetch fresh data
+            fetchHealthStatus();
+        }
+
+        // Initial health check
+        fetchHealthStatus();
+
+        // Auto-refresh health status every 30 seconds
+        setInterval(fetchHealthStatus, 30000);
 
         // Smooth scrolling for navigation
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {

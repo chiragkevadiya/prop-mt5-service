@@ -6,6 +6,7 @@ using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
 {
+    [RoutePrefix("api/liveleverageupdate")]
     public class LiveLeverageUpdateController : ApiController
     {
         CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();

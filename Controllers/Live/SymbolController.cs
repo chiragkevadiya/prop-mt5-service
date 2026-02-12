@@ -5,6 +5,7 @@ using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
 {
+    [RoutePrefix("api/symbol")]
     public class SymbolController : ApiController
     {
         CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();

@@ -14,6 +14,7 @@ using HttpGetAttribute = System.Web.Http.HttpGetAttribute;
 
 namespace PropMT5ConnectionService.Controllers
 {
+    [RoutePrefix("api/leaderboard")]
     public class LeaderboardController : ApiController
     {
         CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();

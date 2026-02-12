@@ -7,6 +7,7 @@ using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
 {
+    [RoutePrefix("api/accounttransfer")]
     public class AccountTransferController : ApiController
     {
         private readonly CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
