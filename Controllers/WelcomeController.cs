@@ -72,55 +72,55 @@ namespace PropMT5ConnectionService.Controllers
     <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
     <title>Prop MT5 Connection Service - API Documentation</title>
     <style>
-        * {{
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }}
+        }
 
-        body {{
+        body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #333;
             line-height: 1.6;
-        }}
+        }
 
-        .container {{
+        .container {
             max-width: 1200px;
             margin: 30px auto;
             background: white;
             border-radius: 15px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             overflow: hidden;
-        }}
+        }
 
-        .header {{
+        .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 40px;
             text-align: center;
-        }}
+        }
 
-        .header h1 {{
+        .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
-        }}
+        }
 
-        .header p {{
+        .header p {
             font-size: 1.2em;
             opacity: 0.9;
-        }}
+        }
 
-        .nav {{
+        .nav {
             background: #f8f9fa;
             padding: 20px 40px;
             border-bottom: 2px solid #e9ecef;
             display: flex;
             gap: 20px;
             flex-wrap: wrap;
-        }}
+        }
 
-        .nav-link {{
+        .nav-link {
             padding: 10px 20px;
             background: white;
             border: 2px solid #667eea;
@@ -129,103 +129,103 @@ namespace PropMT5ConnectionService.Controllers
             text-decoration: none;
             font-weight: 600;
             transition: all 0.3s;
-        }}
+        }
 
-        .nav-link:hover {{
+        .nav-link:hover {
             background: #667eea;
             color: white;
             transform: translateY(-2px);
-        }}
+        }
 
-        .content {{
+        .content {
             padding: 40px;
-        }}
+        }
 
-        .section {{
+        .section {
             margin-bottom: 40px;
-        }}
+        }
 
-        .section h2 {{
+        .section h2 {
             color: #667eea;
             font-size: 2em;
             margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 3px solid #667eea;
-        }}
+        }
 
-        .status-card {{
+        .status-card {
             background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
             border-left: 5px solid #28a745;
             padding: 25px;
             border-radius: 10px;
             margin-bottom: 30px;
-        }}
+        }
 
-        .status-item {{
+        .status-item {
             display: flex;
             justify-content: space-between;
             padding: 10px 0;
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        }}
+        }
 
-        .status-item:last-child {{
+        .status-item:last-child {
             border-bottom: none;
-        }}
+        }
 
-        .status-label {{
+        .status-label {
             font-weight: 600;
             color: #155724;
-        }}
+        }
 
-        .status-value {{
+        .status-value {
             color: #155724;
             font-family: 'Courier New', monospace;
-        }}
+        }
 
-        .status-healthy {{
+        .status-healthy {
             color: #28a745 !important;
             font-weight: 700;
-        }}
+        }
 
-        .status-unhealthy {{
+        .status-unhealthy {
             color: #dc3545 !important;
             font-weight: 700;
-        }}
+        }
 
-        .endpoint-category {{
+        .endpoint-category {
             margin-bottom: 30px;
-        }}
+        }
 
-        .endpoint-category h3 {{
+        .endpoint-category h3 {
             color: #764ba2;
             font-size: 1.5em;
             margin-bottom: 15px;
             padding-left: 10px;
             border-left: 4px solid #764ba2;
-        }}
+        }
 
-        .endpoint {{
+        .endpoint {
             background: #f8f9fa;
             border-radius: 8px;
             padding: 20px;
             margin-bottom: 15px;
             border: 1px solid #dee2e6;
             transition: all 0.3s;
-        }}
+        }
 
-        .endpoint:hover {{
+        .endpoint:hover {
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             transform: translateY(-2px);
-        }}
+        }
 
-        .endpoint-header {{
+        .endpoint-header {
             display: flex;
             align-items: center;
             gap: 15px;
             margin-bottom: 10px;
-        }}
+        }
 
-        .method {{
+        .method {
             padding: 5px 15px;
             border-radius: 5px;
             font-weight: 700;
@@ -234,38 +234,38 @@ namespace PropMT5ConnectionService.Controllers
             display: inline-block;
             min-width: 60px;
             text-align: center;
-        }}
+        }
 
-        .method.get {{
+        .method.get {
             background: #28a745;
-        }}
+        }
 
-        .method.post {{
+        .method.post {
             background: #007bff;
-        }}
+        }
 
-        .method.put {{
+        .method.put {
             background: #ffc107;
             color: #333;
-        }}
+        }
 
-        .method.delete {{
+        .method.delete {
             background: #dc3545;
-        }}
+        }
 
-        .endpoint-path {{
+        .endpoint-path {
             font-family: 'Courier New', monospace;
             font-size: 1.1em;
             color: #667eea;
             font-weight: 600;
-        }}
+        }
 
-        .endpoint-description {{
+        .endpoint-description {
             color: #666;
             margin-bottom: 15px;
-        }}
+        }
 
-        .code-block {{
+        .code-block {
             background: #2d2d2d;
             color: #f8f8f2;
             padding: 20px;
@@ -274,63 +274,63 @@ namespace PropMT5ConnectionService.Controllers
             margin: 10px 0;
             font-family: 'Courier New', monospace;
             font-size: 0.9em;
-        }}
+        }
 
-        .feature-grid {{
+        .feature-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
             margin-top: 20px;
-        }}
+        }
 
-        .feature-card {{
+        .feature-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 25px;
             border-radius: 10px;
             text-align: center;
-        }}
+        }
 
-        .feature-card h4 {{
+        .feature-card h4 {
             font-size: 1.3em;
             margin-bottom: 10px;
-        }}
+        }
 
-        .tech-stack {{
+        .tech-stack {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin-top: 15px;
-        }}
+        }
 
-        .tech-badge {{
+        .tech-badge {
             background: #667eea;
             color: white;
             padding: 8px 16px;
             border-radius: 20px;
             font-size: 0.9em;
             font-weight: 600;
-        }}
+        }
 
-        .footer {{
+        .footer {
             background: #2d2d2d;
             color: white;
             text-align: center;
             padding: 30px;
             margin-top: 40px;
-        }}
+        }
 
-        .loading-spinner {{
+        .loading-spinner {
             display: inline-block;
             animation: pulse 1.5s ease-in-out infinite;
-        }}
+        }
 
-        @keyframes pulse {{
-            0%, 100% {{ opacity: 1; }}
-            50% {{ opacity: 0.3; }}
-        }}
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
 
-        button {{
+        button {
             padding: 12px 24px;
             background: #667eea;
             color: white;
@@ -339,26 +339,26 @@ namespace PropMT5ConnectionService.Controllers
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
-        }}
+        }
 
-        button:hover {{
+        button:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }}
+        }
 
-        @media (max-width: 768px) {{
-            .container {{
+        @media (max-width: 768px) {
+            .container {
                 margin: 10px;
-            }}
+            }
 
-            .header h1 {{
+            .header h1 {
                 font-size: 1.8em;
-            }}
+            }
 
-            .content {{
+            .content {
                 padding: 20px;
-            }}
-        }}
+            }
+        }
     </style>
 </head>
 <body>
@@ -466,8 +466,70 @@ namespace PropMT5ConnectionService.Controllers
 
                 <div style=""margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;"">
                     <h3 style=""color: #764ba2; margin-bottom: 15px;"">&#128269; System Health Details</h3>
-                    <div id=""healthDetails"" style=""font-family: 'Courier New', monospace; font-size: 0.9em; color: #666;"">
-                        Loading health check data...
+                    
+                    <!-- Health Status Cards Grid -->
+                    <div style=""display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;"">
+                        <!-- OWIN Status Card -->
+                        <div id=""owninCard"" style=""background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #28a745; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"">
+                            <div style=""display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;"">
+                                <span style=""font-size: 1.3em;"">&#128268;</span>
+                                <span id=""owninStatus"" style=""padding: 4px 12px; background: #28a745; color: white; border-radius: 12px; font-size: 0.8em; font-weight: 600;"">OK</span>
+                            </div>
+                            <h4 style=""color: #667eea; margin: 0; font-size: 1.1em;"">OWIN Server</h4>
+                            <p style=""color: #666; font-size: 0.9em; margin: 5px 0 0 0;"">Web server status</p>
+                        </div>
+
+                        <!-- Web API Status Card -->
+                        <div id=""webapiCard"" style=""background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #28a745; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"">
+                            <div style=""display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;"">
+                                <span style=""font-size: 1.3em;"">&#128225;</span>
+                                <span id=""webapiStatus"" style=""padding: 4px 12px; background: #28a745; color: white; border-radius: 12px; font-size: 0.8em; font-weight: 600;"">OK</span>
+                            </div>
+                            <h4 style=""color: #667eea; margin: 0; font-size: 1.1em;"">Web API</h4>
+                            <p style=""color: #666; font-size: 0.9em; margin: 5px 0 0 0;"">REST API status</p>
+                        </div>
+
+                        <!-- Nancy Status Card -->
+                        <div id=""nancyCard"" style=""background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #28a745; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"">
+                            <div style=""display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;"">
+                                <span style=""font-size: 1.3em;"">&#128640;</span>
+                                <span id=""nancyStatus"" style=""padding: 4px 12px; background: #28a745; color: white; border-radius: 12px; font-size: 0.8em; font-weight: 600;"">OK</span>
+                            </div>
+                            <h4 style=""color: #667eea; margin: 0; font-size: 1.1em;"">Nancy Framework</h4>
+                            <p style=""color: #666; font-size: 0.9em; margin: 5px 0 0 0;"">Framework status</p>
+                        </div>
+                    </div>
+
+                    <!-- Additional Health Info Card -->
+                    <div style=""background: white; padding: 20px; border-radius: 10px; border: 1px solid #dee2e6;"">
+                        <div style=""display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;"">
+                            <div>
+                                <span style=""color: #999; font-size: 0.9em;"">Status:</span>
+                                <div id=""healthStatusText"" style=""font-weight: 600; color: #28a745; font-size: 1.1em;"">Healthy</div>
+                            </div>
+                            <div>
+                                <span style=""color: #999; font-size: 0.9em;"">Timestamp:</span>
+                                <div id=""healthTimestamp"" style=""font-weight: 600; color: #667eea; font-size: 0.95em; font-family: 'Courier New', monospace;"">--</div>
+                            </div>
+                            <div>
+                                <span style=""color: #999; font-size: 0.9em;"">Uptime:</span>
+                                <div id=""healthUptime"" style=""font-weight: 600; color: #667eea; font-size: 1.1em;"">--</div>
+                            </div>
+                            <div>
+                                <span style=""color: #999; font-size: 0.9em;"">Environment:</span>
+                                <div id=""healthEnvironment"" style=""font-weight: 600; color: #667eea; font-size: 1.1em;"">Production</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Raw JSON Toggle (Collapsible) -->
+                    <div style=""margin-top: 15px;"">
+                        <button onclick=""toggleRawJson()"" style=""padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: 600;"">
+                            &#128196; Show/Hide Raw JSON
+                        </button>
+                        <div id=""rawJsonContainer"" style=""display: none; margin-top: 10px; background: #2d2d2d; padding: 15px; border-radius: 8px; overflow-x: auto;"">
+                            <pre id=""healthDetails"" style=""margin: 0; color: #f8f8f2; font-family: 'Courier New', monospace; font-size: 0.85em;"">Loading health check data...</pre>
+                        </div>
                     </div>
                 </div>
 
@@ -655,7 +717,7 @@ namespace PropMT5ConnectionService.Controllers
             <p>Version " + Version + @" | Released: " + currentDate + @"</p>
             <p style=""margin-top: 10px;"">Powered by OWIN + Web API + Serilog + Topshelf</p>
             <p style=""margin-top: 15px; opacity: 0.8;"">
-                Built with &#10084; for Professional Trading | &copy; 2025
+                Built with &#10084; for Professional Trading | &copy; 2026
             </p>
         </div>
     </div>
@@ -709,8 +771,40 @@ namespace PropMT5ConnectionService.Controllers
                 const now = new Date();
                 document.getElementById('lastHealthCheck').textContent = now.toLocaleTimeString();
 
-                document.getElementById('healthDetails').innerHTML = '<pre style=""margin: 0; overflow-x: auto;"">' + 
-                    JSON.stringify(data, null, 2) + '</pre>';
+                // Update card-based health details
+                if (data.status) {
+                    const healthStatusText = document.getElementById('healthStatusText');
+                    if (data.status === 'Healthy') {
+                        healthStatusText.textContent = data.status;
+                        healthStatusText.style.color = '#28a745';
+                    } else {
+                        healthStatusText.textContent = data.status;
+                        healthStatusText.style.color = '#dc3545';
+                    }
+                }
+
+                if (data.timestamp) {
+                    const timestamp = new Date(data.timestamp);
+                    document.getElementById('healthTimestamp').textContent = timestamp.toLocaleString();
+                }
+
+                if (data.uptime) {
+                    document.getElementById('healthUptime').textContent = data.uptime;
+                }
+
+                if (data.environment) {
+                    document.getElementById('healthEnvironment').textContent = data.environment;
+                }
+
+                // Update component status cards
+                if (data.checks) {
+                    updateComponentCard('owin', data.checks.owin || 'Unknown');
+                    updateComponentCard('webapi', data.checks.webapi || 'Unknown');
+                    updateComponentCard('nancy', data.checks.nancy || 'Unknown');
+                }
+
+                // Update raw JSON display
+                document.getElementById('healthDetails').textContent = JSON.stringify(data, null, 2);
 
             } catch (error) {
                 console.error('Failed to fetch health status:', error);
@@ -718,6 +812,38 @@ namespace PropMT5ConnectionService.Controllers
                 document.getElementById('mt5LiveStatus').innerHTML = '<span class=""status-unhealthy"">&#10060; UNKNOWN</span>';
                 document.getElementById('serviceStatusCard').style.background = 'linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%)';
                 document.getElementById('healthDetails').textContent = 'Failed to fetch health data: ' + error.message;
+                document.getElementById('healthStatusText').textContent = 'Unreachable';
+                document.getElementById('healthStatusText').style.color = '#dc3545';
+            }
+        }
+
+        function updateComponentCard(component, status) {
+            const statusElement = document.getElementById(component + 'Status');
+            const cardElement = document.getElementById(component + 'Card');
+            
+            if (statusElement) {
+                if (status === 'OK') {
+                    statusElement.textContent = 'OK';
+                    statusElement.style.background = '#28a745';
+                    if (cardElement) {
+                        cardElement.style.borderLeft = '5px solid #28a745';
+                    }
+                } else {
+                    statusElement.textContent = status;
+                    statusElement.style.background = '#dc3545';
+                    if (cardElement) {
+                        cardElement.style.borderLeft = '5px solid #dc3545';
+                    }
+                }
+            }
+        }
+
+        function toggleRawJson() {
+            const container = document.getElementById('rawJsonContainer');
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
             }
         }
 

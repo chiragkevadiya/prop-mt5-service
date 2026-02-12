@@ -64,10 +64,7 @@ namespace PropMT5ConnectionService
             // 8. Health Check Endpoint (Before Web API routing)
             ConfigureHealthCheck(app);
 
-            // 8.5. Default Welcome Page (Root path)
-            ConfigureWelcomePage(app);
-
-            // 9. Configure Web API
+            // 9. Configure Web API (including WelcomeController for root path)
             var config = new HttpConfiguration();
             ConfigureWebApi(config);
             app.UseWebApi(config);
@@ -295,77 +292,6 @@ namespace PropMT5ConnectionService
         {
             var uptime = DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime();
             return $"{uptime.Days}d {uptime.Hours}h {uptime.Minutes}m {uptime.Seconds}s";
-        }
-
-        #endregion
-
-        #region Welcome Page
-
-        private void ConfigureWelcomePage(IAppBuilder app)
-        {
-            app.Use(async (context, next) =>
-            {
-                // Handle root path "/" - serve static HTML documentation
-                if (context.Request.Path.Value == "/" || context.Request.Path.Value == "")
-                {
-                    try
-                    {
-                        // Try to serve the static index.html file
-                        var htmlPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot", "index.html");
-
-                        if (System.IO.File.Exists(htmlPath))
-                        {
-                            var html = System.IO.File.ReadAllText(htmlPath);
-                            context.Response.StatusCode = 200;
-                            context.Response.ContentType = "text/html; charset=utf-8";
-                            await context.Response.WriteAsync(html);
-                            return;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Warning(ex, "Failed to serve static index.html");
-                    }
-
-                    // Fallback: Simple welcome message if file not found
-                    var welcomeHtml = @"
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Prop MT5 Service</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 40px; background: #f5f5f5; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #667eea; }
-        a { color: #667eea; text-decoration: none; font-weight: bold; }
-    </style>
-</head>
-<body>
-    <div class='container'>
-        <h1>🚀 Prop MT5 Connection Service</h1>
-        <p><strong>Status:</strong> Running</p>
-        <p><strong>Base URL:</strong> http://localhost:8086</p>
-        <h2>Quick Links:</h2>
-        <ul>
-            <li><a href='/health'>Health Check</a></li>
-            <li><a href='/api/health'>API Health</a></li>
-            <li><a href='/api/mt5/accounts'>View Accounts</a></li>
-        </ul>
-        <p><em>Note: Full documentation page not found. Please ensure wwwroot/index.html exists.</em></p>
-    </div>
-</body>
-</html>";
-
-                    context.Response.StatusCode = 200;
-                    context.Response.ContentType = "text/html; charset=utf-8";
-                    await context.Response.WriteAsync(welcomeHtml);
-                    return;
-                }
-
-                await next.Invoke();
-            });
-
-            Log.Information("Welcome page configured for root path");
         }
 
         #endregion
