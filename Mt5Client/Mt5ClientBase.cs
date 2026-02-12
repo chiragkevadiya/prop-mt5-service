@@ -165,6 +165,23 @@ namespace PropMT5ConnectionService.Mt5Client
         protected abstract void InitializeManagerFactory();
 
         /// <summary>
+        /// Get the MT5 Manager API instance
+        /// </summary>
+        /// <returns>CIMTManagerAPI instance or null if not initialized</returns>
+        public CIMTManagerAPI GetManager()
+        {
+            return Manager;
+        }
+
+        /// <summary>
+        /// Check if the client is connected to the server
+        /// </summary>
+        public bool IsConnected()
+        {
+            return Manager != null;
+        }
+
+        /// <summary>
         /// Disconnect from server if connected
         /// </summary>
         public void Disconnect()

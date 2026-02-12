@@ -305,153 +305,59 @@ namespace PropMT5ConnectionService
         {
             app.Use(async (context, next) =>
             {
-                // Handle root path "/"
+                // Handle root path "/" - serve static HTML documentation
                 if (context.Request.Path.Value == "/" || context.Request.Path.Value == "")
                 {
+                    try
+                    {
+                        // Try to serve the static index.html file
+                        var htmlPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot", "index.html");
+
+                        if (System.IO.File.Exists(htmlPath))
+                        {
+                            var html = System.IO.File.ReadAllText(htmlPath);
+                            context.Response.StatusCode = 200;
+                            context.Response.ContentType = "text/html; charset=utf-8";
+                            await context.Response.WriteAsync(html);
+                            return;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warning(ex, "Failed to serve static index.html");
+                    }
+
+                    // Fallback: Simple welcome message if file not found
                     var welcomeHtml = @"
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Prop MT5 Connection Service</title>
+    <title>Prop MT5 Service</title>
     <style>
-        body { 
-            font-family: 'Segoe UI', Arial, sans-serif; 
-            margin: 0; 
-            padding: 0; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
-        }
-        .container { 
-            max-width: 900px; 
-            margin: 50px auto; 
-            background: white; 
-            padding: 40px; 
-            border-radius: 10px; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
-        h1 { 
-            color: #667eea; 
-            margin-bottom: 10px;
-            font-size: 2.5em;
-        }
-        .subtitle {
-            color: #666;
-            font-size: 1.1em;
-            margin-bottom: 30px;
-        }
-        .status { 
-            background: #d4edda; 
-            border-left: 4px solid #28a745; 
-            padding: 15px; 
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-        .endpoints { 
-            background: #f8f9fa; 
-            padding: 20px; 
-            margin: 20px 0;
-            border-radius: 5px;
-        }
-        .endpoint { 
-            padding: 10px; 
-            margin: 10px 0; 
-            background: white;
-            border-left: 3px solid #667eea;
-            border-radius: 3px;
-        }
-        a { 
-            color: #667eea; 
-            text-decoration: none; 
-            font-weight: bold;
-        }
-        a:hover { 
-            text-decoration: underline; 
-        }
-        .method { 
-            display: inline-block; 
-            padding: 3px 8px; 
-            background: #667eea; 
-            color: white; 
-            border-radius: 3px; 
-            font-size: 0.9em;
-            margin-right: 10px;
-        }
-        .footer {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-            text-align: center;
-            color: #666;
-        }
-        .version {
-            display: inline-block;
-            background: #764ba2;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.9em;
-        }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 40px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #667eea; }
+        a { color: #667eea; text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class='container'>
         <h1>🚀 Prop MT5 Connection Service</h1>
-        <div class='subtitle'>MetaTrader 5 API Integration Service</div>
-        
-        <div class='status'>
-            <strong>✅ Service Status:</strong> Running<br>
-            <strong>🕐 Server Time:</strong> " + DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") + @" UTC<br>
-            <strong>📍 Base URL:</strong> http://localhost:8086<br>
-            <strong>🔢 Version:</strong> <span class='version'>" + GetApplicationVersion() + @"</span>
-        </div>
-        
-        <h2>📡 Available Endpoints</h2>
-        <div class='endpoints'>
-            <div class='endpoint'>
-                <span class='method'>GET</span>
-                <a href='/health'>/health</a> - Basic Health Check
-            </div>
-            <div class='endpoint'>
-                <span class='method'>GET</span>
-                <a href='/api/health'>/api/health</a> - Detailed Health Check
-            </div>
-            <div class='endpoint'>
-                <span class='method'>GET</span>
-                <a href='/api/health/detailed'>/api/health/detailed</a> - Full System Diagnostics
-            </div>
-            <div class='endpoint'>
-                <span class='method'>POST</span>
-                /api/liquidation/MT5Liquidation - Check Liquidations
-            </div>
-            <div class='endpoint'>
-                <span class='method'>GET</span>
-                /api/liveaccount/* - Live Account Operations
-            </div>
-            <div class='endpoint'>
-                <span class='method'>GET</span>
-                /api/demoaccount/* - Demo Account Operations
-            </div>
-        </div>
-        
-        <h2>📚 API Documentation</h2>
-        <p>Use your favorite API client (Postman, cURL, etc.) to interact with the endpoints above.</p>
-        
-        <h2>🔗 Quick Links</h2>
+        <p><strong>Status:</strong> Running</p>
+        <p><strong>Base URL:</strong> http://localhost:8086</p>
+        <h2>Quick Links:</h2>
         <ul>
-            <li><a href='/api/health'>Quick Health Check</a></li>
-            <li><a href='/api/health/detailed'>System Status</a></li>
+            <li><a href='/health'>Health Check</a></li>
+            <li><a href='/api/health'>API Health</a></li>
+            <li><a href='/api/mt5/accounts'>View Accounts</a></li>
         </ul>
-        
-        <div class='footer'>
-            <p>Powered by OWIN + Web API + Nancy + Serilog</p>
-            <p>MT5 Connection Service © 2025</p>
-        </div>
+        <p><em>Note: Full documentation page not found. Please ensure wwwroot/index.html exists.</em></p>
     </div>
 </body>
 </html>";
 
                     context.Response.StatusCode = 200;
-                    context.Response.ContentType = "text/html";
+                    context.Response.ContentType = "text/html; charset=utf-8";
                     await context.Response.WriteAsync(welcomeHtml);
                     return;
                 }

@@ -5,6 +5,7 @@ using PropMT5ConnectionService.Mt5Client;
 using PropMT5ConnectionService.Services;
 using Serilog;
 using System;
+using System.Linq;
 using Topshelf;
 
 namespace PropMT5ConnectionService
@@ -111,6 +112,18 @@ namespace PropMT5ConnectionService
         {
             services.AddSingleton<Mt5LiveClient>(provider => CreateMT5LiveClient(provider));
             services.AddSingleton<Mt5DemoClient>(provider => CreateMT5DemoClient(provider));
+
+            // Register CIMTManagerAPI from Live Client for controllers
+            services.AddSingleton(provider =>
+            {
+                var liveClient = provider.GetRequiredService<Mt5LiveClient>();
+                var manager = liveClient.GetManager();
+                if (manager == null)
+                {
+                    throw new InvalidOperationException("MT5 Live Client Manager is not initialized");
+                }
+                return manager;
+            });
         }
 
         /// <summary>
@@ -204,6 +217,26 @@ namespace PropMT5ConnectionService
             services.AddScoped<IMT5AccountService, MT5AccountService>();
             services.AddScoped<IMT5TradingService, MT5TradingService>();
             services.AddSingleton<WebServer>();
+
+            // Register all API controllers
+            RegisterControllers(services);
+        }
+
+        /// <summary>
+        /// Register all Web API controllers in the DI container
+        /// </summary>
+        static void RegisterControllers(IServiceCollection services)
+        {
+            // Get all controller types from the assembly
+            var controllerTypes = typeof(Program).Assembly.GetTypes()
+                .Where(type => !type.IsAbstract &&
+                              typeof(System.Web.Http.ApiController).IsAssignableFrom(type));
+
+            foreach (var controllerType in controllerTypes)
+            {
+                services.AddTransient(controllerType);
+                Console.WriteLine($"[INFO] Registered controller: {controllerType.Name}");
+            }
         }
     }
 }
