@@ -21,11 +21,9 @@ namespace PropMT5ConnectionService.Helpers
 
     public class Mt5LiquidationFactory
     {
-        // FIX: Corrected typo from ILiquidationService to ILiquidationService
         private ILiquidationService _liquidationInstance;
 
-        // Renamed method for clarity
-        public Mt5LiquidationFactory(ILiquidationService service)
+        public CreateLiquidationHelper(ILiquidationService service)
         {
             if (service == null)
             {
@@ -34,7 +32,6 @@ namespace PropMT5ConnectionService.Helpers
             _liquidationInstance = service;
         }
 
-        // Renamed method for clarity
         public ILiquidationService GetLiquidationService()
         {
             if (_liquidationInstance == null)

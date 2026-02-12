@@ -13,9 +13,9 @@ namespace PropMT5ConnectionService.Controllers
         CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
 
         [HttpGet]
-        public BaseResponseModel<List<ulong>> MT5LiveGroupNameChanges(string accoount, string GroupName)
+        public BaseResponseModel<List<ulong>> MT5LiveGroupNameChanges(string account, string GroupName)
         {
-            if (string.IsNullOrWhiteSpace(accoount))
+            if (string.IsNullOrWhiteSpace(account))
                 return new BaseResponseModel<List<ulong>>
                 {
                     Message = $"Please enter LoginIds",
@@ -23,7 +23,7 @@ namespace PropMT5ConnectionService.Controllers
                     MTRetErrorCode = 0
                 };
 
-            List<ulong> loginIds = accoount?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => Convert.ToUInt64(x)).ToList();
+            List<ulong> loginIds = account?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => Convert.ToUInt64(x)).ToList();
 
 
             var originalGroups = new Dictionary<ulong, string>();

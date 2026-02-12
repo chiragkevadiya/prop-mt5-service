@@ -79,7 +79,7 @@ namespace PropMT5ConnectionService.Helpers
                     Email = to,
                     Subject = subject,
                     EmailBody = body,
-                    Status = "Sucess",
+                    Status = "Success",
                     RequestDate = DateTime.UtcNow,
                 };
 

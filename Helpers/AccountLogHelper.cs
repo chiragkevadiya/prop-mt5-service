@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
 
@@ -5,15 +6,20 @@ namespace PropMT5ConnectionService.Helpers
 {
     public static class AccountLogHelper
     {
-        private const string BaseLogDirectory = @"C:\MT5ServicesLogSave";
+        private static string _baseLogDirectory = @"C:\MT5ServicesLogSave";
+
+        public static void SetLogDirectory(string basePath)
+        {
+            _baseLogDirectory = basePath;
+        }
 
         public static void LogSuccess(Guid userId, string groupName, uint leverage, string firstName,
             string lastName, string email, string phone, string address, string country,
             ulong login, string masterPass, string investorPass, string prefix = "")
         {
-            string logDirectory = Path.Combine(BaseLogDirectory, "Sucess");
+            string logDirectory = Path.Combine(_baseLogDirectory, "Success");
             string filePrefix = string.IsNullOrEmpty(prefix) ? "" : prefix + "_";
-            string logFileName = $"{filePrefix}Sucess_log_{login}_{DateTime.Now:yyyyMMddHHmmssfff}.txt";
+            string logFileName = $"{filePrefix}Success_log_{login}_{DateTime.Now:yyyyMMddHHmmssfff}.txt";
             string logFilePath = Path.Combine(logDirectory, logFileName);
 
             try
@@ -53,7 +59,7 @@ namespace PropMT5ConnectionService.Helpers
             string lastName, string email, string phone, string address, string country,
             object errorCode, string masterPass, string investorPass, string prefix = "")
         {
-            string logDirectory = Path.Combine(BaseLogDirectory, "Failed");
+            string logDirectory = Path.Combine(_baseLogDirectory, "Failed");
             string filePrefix = string.IsNullOrEmpty(prefix) ? "" : prefix + "_";
             string logFileName = $"{filePrefix}Failed_log_{DateTime.Now:yyyyMMddHHmmssfff}.txt";
             string logFilePath = Path.Combine(logDirectory, logFileName);
@@ -93,7 +99,7 @@ namespace PropMT5ConnectionService.Helpers
 
         public static void LogAccountStatusChange(ulong[] loginIds, bool isEnabled)
         {
-            string logDirectory = Path.Combine(BaseLogDirectory, @"Sucess\MT5_Account");
+            string logDirectory = Path.Combine(_baseLogDirectory, @"Success\MT5_Account");
             string logFileName = $"Trade_{(isEnabled ? "ENABLED" : "DISABLED")}_{DateTime.Now:yyyyMMddHHmmssfff}.txt";
             string logFilePath = Path.Combine(logDirectory, logFileName);
 
