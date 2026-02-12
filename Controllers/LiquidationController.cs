@@ -11,8 +11,9 @@ namespace PropMT5ConnectionService.Controllers
     {
         private readonly ILiquidationService _liquidationService;
 
-        public LiquidationController()
+        public LiquidationController(ILiquidationService liquidationService)
         {
+            _liquidationService = liquidationService ?? throw new ArgumentNullException(nameof(liquidationService));
         }
 
         /// <summary>

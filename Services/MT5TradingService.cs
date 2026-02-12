@@ -327,8 +327,8 @@ namespace PropMT5ConnectionService.Services
                             return new BaseResponse<List<ClosedTradeResponse>>
                             {
                                 Success = false,
-                                Message = errors.Count > 0 
-                                    ? $"Failed to close positions: {string.Join("; ", errors)}" 
+                                Message = errors.Count > 0
+                                    ? $"Failed to close positions: {string.Join("; ", errors)}"
                                     : "No matching positions found to close",
                                 StatusCode = 400
                             };
@@ -337,7 +337,7 @@ namespace PropMT5ConnectionService.Services
                         return new BaseResponse<List<ClosedTradeResponse>>
                         {
                             Success = true,
-                            Message = $"Successfully closed {closedTrades.Count} position(s)" + 
+                            Message = $"Successfully closed {closedTrades.Count} position(s)" +
                                      (errors.Count > 0 ? $". Errors: {string.Join("; ", errors)}" : ""),
                             Data = closedTrades,
                             StatusCode = 200
@@ -436,23 +436,23 @@ namespace PropMT5ConnectionService.Services
             }
 
             return deals.Select(deal => new Mt5TradingDataVM
-                {
-                    Deal = deal.Deal(),
-                    Symbol = deal.Symbol(),
-                    Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(deal.TimeMsc()).ToUnixTimeMilliseconds(),
-                    Time = DateTimeOffset.FromUnixTimeSeconds(deal.Time()).DateTime,
-                    TimeMsc = DateTimeOffset.FromUnixTimeMilliseconds(deal.TimeMsc()).DateTime,
-                    Login = deal.Login(),
-                    PositionID = deal.PositionID(),
-                    Action = deal.Action() == 0 ? "Buy" : "Sell",
-                    Entry = deal.Entry() == 0 ? "Open" : "Close",
-                    Volume = deal.Volume(),
-                    Swap = deal.Storage(),
-                    Price = deal.Price(),
-                    PriceSL = deal.PriceSL(),
-                    PriceTP = deal.PriceTP(),
-                    Profit = deal.Profit()
-                })
+            {
+                Deal = deal.Deal(),
+                Symbol = deal.Symbol(),
+                Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(deal.TimeMsc()).ToUnixTimeMilliseconds(),
+                Time = DateTimeOffset.FromUnixTimeSeconds(deal.Time()).DateTime,
+                TimeMsc = DateTimeOffset.FromUnixTimeMilliseconds(deal.TimeMsc()).DateTime,
+                Login = deal.Login(),
+                PositionID = deal.PositionID(),
+                Action = deal.Action() == 0 ? "Buy" : "Sell",
+                Entry = deal.Entry() == 0 ? "Open" : "Close",
+                Volume = deal.Volume(),
+                Swap = deal.Storage(),
+                Price = deal.Price(),
+                PriceSL = deal.PriceSL(),
+                PriceTP = deal.PriceTP(),
+                Profit = deal.Profit()
+            })
                 .OrderByDescending(deal => deal.Time)
                 .ToList();
         }
@@ -552,7 +552,7 @@ namespace PropMT5ConnectionService.Services
                 return "Invalid parameters provided";
             if (retCode == MTRetCode.MT_RET_ERR_CONNECTION)
                 return "Connection error";
-            
+
             return $"Operation failed with code: {retCode}";
         }
 

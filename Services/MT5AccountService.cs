@@ -154,8 +154,8 @@ namespace PropMT5ConnectionService.Services
 
             if (retCode == MTRetCode.MT_RET_OK)
             {
-                string passwordTypeName = passwordType == CIMTUser.EnUsersPasswords.USER_PASS_MAIN 
-                    ? "Trading" 
+                string passwordTypeName = passwordType == CIMTUser.EnUsersPasswords.USER_PASS_MAIN
+                    ? "Trading"
                     : "Investor";
 
                 return new BaseResponse
@@ -222,7 +222,7 @@ namespace PropMT5ConnectionService.Services
                 return "User not found";
             if (retCode == MTRetCode.MT_RET_ERR_PARAMS)
                 return "Invalid parameters provided";
-            
+
             return $"Operation failed with code: {retCode}";
         }
 

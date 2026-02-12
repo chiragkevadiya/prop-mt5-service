@@ -1,4 +1,3 @@
-using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
 using PropMT5ConnectionService.Services;
 using System;
@@ -133,14 +132,14 @@ namespace PropMT5ConnectionService.Controllers
         public IHttpActionResult GetReadiness()
         {
             var mt5Ready = CheckMT5Connection();
-            
+
             if (mt5Ready)
             {
                 return Ok(new { Status = "Ready", Timestamp = DateTime.UtcNow });
             }
             else
             {
-                return Content(System.Net.HttpStatusCode.ServiceUnavailable, 
+                return Content(System.Net.HttpStatusCode.ServiceUnavailable,
                     new { Status = "Not Ready", Reason = "MT5 Connection Not Available", Timestamp = DateTime.UtcNow });
             }
         }

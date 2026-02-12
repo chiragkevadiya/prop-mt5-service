@@ -1,6 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace PropMT5ConnectionService.Services
 {
@@ -29,7 +29,7 @@ namespace PropMT5ConnectionService.Services
         {
             _cache = new ConcurrentDictionary<string, CacheEntry>();
             _defaultExpiration = defaultExpiration ?? TimeSpan.FromMinutes(15);
-            
+
             // Cleanup expired entries every minute
             _cleanupTimer = new System.Threading.Timer(CleanupExpiredEntries, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
         }

@@ -1,8 +1,6 @@
 ﻿using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Controllers;
 using PropMT5ConnectionService.Services;
 using PropMT5ConnectionService.ViewModels;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -48,7 +46,7 @@ namespace PropMT5ConnectionService.Controllers
         public async Task<IHttpActionResult> TradesOrdersClose([FromBody] ClosePositionRequest entity)
         {
             var result = await _tradingService.ClosePositionsAsync(entity);
-            
+
             if (result.Success)
             {
                 return Ok(new { Success = result.Success, Message = result.Message, Data = result.Data });

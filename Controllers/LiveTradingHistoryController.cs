@@ -1,9 +1,5 @@
 ﻿using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Controllers;
-using PropMT5ConnectionService.Helpers;
 using PropMT5ConnectionService.Services;
-using PropMT5ConnectionService.ViewModels;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
 
@@ -44,7 +40,7 @@ namespace PropMT5ConnectionService.Controllers
         public async Task<IHttpActionResult> TradingHistoryFromDateToDate(ulong loginId, string fromDatet, string toDatet)
         {
             var result = await _tradingService.GetTradingHistoryAsync(loginId, fromDatet, toDatet);
-            
+
             if (result.Success)
             {
                 return Ok(result.Data);

@@ -3,7 +3,6 @@ using MetaQuotes.MT5ManagerAPI;
 using PropMT5ConnectionService.Helpers;
 using System;
 using System.Net;
-using System.Net.Http;
 using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
@@ -40,7 +39,7 @@ namespace PropMT5ConnectionService.Controllers
             }
             catch (Exception ex)
             {
-                return Content(HttpStatusCode.InternalServerError, 
+                return Content(HttpStatusCode.InternalServerError,
                     new BaseResponse<T>().WithError($"An unexpected error occurred: {ex.Message}", 500));
             }
         }
@@ -65,7 +64,7 @@ namespace PropMT5ConnectionService.Controllers
             }
             catch (Exception ex)
             {
-                return Content(HttpStatusCode.InternalServerError, 
+                return Content(HttpStatusCode.InternalServerError,
                     new BaseResponse().WithError($"An unexpected error occurred: {ex.Message}", 500));
             }
         }
@@ -93,7 +92,7 @@ namespace PropMT5ConnectionService.Controllers
                 return "Invalid parameters";
             if (retCode == MTRetCode.MT_RET_ERR_CONNECTION)
                 return "Connection error";
-            
+
             return $"MT5 operation failed with code: {retCode}";
         }
     }

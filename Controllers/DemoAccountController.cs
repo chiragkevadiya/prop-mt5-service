@@ -1,5 +1,4 @@
 ﻿using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Controllers;
 using PropMT5ConnectionService.Helpers;
 using PropMT5ConnectionService.Services;
 using PropMT5ConnectionService.ViewModels;

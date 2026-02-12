@@ -1,110 +1,236 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Owin.Hosting;
+using PropMT5ConnectionService.Mt5Client;
 using PropMT5ConnectionService.Services;
+using Serilog;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace PropMT5ConnectionService
 {
+    /// <summary>
+    /// Web Server hosting OWIN pipeline and managing background jobs
+    /// Integrates with MT5 Live and Demo clients for trading operations
+    /// </summary>
     public class WebServer
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IConfiguration _configuration;
+        private readonly Mt5LiveClient _mt5LiveClient;
+        private readonly Mt5DemoClient _mt5DemoClient;
         private IDisposable _webapp;
         private CancellationTokenSource _cts;
         private Task _backgroundTask;
 
-        public WebServer(IServiceProvider serviceProvider, IConfiguration configuration)
+        public WebServer(
+            IServiceProvider serviceProvider,
+            IConfiguration configuration,
+            Mt5LiveClient mt5LiveClient,
+            Mt5DemoClient mt5DemoClient = null)
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _mt5LiveClient = mt5LiveClient ?? throw new ArgumentNullException(nameof(mt5LiveClient));
+            _mt5DemoClient = mt5DemoClient; // Optional - can be null
+
+            Log.Information("WebServer instance created");
+            LogMT5ClientsStatus();
         }
+
+        private void LogMT5ClientsStatus()
+        {
+            Log.Information("MT5 Clients Status:");
+            Log.Information("  - Live Client: {Status}", _mt5LiveClient != null ? "Connected" : "Not Available");
+
+            if (_mt5DemoClient != null)
+            {
+                Log.Information("  - Demo Client: Connected");
+            }
+            else
+            {
+                Log.Information("  - Demo Client: Not configured (optional)");
+            }
+        }
+
 
         public void Start()
         {
-            Console.WriteLine("[INFO] WebServer starting...");
-            
+            Log.Information("=== WebServer Starting ===");
+
             string baseUri = _configuration["WebServer:BaseUri"];
             if (string.IsNullOrWhiteSpace(baseUri))
             {
+                Log.Fatal("WebServer:BaseUri is not configured in appsettings.json");
                 throw new InvalidOperationException("WebServer:BaseUri is not configured");
             }
 
-            // Pass the service provider to the OWIN Startup class
-            _webapp = WebApp.Start(baseUri, appBuilder =>
+            try
             {
-                new Startup(_serviceProvider).Configuration(appBuilder);
-            });
+                // Verify MT5 clients are ready
+                VerifyMT5ClientsReady();
 
-            // Start background liquidation monitor
-            _cts = new CancellationTokenSource();
-            _backgroundTask = Task.Run(() => RunBackgroundJobs(_cts.Token));
+                // Start OWIN web application
+                _webapp = WebApp.Start(baseUri, appBuilder =>
+                {
+                    new Startup(_serviceProvider).Configuration(appBuilder);
+                });
 
-            Console.WriteLine($"[INFO] WebServer started at {baseUri}");
+                Log.Information("OWIN web application started successfully at {BaseUri}", baseUri);
+
+                // Start background liquidation monitor
+                _cts = new CancellationTokenSource();
+                _backgroundTask = Task.Run(() => RunBackgroundJobs(_cts.Token));
+
+                Log.Information("=== WebServer Started Successfully ===");
+                Log.Information("API Base URL: {BaseUri}", baseUri);
+                Log.Information("Health Check: {BaseUri}/health", baseUri);
+                Console.WriteLine($"[INFO] WebServer started at {baseUri}");
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Failed to start WebServer");
+                throw;
+            }
         }
+
+        private void VerifyMT5ClientsReady()
+        {
+            if (_mt5LiveClient == null)
+            {
+                throw new InvalidOperationException("MT5 Live Client is not initialized");
+            }
+
+            Log.Information("MT5 Live Client is ready for trading operations");
+
+            if (_mt5DemoClient != null)
+            {
+                Log.Information("MT5 Demo Client is ready for trading operations");
+            }
+        }
+
 
         private async Task RunBackgroundJobs(CancellationToken token)
         {
             if (!int.TryParse(_configuration["BackgroundJobs:LiquidationCheckIntervalSeconds"], out int intervalSeconds))
             {
-                Console.WriteLine("[WARNING] Invalid liquidation interval configuration, using default: 60 seconds");
+                Log.Warning("Invalid liquidation interval configuration, using default: 60 seconds");
                 intervalSeconds = 60;
             }
 
-            Console.WriteLine($"[INFO] Background liquidation job will run every {intervalSeconds} seconds");
+            Log.Information("Background liquidation job scheduled to run every {IntervalSeconds} seconds", intervalSeconds);
+
+            // Initial delay to allow system to fully initialize
+            await Task.Delay(TimeSpan.FromSeconds(5), token);
 
             while (!token.IsCancellationRequested)
             {
                 try
                 {
-                    Console.WriteLine("[INFO] Running liquidation job...");
-                    
-                    // TODO: Implement actual liquidation check logic here
-                    // var liquidationService = _serviceProvider.GetService<ILiquidationService>();
-                    // await liquidationService.CheckLiquidations();
+                    Log.Debug("Running scheduled liquidation check...");
+
+                    // Get liquidation service from DI container (scoped service)
+                    using (var scope = _serviceProvider.CreateScope())
+                    {
+                        var liquidationService = scope.ServiceProvider.GetService<ILiquidationService>();
+
+                        if (liquidationService != null)
+                        {
+                            var result = await liquidationService.CheckAndLiquidateAccounts();
+
+                            if (result.Success)
+                            {
+                                Log.Information("Liquidation check completed: {Message}", result.Message);
+                            }
+                            else
+                            {
+                                Log.Warning("Liquidation check failed: {Message}", result.Message);
+                            }
+                        }
+                        else
+                        {
+                            Log.Warning("ILiquidationService not available in DI container");
+                        }
+                    }
 
                     await Task.Delay(TimeSpan.FromSeconds(intervalSeconds), token);
                 }
                 catch (TaskCanceledException)
                 {
-                    Console.WriteLine("[INFO] Background job cancelled (service stopping)");
+                    Log.Information("Background liquidation job cancelled (service stopping)");
+                    break;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[ERROR] Background job error: {ex.Message}");
-                    Console.WriteLine($"[ERROR] Stack trace: {ex.StackTrace}");
-                    
+                    Log.Error(ex, "Background liquidation job error: {Message}", ex.Message);
+
                     // Wait before retrying to avoid tight error loops
                     try
                     {
                         await Task.Delay(TimeSpan.FromSeconds(10), token);
                     }
-                    catch (TaskCanceledException) { }
+                    catch (TaskCanceledException)
+                    {
+                        Log.Information("Background job cancelled during error recovery");
+                        break;
+                    }
                 }
             }
+
+            Log.Information("Background liquidation job stopped");
         }
+
 
         public void Stop()
         {
-            Console.WriteLine("[INFO] WebServer stopping...");
-            
+            Log.Information("=== WebServer Stopping ===");
+
             // Cancel background jobs
             _cts?.Cancel();
-            
+
             try
             {
                 // Wait for background task to complete with timeout
-                _backgroundTask?.Wait(TimeSpan.FromSeconds(10));
+                if (_backgroundTask != null)
+                {
+                    Log.Information("Waiting for background tasks to complete...");
+                    var completed = _backgroundTask.Wait(TimeSpan.FromSeconds(15));
+
+                    if (!completed)
+                    {
+                        Log.Warning("Background tasks did not complete within timeout period");
+                    }
+                    else
+                    {
+                        Log.Information("Background tasks completed successfully");
+                    }
+                }
             }
             catch (AggregateException ex)
             {
-                Console.WriteLine($"[WARNING] Error while stopping background task: {ex.Message}");
+                Log.Warning(ex, "Error while stopping background tasks");
             }
-            
+            finally
+            {
+                _backgroundTask?.Dispose();
+            }
+
             // Dispose web app
-            _webapp?.Dispose();
-            
+            try
+            {
+                _webapp?.Dispose();
+                Log.Information("OWIN web application stopped");
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error while disposing web application");
+            }
+
+            // Dispose cancellation token source
+            _cts?.Dispose();
+
+            Log.Information("=== WebServer Stopped Successfully ===");
             Console.WriteLine("[INFO] WebServer stopped.");
         }
     }

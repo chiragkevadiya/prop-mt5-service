@@ -376,10 +376,11 @@
     <Compile Include="ApiResponse\APIResponse.cs" />
     <Compile Include="Configuration\BaseResponseModel.cs" />
     <Compile Include="Configuration\AppSettings.cs" />
-    <Compile Include="Configuration\SwaggerConfig.cs" />
     <Compile Include="Constants\MT5Constants.cs" />
     <Compile Include="Controllers\BaseApiController.cs" />
     <Compile Include="Controllers\HealthCheckController.cs" />
+    <Compile Include="Diagnostics\Mt5ConnectionDiagnostics.cs" />
+    <Compile Include="Mt5Client\Mt5ClientBase.cs" />
     <Compile Include="Mt5Client\Mt5LiveClient.cs" />
     <Compile Include="Mt5Client\Mt5DemoClient.cs" />
     <Compile Include="Controllers\AccountAvailabilityCheckController.cs" />
@@ -504,7 +505,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Configuration\SWAGGER_SETUP.md" />
+    <None Include="Configuration\XML_DOCUMENTATION_GUIDE.md" />
+    <None Include="Mt5Client\MIGRATION_GUIDE.md" />
+    <None Include="MT5_CONNECTION_TROUBLESHOOTING.md" />
     <None Include="packages.config" />
+    <None Include="Program.cs.fallback" />
+    <None Include="PROGRAM_STARTUP_REFACTORING.md" />
+    <None Include="SERILOG_FIX_README.md" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\MetaQuotes.MT5CommonAPI.dll" />

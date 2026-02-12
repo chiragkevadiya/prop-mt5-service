@@ -54,7 +54,7 @@ namespace PropMT5ConnectionService.Services
         {
             var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             var originalColor = Console.ForegroundColor;
-            
+
             try
             {
                 Console.ForegroundColor = color;

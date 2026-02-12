@@ -135,16 +135,13 @@ namespace PropMT5ConnectionService.Helpers
                 return "Not found";
             if (retCode == MTRetCode.MT_RET_ERR_PARAMS)
                 return "Invalid parameters";
-            
+
             return $"MT5 operation failed: {retCode}";
         }
     }
 
-    // Keep for backward compatibility - will be deprecated
-    [System.Obsolete("Use BaseResponse<T> instead")]
     public class BaseResponseModel<T> : PagedResponse<T> { }
 
-    [System.Obsolete("Use BaseResponse<T> instead")]
     public class BaseResponseObject<T> : BaseResponse<T> { }
 
     public class UploadError

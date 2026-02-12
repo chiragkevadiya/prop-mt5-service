@@ -57,8 +57,8 @@ namespace PropMT5ConnectionService.Models
         public string LastName { get; set; }
         //public int InterestCalcType { get; set; }
         public string CRMComment { get; set; }
-        public bool IsDeleted { get; set; }
-        public bool IsActive { get; set; }
+        public new bool IsDeleted { get; set; }
+        public new bool IsActive { get; set; }
         public DateTime? ActionDate { get; set; }
         public long ActionBy { get; set; }
         //public bool FTDVerify { get; set; } = false;

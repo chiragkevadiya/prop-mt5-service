@@ -1,6 +1,5 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Controllers;
 using PropMT5ConnectionService.Helpers;
 using PropMT5ConnectionService.Services;
 using PropMT5ConnectionService.ViewModels.Password;
@@ -45,7 +44,7 @@ namespace PropMT5ConnectionService.Controllers
                     : CIMTUser.EnUsersPasswords.USER_PASS_INVESTOR;
 
                 var result = _accountService.ChangePassword(loginId, newPassword, mt5PasswordType);
-                
+
                 return new BaseResponse<UserMasterInvestorPasswordVM>
                 {
                     Success = result.Success,
