@@ -1,18 +1,18 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using MT5ConnectionService.Helper;
-using MT5ConnectionService.ViewModels;
+using PropMT5ConnectionService.Helpers;
+using PropMT5ConnectionService.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Web.Http;
 using static MetaQuotes.MT5CommonAPI.CIMTDeal;
 
-namespace MT5ConnectionService.Controllers
+namespace PropMT5ConnectionService.Controllers
 {
     [RoutePrefix("api/close-trade-operations")] // Updated route prefix for consistency
     public class CloseTradeOperationsController : ApiController // Renamed class for consistency
     {
-        CIMTManagerAPI _manager = CreateManagerHelper.GetManager();
+        CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
 
         public CloseTradeOperationsController()
         {

@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace MT5ConnectionService.Middleware
+namespace PropMT5ConnectionService.Middleware
 {
     public class CustomMiddleware : OwinMiddleware
     {

@@ -1,19 +1,19 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using MT5ConnectionService.Helper;
-using MT5ConnectionService.StaticMethod;
-using MT5ConnectionService.ViewModels;
-using MT5ConnectionService.ViewModels.TradePosition;
+using PropMT5ConnectionService.Helpers;
+using PropMT5ConnectionService.Utilities;
+using PropMT5ConnectionService.ViewModels;
+using PropMT5ConnectionService.ViewModels.TradePosition;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 
-namespace MT5ConnectionService
+namespace PropMT5ConnectionService
 {
     public class TradeAccountOverviewController : ApiController
     {
-        CIMTManagerAPI _manager = CreateManagerHelper.GetManager();
+        CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
         public TradeAccountOverviewController()
         {
 
@@ -64,8 +64,8 @@ namespace MT5ConnectionService
                 CIMTAccount cIMTAccountInfo = _manager.UserCreateAccount();
                 MTRetCode mTRetCode2 = _manager.UserAccountGet(LoginId, cIMTAccountInfo);
 
-                DateTimeOffset dateFromString = DateFormatCovert.FormatDate(DateTimeOffset.FromUnixTimeSeconds(userobj.Registration()).LocalDateTime.ToString("dd-MM-yyyy"));
-                DateTimeOffset dateToString = DateFormatCovert.FormatDate(DateTime.UtcNow.ToString("dd-MM-yyyy"));
+                DateTimeOffset dateFromString = DateFormatConverter.FormatDate(DateTimeOffset.FromUnixTimeSeconds(userobj.Registration()).LocalDateTime.ToString("dd-MM-yyyy"));
+                DateTimeOffset dateToString = DateFormatConverter.FormatDate(DateTime.UtcNow.ToString("dd-MM-yyyy"));
                 DateTimeOffset startDate = dateFromString.AddDays(-1);
                 DateTimeOffset endDate = dateToString.AddDays(2);
                 long fromDateAss = (long)(startDate - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds;
@@ -230,8 +230,8 @@ namespace MT5ConnectionService
                     _manager.UserAccountGet(LoginId, accountInfo);
 
                     // Get deals
-                    DateTimeOffset fromDate = DateFormatCovert.FormatDate(DateTimeOffset.FromUnixTimeSeconds(userobj.Registration()).LocalDateTime.ToString("dd-MM-yyyy"));
-                    DateTimeOffset toDate = DateFormatCovert.FormatDate(DateTime.UtcNow.ToString("dd-MM-yyyy"));
+                    DateTimeOffset fromDate = DateFormatConverter.FormatDate(DateTimeOffset.FromUnixTimeSeconds(userobj.Registration()).LocalDateTime.ToString("dd-MM-yyyy"));
+                    DateTimeOffset toDate = DateFormatConverter.FormatDate(DateTime.UtcNow.ToString("dd-MM-yyyy"));
                     long fromSeconds = (long)(fromDate.AddDays(-1) - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds;
                     long toSeconds = (long)(toDate.AddDays(2) - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds;
 

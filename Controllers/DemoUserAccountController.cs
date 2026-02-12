@@ -1,15 +1,15 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using MT5ConnectionService.Helper;
-using MT5ConnectionService.ViewModels;
+using PropMT5ConnectionService.Helpers;
+using PropMT5ConnectionService.ViewModels;
 using System;
 using System.Web.Http;
 
-namespace MT5ConnectionService.Controllers
+namespace PropMT5ConnectionService.Controllers
 {
     public class DemoUserAccountController : ApiController
     {
-        CIMTManagerAPI _managerDemo = CreateDemoManagerHelper.GetManagerDemo();
+        CIMTManagerAPI _managerDemo = Mt5DemoManagerFactory.GetManagerDemo();
 
         [HttpGet]
         public UserDetailsAccountVM UsersAccountGet(ulong LoginId)
@@ -43,7 +43,7 @@ namespace MT5ConnectionService.Controllers
         }
 
         [HttpPost]
-        public MTRetCode UserDepositBalance([FromBody] MTFiveDepositBalanceVM entity)
+        public MTRetCode UserDepositBalance([FromBody] Mt5DepositBalanceVM entity)
         {
             return MT5AccountOperations.DepositOrWithdrawBalance(_managerDemo, entity);
         }

@@ -1,19 +1,19 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
 using Microsoft.Extensions.Configuration;
-using MT5ConnectionService.ViewModels;
-using PropMT5ConnectionService.Helper;
+using PropMT5ConnectionService.ViewModels;
+using PropMT5ConnectionService.Helpers;
 using PropMT5ConnectionService.Models;
 using PropMT5ConnectionService.ViewModels.ChallengeSettlement;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static PropMT5ConnectionService.Helper.Constant;
+using static PropMT5ConnectionService.Helpers.Constant;
 
 namespace PropMT5ConnectionService.Services
 {
-    public class LiquidationService : ILiqudationService
+    public class LiquidationService : ILiquidationService
     {
         private readonly IHttpClientService _httpClientService;
         private readonly IConfiguration _configuration;

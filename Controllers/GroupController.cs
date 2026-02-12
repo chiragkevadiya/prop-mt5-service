@@ -1,18 +1,18 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using MT5ConnectionService.Helper;
-using MT5ConnectionService.ViewModels;
-using MT5ConnectionService.ViewModels.GroupName;
+using PropMT5ConnectionService.Helpers;
+using PropMT5ConnectionService.ViewModels;
+using PropMT5ConnectionService.ViewModels.GroupName;
 using System;
 using System.Collections.Generic;
 using System.Web.Http;
 
-namespace MT5ConnectionService.Controllers
+namespace PropMT5ConnectionService.Controllers
 {
     [RoutePrefix("api/{controller}")]
     public class GroupController : ApiController
     {
-        CIMTManagerAPI _manager = CreateManagerHelper.GetManager();
+        CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
 
         public GroupController()
         {

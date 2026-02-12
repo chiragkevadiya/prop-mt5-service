@@ -1,18 +1,18 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using MT5ConnectionService.Helper;
-using MT5ConnectionService.ViewModels;
+using PropMT5ConnectionService.Helpers;
+using PropMT5ConnectionService.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Web.Http;
 
-namespace MT5ConnectionService.Controllers
+namespace PropMT5ConnectionService.Controllers
 {
     [RoutePrefix("api/account-performance-data")] // Updated route prefix for consistency
     public class AccountPerformanceDataController : ApiController // Renamed class for consistency
     {
-        CIMTManagerAPI _manager = CreateManagerHelper.GetManager();
-        public AccountPerformanceDataController()
+        CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
+        public AccountPerformanceController()
         {
 
         }

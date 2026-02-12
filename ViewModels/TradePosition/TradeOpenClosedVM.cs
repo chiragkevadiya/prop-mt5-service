@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MT5ConnectionService.ViewModels.TradePosition
+namespace PropMT5ConnectionService.ViewModels.TradePosition
 {
     public class TradeOpenClosedVM
     {

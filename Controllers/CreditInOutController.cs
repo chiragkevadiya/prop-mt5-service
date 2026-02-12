@@ -1,24 +1,24 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using MT5ConnectionService.Helper;
-using MT5ConnectionService.ViewModels;
+using PropMT5ConnectionService.Helpers;
+using PropMT5ConnectionService.ViewModels;
 using System;
 using System.Web.Http;
 
-namespace MT5ConnectionService.Controllers
+namespace PropMT5ConnectionService.Controllers
 {
     [RoutePrefix("api/credit-operations")] // Updated route prefix for consistency
     public class CreditOperationsController : ApiController // Renamed class for consistency
     {
-        CIMTManagerAPI _manager = CreateManagerHelper.GetManager();
-        public CreditOperationsController()
+        CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
+        public CreditInOutController()
         {
 
         }
 
         [HttpPost]
         [Route("balance")] // Explicit route for the action
-        public MTRetCode CreadiInOutBalance([FromBody] MTFiveDepositBalanceVM entity)
+        public MTRetCode CreditInOutBalance([FromBody] Mt5DepositBalanceVM entity)
         {
             try
             {

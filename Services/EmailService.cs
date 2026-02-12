@@ -3,9 +3,9 @@
 //using Microsoft.Extensions.Configuration;
 //using Microsoft.Extensions.Options;
 //using MimeKit;
-//using MT5ConnectionService.Helper;
+//using PropMT5ConnectionService.Helpers;
 //using Newtonsoft.Json;
-//using PropMT5ConnectionService.Helper;
+//using PropMT5ConnectionService.Helpers;
 //using PropMT5ConnectionService.Models.Email;
 //using PropMT5ConnectionService.ViewModels.Email;
 //using System;

@@ -1,0 +1,76 @@
+﻿using MetaQuotes.MT5CommonAPI;
+using MetaQuotes.MT5ManagerAPI;
+using PropMT5ConnectionService.Helpers;
+using PropMT5ConnectionService.Utilities;
+using PropMT5ConnectionService.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web.Http;
+
+namespace PropMT5ConnectionService.Controllers
+{
+    public class DemoTradingHistoryController : ApiController
+    {
+        CIMTManagerAPI _managerDemo = Mt5DemoManagerFactory.GetManagerDemo();
+
+        [HttpGet]
+        public IEnumerable<Mt5TradingHistoryVM> TradingHistoryFromDateToDate(ulong LoginId, string fromDatet, string toDatet)
+        {
+            try
+            {
+                ulong[] LoginIds = { LoginId };
+
+                DateTimeOffset dateFromString = DateFormatConverter.FormatDate(fromDatet);
+                DateTimeOffset dateToString = DateFormatConverter.FormatDate(toDatet);
+
+                DateTimeOffset startDate = dateFromString.AddDays(-1);
+                DateTimeOffset endDate = dateToString.AddDays(1);
+
+                long fromDateAss = (long)(startDate - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds;
+                long toDateAss = (long)(endDate - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds;
+
+                CIMTDealArray ciMTDealArray = _managerDemo.DealCreateArray();
+                MTRetCode mTRetCode12 = _managerDemo.DealRequestByLogins(LoginIds, fromDateAss, toDateAss, ciMTDealArray);
+
+                if (MTRetCode.MT_RET_OK == mTRetCode12)
+                {
+                    var deals = ciMTDealArray.ToArray().Select(Item => new Mt5TradingHistoryVM()
+                    {
+                        Order = Item.Order(),
+                        Symbol = Item.Symbol(),
+                        Volume = Item.Volume(),
+                        Price = Item.Price(),
+                        PriceSL = Item.PriceSL(),
+                        PriceTP = Item.PriceTP(),
+                        Profit = Item.Profit(),
+                        Comment = Item.Comment(),
+                        Deal = Item.Deal(),
+                        Login = Item.Login(),
+                        MarketAsk = Item.MarketAsk(),
+                        MarketBid = Item.MarketBid(),
+                        PositionID = Item.PositionID(),
+                        RateProfit = Item.RateProfit(),
+                        RateMargin = Item.RateMargin()
+                    }).ToList();
+
+                    ciMTDealArray.Clear();
+                    ciMTDealArray.Release();
+
+                    return deals;
+                }
+                else
+                {
+                    return new List<Mt5TradingHistoryVM>
+                    {
+                        new Mt5TradingHistoryVM { mTRetCodeError = mTRetCode12 }
+                    };
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+    }
+}
