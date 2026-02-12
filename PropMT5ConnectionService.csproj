@@ -380,8 +380,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiResponse\APIResponse.cs" />
+    <Compile Include="Configuration\ApiExplorerModule.cs" />
     <Compile Include="Configuration\BaseResponseModel.cs" />
     <Compile Include="Configuration\AppSettings.cs" />
+    <Compile Include="Configuration\NancySwaggerModule.cs" />
     <Compile Include="Constants\MT5Constants.cs" />
     <Compile Include="Controllers\Live\BaseApiController.cs" />
     <Compile Include="Controllers\Live\HealthCheckController.cs" />
@@ -512,11 +514,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="API_DOCUMENTATION.md" />
+    <None Include="API_EXPLORER_ENHANCED.md" />
     <None Include="App.config" />
+    <None Include="IMPLEMENTATION_SUMMARY.md" />
     <None Include="Mt5Client\MIGRATION_GUIDE.md" />
     <None Include="packages.config" />
     <None Include="Program.cs.fallback" />
+    <None Include="ROUTE_FIX_GUIDE.md" />
     <None Include="ROUTE_PREFIXES.md" />
+    <None Include="SWAGGER_DOCUMENTATION.md" />
     <None Include="TROUBLESHOOTING.md" />
     <None Include="WELCOME_PAGE_FIX.md" />
   </ItemGroup>
