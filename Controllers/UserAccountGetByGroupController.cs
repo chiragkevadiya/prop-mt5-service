@@ -1,4 +1,4 @@
-﻿using MetaQuotes.MT5CommonAPI;
+using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
 using PropMT5ConnectionService.Helpers;
 using PropMT5ConnectionService.ViewModels;
@@ -10,101 +10,82 @@ using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
 {
-    public class UserAccountGetByGroupController : ApiController
+    /// <summary>
+    /// Controller for retrieving user accounts filtered by group
+    /// </summary>
+    [RoutePrefix("api/mt5/accounts")]
+    public class UserAccountGetByGroupController : BaseApiController
     {
-        CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
+        public UserAccountGetByGroupController(CIMTManagerAPI manager) : base(manager) { }
 
-
+        /// <summary>
+        /// Get all user accounts filtered by login IDs from a configured file
+        /// </summary>
         [HttpGet]
-        public BaseResponseModel<IEnumerable<UserAccountGetByGroupVM>> UserAccountGetByGroup()
+        [Route("by-group")]
+        public IHttpActionResult GetUserAccountsByGroup()
         {
-            try
+            return ExecuteSafe(() =>
             {
+                CIMTAccountArray accountArray = _manager.UserCreateAccountArray();
+                MTRetCode retCode = _manager.UserAccountRequestArray("*", accountArray);
 
-                if (_manager == null)
-                {
-                    return new BaseResponseModel<IEnumerable<UserAccountGetByGroupVM>>
-                    {
-                        Success = false,
-                        Message = "Failed"
-                    };
-                }
-
-                IEnumerable<UserAccountGetByGroupVM> accountArrayTemp = new List<UserAccountGetByGroupVM>();
-
-
-                CIMTAccountArray cIMTAccountArray = _manager.UserCreateAccountArray();
-                MTRetCode MTRetCode = _manager.UserAccountRequestArray("*", cIMTAccountArray);
-
-                //string filePath = "E:\\OfficeProject\\9dot\\OPFX\\LoginFile\\LoginUserAccount.txt"; // Specify the path to your text file
+                if (retCode != MTRetCode.MT_RET_OK)
+                    throw new InvalidOperationException($"Failed to request account array: {retCode}");
 
                 string filePath = "C:\\inetpub\\wwwroot\\mt5.neptunefxcrm.com\\Logs\\LoginUserAccount.txt";
 
-                if (!File.Exists(filePath))
+                IEnumerable<UserAccountGetByGroupVM> accounts;
+
+                if (File.Exists(filePath))
                 {
-                    return new BaseResponseModel<IEnumerable<UserAccountGetByGroupVM>>
+                    string[] loginLines = File.ReadAllLines(filePath);
+                    string combinedLoginValues = string.Join(",", loginLines);
+                    ulong[] loginList = combinedLoginValues
+                        .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(line => ulong.Parse(line.Trim()))
+                        .Distinct()
+                        .ToArray();
+
+                    if (loginList.Any())
                     {
-                        Success = false,
-                        Message = "File not found."
-                    };
-                }
-
-                // Read all lines from the text file into an array of strings
-                string[] loginLines = File.ReadAllLines(filePath);
-                // Combine the lines into a single string, assuming each line might contain comma-separated values
-                string combinedLoginValues = string.Join(",", loginLines);
-                // Convert the comma-separated string to an array of ulong
-                ulong[] loginList = combinedLoginValues
-                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)  // Split the string by commas
-                    .Select(line => ulong.Parse(line.Trim()))                     // Parse each value to ulong
-                    .Distinct()                                                   // Remove any duplicates
-                    .ToArray();
-
-
-                if (loginList.Any())
-                {
-                    accountArrayTemp = cIMTAccountArray.ToArray()
-                    .Where(x => loginList.Contains(x.Login()))
-                    .Select(Item => new UserAccountGetByGroupVM
+                        accounts = accountArray.ToArray()
+                            .Where(x => loginList.Contains(x.Login()))
+                            .Select(item => MapToGroupVM(item))
+                            .ToList();
+                    }
+                    else
                     {
-                        Login = Item.Login(),
-                        Balance = Item.Balance(),
-                        Credit = Item.Credit(),
-                        Equity = Item.Equity(),
-                        Margin = Item.Margin(),
-                        MarginFree = Item.MarginFree(),
-                        Profit = Item.Profit()
-                    }).ToList();
+                        accounts = accountArray.ToArray()
+                            .Select(item => MapToGroupVM(item))
+                            .ToList();
+                    }
                 }
                 else
                 {
-                    accountArrayTemp = cIMTAccountArray.ToArray()
-                   .Select(Item => new UserAccountGetByGroupVM
-                   {
-                       Login = Item.Login(),
-                       Balance = Item.Balance(),
-                       Credit = Item.Credit(),
-                       Equity = Item.Equity(),
-                       Margin = Item.Margin(),
-                       MarginFree = Item.MarginFree(),
-                       Profit = Item.Profit()
-                   }).ToList();
+                    accounts = accountArray.ToArray()
+                        .Select(item => MapToGroupVM(item))
+                        .ToList();
                 }
 
-                cIMTAccountArray.Release();
+                accountArray.Release();
 
-                return new BaseResponseModel<IEnumerable<UserAccountGetByGroupVM>>
-                {
-                    Data = accountArrayTemp,
-                    Success = true,
-                    Message = "Success"
-                };
-            }
-            catch (Exception)
+                return new BaseResponse<IEnumerable<UserAccountGetByGroupVM>>().WithSuccess(accounts, "Accounts retrieved successfully");
+            });
+        }
+
+        private static UserAccountGetByGroupVM MapToGroupVM(CIMTAccount item)
+        {
+            return new UserAccountGetByGroupVM
             {
-
-                throw;
-            }
+                Login = item.Login(),
+                Balance = item.Balance(),
+                Credit = item.Credit(),
+                Equity = item.Equity(),
+                Margin = item.Margin(),
+                MarginFree = item.MarginFree(),
+                Profit = item.Profit()
+            };
         }
     }
 }

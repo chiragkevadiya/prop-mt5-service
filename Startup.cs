@@ -1,7 +1,7 @@
 ﻿using Microsoft.Owin.StaticFiles;
-using PropMT5ConnectionService.Middleware;
 using Owin;
 using PropMT5ConnectionService.Helpers;
+using PropMT5ConnectionService.Middleware;
 using System;
 using System.Web.Http;
 
@@ -10,7 +10,7 @@ namespace PropMT5ConnectionService
     public class Startup
     {
         private readonly IServiceProvider _serviceProvider;
-        
+
         public Startup(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
@@ -22,6 +22,7 @@ namespace PropMT5ConnectionService
             app.Use(async (context, next) =>
             {
                 context.Response.Headers["Product"] = "Prop MT5 Services Connection";
+                context.Response.Headers["X-Powered-By"] = "OWIN/ASP.NET Web API";
                 await next.Invoke();
             });
 
@@ -34,28 +35,23 @@ namespace PropMT5ConnectionService
             // Set the dependency resolver to use the .NET Core DI container
             config.DependencyResolver = new DependencyResolver(_serviceProvider);
 
+            // Default API route
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
 
-            // Swagger (Swashbuckle) can be enabled here for Web API documentation.
-            // To enable Swagger UI, install the Swashbuckle NuGet package for Web API
-            // (for example: "Install-Package Swashbuckle -Version 5.6.0") and then add
-            // the following code back into this method:
-            //
-            // config.EnableSwagger(c =>
-            // {
-            //     c.SingleApiVersion("v1", "Prop MT5 API");
-            //     c.PrettyPrint();
-            // })
-            // .EnableSwaggerUi(c =>
-            // {
-            //     c.DocumentTitle = "Prop MT5 API Documentation";
-            // });
-            //
-            // Leaving this commented avoids compile errors when the package is not installed.
+            // Enable Swagger documentation
+            try
+            {
+                PropMT5ConnectionService.Configuration.SwaggerConfig.Register(config);
+                Console.WriteLine("[INFO] Swagger documentation enabled at /swagger");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WARNING] Failed to enable Swagger: {ex.Message}");
+            }
 
             // Web Api
             app.UseWebApi(config);
@@ -69,7 +65,16 @@ namespace PropMT5ConnectionService
             };
             app.UseFileServer(options);
 
-            app.UseNancy();
+            // Nancy (if used)
+            try
+            {
+                app.UseNancy();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WARNING] Nancy not available: {ex.Message}");
+            }
         }
     }
 }
+

@@ -2,12 +2,10 @@
 using MetaQuotes.MT5ManagerAPI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MT5ConnectionService.ClientMT5;
-using MT5ConnectionService.Helper;
 using PropMT5ConnectionService.Configuration;
+using PropMT5ConnectionService.Helpers;
+using PropMT5ConnectionService.Mt5Client;
 using PropMT5ConnectionService.Services;
-using PropMT5ConnectionService.Services.Implementations;
-using PropMT5ConnectionService.Services.Interfaces;
 using System;
 using Topshelf;
 
@@ -22,11 +20,7 @@ namespace PropMT5ConnectionService
 
         static void StartTopshelf()
         {
-            var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
-            if (environment == null)
-            {
-                environment = "Development";
-            }
+            var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Development";
             Console.WriteLine($"[INFO] Running in {environment} environment");
 
             // Build DI container
@@ -40,14 +34,7 @@ namespace PropMT5ConnectionService
 
             services.AddSingleton<IConfiguration>(configuration);
 
-            // Configure strongly-typed settings
-            services.Configure<MT5ConnectionSettings>(configuration.GetSection("MT5"));
-            services.Configure<LoggingSettings>(configuration.GetSection("Logging"));
-            services.Configure<WebServerSettings>(configuration.GetSection("WebServer"));
-            services.Configure<BackgroundJobsSettings>(configuration.GetSection("BackgroundJobs"));
-            services.Configure<ClientEmailSetting>(configuration.GetSection("ClientEmailSetting"));
-
-            // Register the MT5 Manager API as a Singleton
+            // Register the MT5 Manager API as a Singleton for Live
             services.AddSingleton<CIMTManagerAPI>(provider =>
             {
                 var connector = new Mt5LiveClient();
@@ -75,13 +62,27 @@ namespace PropMT5ConnectionService
                 }
 
                 Console.WriteLine($"[INFO] Successfully connected to MT5 Manager API.");
+                
+                // Initialize static factory for backward compatibility (will be phased out)
+                Mt5ManagerFactory.InitializeManager(connector.m_manager);
+                
                 return connector.m_manager;
             });
 
             // Register Core Services
-            services.AddSingleton<IMT5ConnectionService, PropMT5ConnectionService.Services.Implementations.MT5ConnectionService>();
+            services.AddSingleton<ILoggingService>(provider => 
+            {
+                // Use composite logging (console + file)
+                var consoleLogger = new ConsoleLoggingService("MT5Service");
+                var fileLogger = new FileLoggingService();
+                return new CompositeLoggingService(consoleLogger, fileLogger);
+            });
+            services.AddSingleton<ICachingService, MemoryCachingService>();
+            services.AddSingleton<IPerformanceMonitoringService, PerformanceMonitoringService>();
             services.AddScoped<IHttpClientService, HttpClientService>();
             services.AddScoped<ILiquidationService, LiquidationService>();
+            services.AddScoped<IMT5AccountService, MT5AccountService>();
+            services.AddScoped<IMT5TradingService, MT5TradingService>();
 
             // Register the WebServer service itself
             services.AddSingleton<WebServer>();
@@ -93,16 +94,12 @@ namespace PropMT5ConnectionService
             {
                 x.Service<WebServer>(s =>
                 {
-                    s.ConstructUsing(name =>
-                    {
-                        return serviceProvider.GetService<WebServer>();
-                    });
+                    s.ConstructUsing(name => serviceProvider.GetService<WebServer>());
                     s.WhenStarted(tc => tc.Start());
                     s.WhenStopped(tc => tc.Stop());
                 });
 
                 x.RunAsLocalSystem();
-
                 x.SetDescription("This service manages connections to MT5 (MetaTrader 5).");
                 x.SetDisplayName("Prop MT5 Connection Service");
                 x.SetServiceName("PropMT5ConnectionService");
@@ -110,3 +107,4 @@ namespace PropMT5ConnectionService
         }
     }
 }
+

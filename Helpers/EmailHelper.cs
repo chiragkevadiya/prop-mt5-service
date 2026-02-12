@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using PropMT5ConnectionService.Helpers;
 using PropMT5ConnectionService.Models.Email;
 using System;
 using System.IO;

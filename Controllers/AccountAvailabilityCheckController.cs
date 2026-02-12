@@ -1,61 +1,48 @@
-﻿using MetaQuotes.MT5CommonAPI;
+using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
 using PropMT5ConnectionService.Helpers;
-using System;
 using System.Collections.Generic;
 using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
 {
-    [RoutePrefix("api/account-availability-check")] // Updated route prefix for consistency
-    public class AccountAvailabilityController : ApiController // Renamed class for consistency
+    /// <summary>
+    /// Controller for checking account availability (deleted accounts)
+    /// </summary>
+    [RoutePrefix("api/mt5/account-availability")]
+    public class AccountAvailabilityController : BaseApiController
     {
-        private readonly CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
+        public AccountAvailabilityController(CIMTManagerAPI manager) : base(manager) { }
 
+        /// <summary>
+        /// Check which login IDs correspond to deleted accounts
+        /// </summary>
         [HttpPost]
-        [Route("deleted")] // Explicit route for the action
-        public BaseResponseModel<List<ulong>> GetAllDeletedAccount([FromBody] List<ulong> loginIds)
+        [Route("deleted")]
+        public IHttpActionResult GetDeletedAccounts([FromBody] List<ulong> loginIds)
         {
-            var responseList = new List<ulong>();
+            if (loginIds == null || loginIds.Count == 0)
+                return BadRequest("No login IDs provided.");
 
-            try
+            return ExecuteSafe(() =>
             {
-                if (loginIds == null || loginIds.Count == 0)
-                {
-                    return new BaseResponseModel<List<ulong>>
-                    {
-                        Success = false,
-                        Message = "No login IDs provided."
-                    };
-                }
+                var deletedAccounts = new List<ulong>();
 
-                // STEP 1: Pre-fetch and store original details
                 foreach (var loginId in loginIds)
                 {
-                    CIMTUser originalUser = _manager.UserCreate();
-                    var getResult = _manager.UserGet(loginId, originalUser);
+                    CIMTUser user = _manager.UserCreate();
+                    var getResult = _manager.UserGet(loginId, user);
 
                     if (getResult == MTRetCode.MT_RET_ERR_NOTFOUND)
                     {
-                        responseList.Add(loginId);
+                        deletedAccounts.Add(loginId);
                     }
-                }
-                return new BaseResponseModel<List<ulong>>
-                {
-                    Success = true,
-                    Message = "Deleted account retrieved successfully.",
-                    Data = responseList
-                };
 
-            }
-            catch (Exception)
-            {
-                return new BaseResponseModel<List<ulong>>
-                {
-                    Success = true,
-                    Message = "Something went wrong while gathering deleted account information.",
-                };
-            }
+                    user.Release();
+                }
+
+                return new BaseResponse<List<ulong>>().WithSuccess(deletedAccounts, "Deleted accounts retrieved successfully.");
+            });
         }
     }
 }

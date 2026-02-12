@@ -1,129 +1,77 @@
-﻿using MetaQuotes.MT5CommonAPI;
-using MetaQuotes.MT5ManagerAPI;
+﻿using MetaQuotes.MT5ManagerAPI;
+using PropMT5ConnectionService.Controllers;
 using PropMT5ConnectionService.Helpers;
-using PropMT5ConnectionService.Utilities;
+using PropMT5ConnectionService.Services;
 using PropMT5ConnectionService.ViewModels;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Web.Http;
 using FromBodyAttribute = Microsoft.AspNetCore.Mvc.FromBodyAttribute;
 using HttpGetAttribute = System.Web.Http.HttpGetAttribute;
 using HttpPostAttribute = System.Web.Http.HttpPostAttribute;
 
-
 namespace PropMT5ConnectionService
 {
-
-
+    /// <summary>
+    /// Controller for managing Live MT5 accounts
+    /// </summary>
     [RoutePrefix("api/mt5")]
-    public class LiveAccountController : ApiController
+    public class LiveAccountController : BaseApiController
     {
-        CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
-        public LiveAccountController()
-        {
+        private readonly IMT5AccountService _accountService;
 
+        public LiveAccountController(CIMTManagerAPI manager) : base(manager)
+        {
+            var config = new AccountCreationConfig
+            {
+                LoginPrefix = "555",
+                ServerName = "PropTradingMT5",
+                AccountType = "Live"
+            };
+            _accountService = new MT5AccountService(manager, config);
         }
 
+        /// <summary>
+        /// Get a single live account by login ID
+        /// </summary>
         [HttpGet]
         [Route("account/{loginId:long}")]
-        public Mt5LiveAccountVM UserGetSingleLiveAccount(long LoginId)
+        public IHttpActionResult GetSingleLiveAccount(long loginId)
         {
-            return MT5AccountOperations.GetSingleAccount(_manager, (ulong)LoginId);
+            return ExecuteSafe(() =>
+            {
+                var account = _accountService.GetSingleAccount((ulong)loginId);
+                return new BaseResponse<Mt5LiveAccountVM>().WithSuccess(account, "Account retrieved successfully");
+            });
         }
 
+        /// <summary>
+        /// Get all live accounts
+        /// </summary>
         [HttpGet]
         [Route("accounts")]
-        public IEnumerable<Mt5LiveAccountVM> GetAllLiveAccount()
+        public IHttpActionResult GetAllLiveAccounts()
         {
-            return MT5AccountOperations.GetAllAccounts(_manager);
+            return ExecuteSafe(() =>
+            {
+                var accounts = _accountService.GetAllAccounts();
+                return new BaseResponse<IEnumerable<Mt5LiveAccountVM>>().WithSuccess(accounts, "Accounts retrieved successfully");
+            });
         }
 
+        /// <summary>
+        /// Create a new live account
+        /// </summary>
         [HttpPost]
         [Route("account/create")]
-        public IEnumerable<Mt5AccountCreatedVM> CreateLiveAccount([FromBody] UserIdModel entity)
+        public IHttpActionResult CreateLiveAccount([FromBody] UserIdModel model)
         {
-            try
-            {
-                bool maxRetry = true;
-                int attemptCount = 0;
+            if (model == null)
+                return BadRequest("Model cannot be null");
 
-                while (maxRetry)
-                {
-                    var prefix = "555";
-                    Random random = new Random();
-                    string randomPart = random.Next(0, 1000).ToString("D3");
-                    string loginString = prefix + randomPart;
-                    entity.LoginId = ulong.Parse(loginString);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-                    CIMTUser cIMTUser = _manager.UserCreate();
-
-                    cIMTUser.Login((ulong)entity.LoginId);
-                    cIMTUser.FirstName(entity.FirstName);
-                    cIMTUser.LastName(entity.LastName);
-                    cIMTUser.Leverage(entity.Leverage);
-                    cIMTUser.Group(entity.GroupName);
-                    cIMTUser.EMail(entity.EMail);
-                    cIMTUser.Phone(entity.Phone);
-                    cIMTUser.Address(entity.Address);
-                    cIMTUser.Country(entity.Country);
-
-                    string master_pass = PasswordGenerator.GenerateMasterPassword(11);
-                    string investor_pass = PasswordGenerator.GenerateInvestorPassword(9);
-
-                    cIMTUser.Rights((CIMTUser.EnUsersRights.USER_RIGHT_ENABLED |
-                        CIMTUser.EnUsersRights.USER_RIGHT_OTP_ENABLED |
-                        CIMTUser.EnUsersRights.USER_RIGHT_PASSWORD));
-
-                    MTRetCode mTRetCode = _manager.UserAdd(cIMTUser, master_pass, investor_pass);
-
-                    ulong[] userLogins = _manager.UserLogins(entity.GroupName, out MTRetCode res);
-
-                    if (mTRetCode == MTRetCode.MT_RET_USR_LOGIN_EXIST)
-                    {
-                        attemptCount++;
-                        if (attemptCount < 100)
-                        {
-                            continue;
-                        }
-                    }
-
-                    if (MTRetCode.MT_RET_OK == mTRetCode)
-                    {
-                        maxRetry = false;
-
-                        Mt5AccountCreatedVM userAccount = new Mt5AccountCreatedVM
-                        {
-                            UserId = entity.UserId,
-                            Login = (ulong)(entity.LoginId != 0 ? entity.LoginId : userLogins.Last()),
-                            GroupName = entity.GroupName,
-                            MasterPassword = master_pass,
-                            InvestorPassword = investor_pass,
-                            Leverage = entity.Leverage,
-                            ServerName = "PropTradingMT5"
-                        };
-
-                        List<Mt5AccountCreatedVM> userAccounts = new List<Mt5AccountCreatedVM>();
-                        userAccounts.Add(userAccount);
-
-                        AccountLogHelper.LogSuccess(entity.UserId, entity.GroupName, entity.Leverage, entity.FirstName,
-                            entity.LastName, entity.EMail, entity.Phone, entity.Address, entity.Country, userLogins.Last(), master_pass, investor_pass);
-
-                        return userAccounts;
-                    }
-                    else
-                    {
-                        AccountLogHelper.LogFailed(entity.UserId, entity.GroupName, entity.Leverage, entity.FirstName,
-                            entity.LastName, entity.EMail, entity.Phone, entity.Address, entity.Country, mTRetCode, master_pass, investor_pass);
-                        return null;
-                    }
-                }
-                return null;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            return ExecuteSafe(() => _accountService.CreateAccount(model, null));
         }
     }
 }

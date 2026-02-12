@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -26,7 +26,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <AutorunEnabled>true</AutorunEnabled>
-    <ApplicationRevision>86</ApplicationRevision>
+    <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -374,7 +374,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiResponse\APIResponse.cs" />
-    <Compile Include="BaseResponseModel.cs" />
+    <Compile Include="Configuration\BaseResponseModel.cs" />
+    <Compile Include="Configuration\AppSettings.cs" />
+    <Compile Include="Configuration\SwaggerConfig.cs" />
+    <Compile Include="Constants\MT5Constants.cs" />
+    <Compile Include="Controllers\BaseApiController.cs" />
+    <Compile Include="Controllers\HealthCheckController.cs" />
     <Compile Include="Mt5Client\Mt5LiveClient.cs" />
     <Compile Include="Mt5Client\Mt5DemoClient.cs" />
     <Compile Include="Controllers\AccountAvailabilityCheckController.cs" />
@@ -414,7 +419,7 @@
     <Compile Include="Controllers\LiveUserAccountController.cs" />
     <Compile Include="Controllers\UserAccountDetailsController.cs" />
     <Compile Include="Controllers\UserAccountGetByGroupController.cs" />
-    <Compile Include="CustomContentTypeProvider.cs" />
+    <Compile Include="Configuration\CustomContentTypeProvider.cs" />
     <Compile Include="Controllers\LiveAccountController.cs" />
     <Compile Include="Data\PropTradingDBContext.cs" />
     <Compile Include="Extensions\JsonExtensions.cs" />
@@ -448,14 +453,19 @@
     <Compile Include="Models\UserChallengeHistory.cs" />
     <Compile Include="Models\UserChallengePhase.cs" />
     <Compile Include="Models\UserMaster.cs" />
-    <Compile Include="NancyDemo.cs" />
+    <Compile Include="Configuration\NancyDemo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\CachingService.cs" />
     <Compile Include="Services\HttpClientService.cs" />
     <Compile Include="Services\EmailService.cs" />
     <Compile Include="Services\ILiquidationService.cs" />
     <Compile Include="Services\IMT5ManagerService.cs" />
     <Compile Include="Services\LiquidationService.cs" />
+    <Compile Include="Services\LoggingService.cs" />
+    <Compile Include="Services\MT5AccountService.cs" />
+    <Compile Include="Services\MT5TradingService.cs" />
+    <Compile Include="Services\PerformanceMonitoringService.cs" />
     <Compile Include="Services\TickSink.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Utilities\ConnectionString.cs" />
@@ -493,7 +503,6 @@
     <Compile Include="WebServer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ProjectOverview.html" />
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -525,4 +534,9 @@
     <Error Condition="!Exists('packages\Serilog.4.3.0\build\Serilog.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Serilog.4.3.0\build\Serilog.targets'))" />
   </Target>
   <Import Project="packages\Serilog.4.3.0\build\Serilog.targets" Condition="Exists('packages\Serilog.4.3.0\build\Serilog.targets')" />
+  <ItemGroup>
+    <None Include="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

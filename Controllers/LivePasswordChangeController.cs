@@ -1,113 +1,74 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
+using PropMT5ConnectionService.Controllers;
 using PropMT5ConnectionService.Helpers;
+using PropMT5ConnectionService.Services;
 using PropMT5ConnectionService.ViewModels.Password;
 using System;
 using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
 {
-    public class LivePasswordChangeController : ApiController
+    /// <summary>
+    /// Controller for managing MT5 password changes
+    /// </summary>
+    [RoutePrefix("api/password")]
+    public class LivePasswordChangeController : BaseApiController
     {
-        CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
+        private readonly IMT5AccountService _accountService;
 
-
-        [HttpGet]
-        public BaseResponseModel<UserMasterInvestorPasswordVM> MT5LiveMasterInvestorPasswordChange(ulong LoginId, string newPassword, int pType)
+        public LivePasswordChangeController(CIMTManagerAPI manager) : base(manager)
         {
-
-            try
-            {
-                // Set master and investor passwords (replace with your logic)
-
-
-                if (pType == 0) // pType =0 master_password
-                {
-                    string master_password = newPassword; // Replace with a valid master password
-
-                    // Master Password Change
-                    MTRetCode master_pass_mTRetCode = _manager.UserPasswordChange(CIMTUser.EnUsersPasswords.USER_PASS_MAIN, LoginId, master_password);
-
-                    if (MTRetCode.MT_RET_USR_INVALID_PASSWORD == master_pass_mTRetCode)
-                    {
-                        return new BaseResponseModel<UserMasterInvestorPasswordVM>
-                        {
-                            Data = null,
-                            Message = "Invalid trading password. Please try again.",
-                            Success = false,
-                            MTRetErrorCode = MTRetCode.MT_RET_USR_INVALID_PASSWORD
-                        };
-                    }
-
-                    UserMasterInvestorPasswordVM userPasswordChangeVM = new UserMasterInvestorPasswordVM()
-                    {
-                        Login = LoginId,
-                        InvestorPassword = null,
-                        MasterPassword = master_password,
-                    };
-
-                    return new BaseResponseModel<UserMasterInvestorPasswordVM>
-                    {
-                        Data = userPasswordChangeVM,
-                        Message = "Trading password changed successfully.",
-                        Success = true,
-                        MTRetErrorCode = MTRetCode.MT_RET_OK
-                    };
-
-                }
-                else if (pType == 1) // pType =1 investor_password
-                {
-                    string investor_password = newPassword; // Replace with a valid investor password
-
-                    // Investor Password Change
-                    MTRetCode investor_pass_mTRetCode = _manager.UserPasswordChange(CIMTUser.EnUsersPasswords.USER_PASS_INVESTOR, LoginId, investor_password);
-
-                    if (MTRetCode.MT_RET_USR_INVALID_PASSWORD == investor_pass_mTRetCode)
-                    {
-                        return new BaseResponseModel<UserMasterInvestorPasswordVM>
-                        {
-                            Data = null,
-                            Message = "Invalid investor password. Please try again.",
-                            Success = false,
-                            MTRetErrorCode = MTRetCode.MT_RET_USR_INVALID_PASSWORD
-                        };
-                    }
-
-                    UserMasterInvestorPasswordVM userPasswordChangeVM = new UserMasterInvestorPasswordVM()
-                    {
-                        Login = LoginId,
-                        InvestorPassword = investor_password,
-                        MasterPassword = null,
-                    };
-
-                    return new BaseResponseModel<UserMasterInvestorPasswordVM>
-                    {
-                        Data = userPasswordChangeVM,
-                        Message = "Investor password changed successfully.",
-                        Success = true,
-                        MTRetErrorCode = MTRetCode.MT_RET_OK
-                    };
-
-                }
-                else
-                {
-                    return new BaseResponseModel<UserMasterInvestorPasswordVM>
-                    {
-                        Data = null,
-                        Message = "Unknown password type",
-                        Success = false,
-                        MTRetErrorCode = MTRetCode.MT_RET_USR_INVALID_PASSWORD
-                    };
-                }
-
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-
+            _accountService = new MT5AccountService(manager);
         }
 
+        /// <summary>
+        /// Change MT5 master or investor password
+        /// </summary>
+        /// <param name="loginId">User login ID</param>
+        /// <param name="newPassword">New password</param>
+        /// <param name="passwordType">0 = Master Password, 1 = Investor Password</param>
+        [HttpPost]
+        [Route("change")]
+        public IHttpActionResult ChangePassword(ulong loginId, string newPassword, int passwordType)
+        {
+            if (string.IsNullOrWhiteSpace(newPassword))
+                return BadRequest("Password cannot be empty");
+
+            if (passwordType != 0 && passwordType != 1)
+                return BadRequest("Password type must be 0 (Master) or 1 (Investor)");
+
+            return ExecuteSafe(() =>
+            {
+                var mt5PasswordType = passwordType == 0
+                    ? CIMTUser.EnUsersPasswords.USER_PASS_MAIN
+                    : CIMTUser.EnUsersPasswords.USER_PASS_INVESTOR;
+
+                var result = _accountService.ChangePassword(loginId, newPassword, mt5PasswordType);
+                
+                return new BaseResponse<UserMasterInvestorPasswordVM>
+                {
+                    Success = result.Success,
+                    Message = result.Message,
+                    StatusCode = result.StatusCode,
+                    Data = result.Success ? new UserMasterInvestorPasswordVM
+                    {
+                        Login = loginId,
+                        MasterPassword = passwordType == 0 ? newPassword : null,
+                        InvestorPassword = passwordType == 1 ? newPassword : null
+                    } : null
+                };
+            });
+        }
+
+        /// <summary>
+        /// Legacy endpoint for backward compatibility
+        /// </summary>
+        [HttpGet]
+        [Obsolete("Use POST /api/password/change instead")]
+        public IHttpActionResult MT5LiveMasterInvestorPasswordChange(ulong loginId, string newPassword, int pType)
+        {
+            return ChangePassword(loginId, newPassword, pType);
+        }
     }
 }

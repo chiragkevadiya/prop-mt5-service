@@ -23,7 +23,7 @@ namespace PropMT5ConnectionService.Helpers
     {
         private ILiquidationService _liquidationInstance;
 
-        public CreateLiquidationHelper(ILiquidationService service)
+        public Mt5LiquidationFactory(ILiquidationService service)
         {
             if (service == null)
             {

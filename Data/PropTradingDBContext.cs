@@ -8,6 +8,7 @@ namespace PropMT5ConnectionService.Data
     {
         public PropTradingDBContext()
         {
+
         }
 
         public PropTradingDBContext(DbContextOptions<PropTradingDBContext> options) : base(options)
@@ -19,7 +20,5 @@ namespace PropMT5ConnectionService.Data
         public virtual DbSet<PropAccountMaster> PropAccountMaster { get; set; }
         public virtual DbSet<UserChallengeHistory> UserChallengeHistory { get; set; }
         public virtual DbSet<UserMaster> UserMaster { get; set; }
-
-        // Add other DbSet<> members here if build shows more missing types.
     }
 }

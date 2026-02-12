@@ -1,9 +1,9 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
 using Microsoft.Extensions.Configuration;
-using PropMT5ConnectionService.ViewModels;
 using PropMT5ConnectionService.Helpers;
 using PropMT5ConnectionService.Models;
+using PropMT5ConnectionService.ViewModels;
 using PropMT5ConnectionService.ViewModels.ChallengeSettlement;
 using System;
 using System.Collections.Generic;

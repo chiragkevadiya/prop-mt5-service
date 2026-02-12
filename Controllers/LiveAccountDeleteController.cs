@@ -1,4 +1,4 @@
-﻿using MetaQuotes.MT5CommonAPI;
+using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
 using PropMT5ConnectionService.Helpers;
 using PropMT5ConnectionService.ViewModels;
@@ -8,32 +8,33 @@ using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
 {
-    public class LiveAccountDeleteController : ApiController
+    /// <summary>
+    /// Controller for deleting live MT5 accounts
+    /// </summary>
+    [RoutePrefix("api/mt5/account")]
+    public class LiveAccountDeleteController : BaseApiController
     {
-        private readonly CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
+        public LiveAccountDeleteController(CIMTManagerAPI manager) : base(manager) { }
 
+        /// <summary>
+        /// Delete multiple live accounts by login IDs.
+        /// Skips accounts with open positions.
+        /// </summary>
         [HttpPost]
-        public BaseResponseModel<List<AccountDeleteResult>> DeleteAccounts([FromBody] List<ulong> loginIds)
+        [Route("delete")]
+        public IHttpActionResult DeleteAccounts([FromBody] List<ulong> loginIds)
         {
-            var responseList = new List<AccountDeleteResult>();
+            if (loginIds == null || loginIds.Count == 0)
+                return BadRequest("No login IDs provided.");
 
-            try
+            return ExecuteSafe(() =>
             {
-                if (loginIds == null || loginIds.Count == 0)
-                {
-                    return new BaseResponseModel<List<AccountDeleteResult>>
-                    {
-                        Success = false,
-                        Message = "No login IDs provided.",
-                        Data = responseList
-                    };
-                }
+                var responseList = new List<AccountDeleteResult>();
 
                 foreach (ulong loginId in loginIds)
                 {
                     var result = new AccountDeleteResult { LoginId = loginId };
 
-                    // Create position array
                     CIMTPositionArray positions = _manager.PositionCreateArray();
                     if (positions == null)
                     {
@@ -43,7 +44,6 @@ namespace PropMT5ConnectionService.Controllers
                         continue;
                     }
 
-                    // Check for open positions
                     var posResult = _manager.PositionGet(loginId, positions);
                     if (posResult == MTRetCode.MT_RET_OK && positions.Total() > 0)
                     {
@@ -55,7 +55,6 @@ namespace PropMT5ConnectionService.Controllers
                     }
                     positions.Release();
 
-                    // Get user
                     CIMTUser user = _manager.UserCreate();
                     if (user == null)
                     {
@@ -75,7 +74,6 @@ namespace PropMT5ConnectionService.Controllers
                         continue;
                     }
 
-                    // Delete user
                     var deleteCode = _manager.UserDelete(loginId);
                     if (deleteCode == MTRetCode.MT_RET_OK)
                     {
@@ -92,23 +90,8 @@ namespace PropMT5ConnectionService.Controllers
                     responseList.Add(result);
                 }
 
-                return new BaseResponseModel<List<AccountDeleteResult>>
-                {
-                    Success = true,
-                    Message = "Process completed.",
-                    Data = responseList
-                };
-            }
-            catch (Exception ex)
-            {
-                return new BaseResponseModel<List<AccountDeleteResult>>
-                {
-                    Success = false,
-                    Message = $"Exception: {ex.Message}",
-                    Data = responseList
-                };
-            }
+                return new BaseResponse<List<AccountDeleteResult>>().WithSuccess(responseList, "Delete process completed.");
+            });
         }
     }
-
 }

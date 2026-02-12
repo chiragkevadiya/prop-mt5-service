@@ -1,93 +1,81 @@
-﻿using MetaQuotes.MT5CommonAPI;
-using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Helpers;
-using PropMT5ConnectionService.Utilities;
+﻿using MetaQuotes.MT5ManagerAPI;
+using PropMT5ConnectionService.Controllers;
+using PropMT5ConnectionService.Services;
 using PropMT5ConnectionService.ViewModels;
-using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
 {
-    public class LiveTradingDataController : ApiController
+    /// <summary>
+    /// Controller for managing live trading data operations
+    /// </summary>
+    [RoutePrefix("api/trading/data")]
+    public class LiveTradingDataController : BaseApiController
     {
-        CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
+        private readonly IMT5TradingService _tradingService;
 
-        public LiveTradingDataController()
+        public LiveTradingDataController(CIMTManagerAPI manager) : base(manager)
         {
-
+            _tradingService = new MT5TradingService(manager);
         }
 
+        /// <summary>
+        /// Get trading data filtered by entry type
+        /// </summary>
+        /// <param name="loginId">MT5 login ID</param>
+        /// <param name="entryType">Entry type (0 = Open, 1 = Close)</param>
+        /// <param name="fromDate">Start date (format: yyyy-MM-dd)</param>
+        /// <param name="toDate">End date (format: yyyy-MM-dd)</param>
         [HttpGet]
-        public IEnumerable<Mt5TradingDataVM> TradingHistory(ulong loginId, uint entryType, string fromDate, string toDate)
+        [Route("")]
+        public async Task<IHttpActionResult> GetTradingData(ulong loginId, uint entryType, string fromDate, string toDate)
         {
-            try
+            var result = await _tradingService.GetTradingDataAsync(loginId, entryType, fromDate, toDate);
+            return Content((System.Net.HttpStatusCode)result.StatusCode, result);
+        }
+
+        /// <summary>
+        /// Get open trades for a login
+        /// </summary>
+        [HttpGet]
+        [Route("open/{loginId:long}")]
+        public async Task<IHttpActionResult> GetOpenTrades(long loginId)
+        {
+            var result = await _tradingService.GetOpenTradesAsync((ulong)loginId);
+            return Content((System.Net.HttpStatusCode)result.StatusCode, result);
+        }
+
+        /// <summary>
+        /// Get closed trades for a login
+        /// </summary>
+        [HttpGet]
+        [Route("closed/{loginId:long}")]
+        public async Task<IHttpActionResult> GetClosedTrades(long loginId, string fromDate, string toDate)
+        {
+            var result = await _tradingService.GetClosedTradesAsync((ulong)loginId, fromDate, toDate);
+            return Content((System.Net.HttpStatusCode)result.StatusCode, result);
+        }
+
+        /// <summary>
+        /// Legacy endpoint for backward compatibility
+        /// </summary>
+        [HttpGet]
+        [System.Obsolete("Use GET /api/trading/data instead")]
+        public async Task<IHttpActionResult> TradingHistory(ulong loginId, uint entryType, string fromDate, string toDate)
+        {
+            var result = await _tradingService.GetTradingDataAsync(loginId, entryType, fromDate, toDate);
+            
+            if (result.Success)
             {
-                if (string.IsNullOrWhiteSpace(fromDate) || string.IsNullOrWhiteSpace(toDate))
-                    throw new ArgumentException("Date parameters cannot be null or empty.");
-
-                DateTimeOffset startDate = DateFormatConverter.FormatDate(fromDate);
-                DateTimeOffset endDate = DateFormatConverter.FormatDate(toDate).AddDays(1);
-
-                long fromTimestamp = (long)(startDate - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds;
-                long toTimestamp = (long)(endDate - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds;
-
-                ulong[] loginIds = { loginId };
-
-                // Create deal array
-                CIMTDealArray dealArray = _manager.DealCreateArray();
-
-                if (dealArray == null)
-                    throw new InvalidOperationException("Failed to create CIMTDealArray.");
-
-                try
-                {
-                    MTRetCode requestCode = _manager.DealRequestByLogins(loginIds, fromTimestamp, toTimestamp, dealArray);
-
-                    if (requestCode == MTRetCode.MT_RET_OK)
-                    {
-                        var deals = dealArray.ToArray().Where(deal => deal.Entry() == entryType)
-                                   .Select(deal => new Mt5TradingDataVM
-                                   {
-                                       Deal = deal.Deal(),
-                                       Symbol = deal.Symbol(),
-                                       Timestamp = DateTimeOffset.FromUnixTimeMilliseconds(deal.TimeMsc()).ToUnixTimeMilliseconds(),
-                                       Time = DateTimeOffset.FromUnixTimeSeconds(deal.Time()).DateTime,
-                                       TimeMsc = DateTimeOffset.FromUnixTimeMilliseconds(deal.TimeMsc()).DateTime,
-                                       Login = deal.Login(),
-                                       PositionID = deal.PositionID(),
-                                       Action = deal.Action() == 0 ? "Buy" : "Sell",
-                                       Entry = deal.Entry() == 0 ? "Open" : "Close",
-                                       Volume = deal.Volume(),
-                                       Swap = deal.Storage(),
-                                       Price = deal.Price(),
-                                       PriceSL = deal.PriceSL(),
-                                       PriceTP = deal.PriceTP(),
-                                       Profit = deal.Profit(),
-                                       mTRetCodeError = requestCode
-                                   }).OrderByDescending(deal => deal.Time).ToList();
-
-                        return deals;
-                    }
-                    else
-                    {
-                        return new List<Mt5TradingDataVM>
-                        {
-                            new Mt5TradingDataVM { mTRetCodeError = requestCode }
-                        };
-                    }
-                }
-                finally
-                {
-                    dealArray.Clear();
-                    dealArray.Release();
-                }
+                return Ok(result.Data);
             }
-            catch (Exception ex)
+            else
             {
-                throw new ApplicationException("An error occurred while fetching trading history.", ex);
+                return Content((System.Net.HttpStatusCode)result.StatusCode, result);
             }
         }
     }
 }
+

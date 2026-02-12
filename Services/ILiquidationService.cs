@@ -1,7 +1,7 @@
 ﻿using MetaQuotes.MT5CommonAPI;
-using PropMT5ConnectionService.ViewModels;
 using PropMT5ConnectionService.Helpers;
 using PropMT5ConnectionService.Models;
+using PropMT5ConnectionService.ViewModels;
 using PropMT5ConnectionService.ViewModels.ChallengeSettlement;
 using System.Collections.Generic;
 using System.Threading.Tasks;

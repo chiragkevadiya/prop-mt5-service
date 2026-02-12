@@ -1,8 +1,5 @@
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using Microsoft.Owin.Hosting;
-using MT5ConnectionService.ClientMT5;
-using PropMT5ConnectionService.Configuration;
 using PropMT5ConnectionService.Services;
 using System;
 using System.Threading;
@@ -14,32 +11,25 @@ namespace PropMT5ConnectionService
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly IConfiguration _configuration;
-        private readonly ILiquidationService _liquidationService;
         private IDisposable _webapp;
         private CancellationTokenSource _cts;
         private Task _backgroundTask;
 
         public WebServer(IServiceProvider serviceProvider, IConfiguration configuration)
         {
-            _serviceProvider = serviceProvider;
-            _configuration = configuration;
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         public void Start()
         {
             Console.WriteLine("[INFO] WebServer starting...");
+            
             string baseUri = _configuration["WebServer:BaseUri"];
-
-            // Initialize MT5 Clients
-            Mt5LiveClient clientConnect = new Mt5LiveClient();
-            clientConnect.Initialize();
-
-            string server = _configuration["MT5:Live:Server"];
-            ulong login = ulong.Parse(_configuration["MT5:Live:Login"]);
-            string password = _configuration["MT5:Live:Password"];
-            uint timeout = uint.Parse(_configuration["MT5:Live:Timeout"]);
-
-            clientConnect.Connect(server, login, password, timeout);
+            if (string.IsNullOrWhiteSpace(baseUri))
+            {
+                throw new InvalidOperationException("WebServer:BaseUri is not configured");
+            }
 
             // Pass the service provider to the OWIN Startup class
             _webapp = WebApp.Start(baseUri, appBuilder =>
@@ -56,20 +46,41 @@ namespace PropMT5ConnectionService
 
         private async Task RunBackgroundJobs(CancellationToken token)
         {
-            int intervalSeconds = int.Parse(_configuration["BackgroundJobs:LiquidationCheckIntervalSeconds"]);
+            if (!int.TryParse(_configuration["BackgroundJobs:LiquidationCheckIntervalSeconds"], out int intervalSeconds))
+            {
+                Console.WriteLine("[WARNING] Invalid liquidation interval configuration, using default: 60 seconds");
+                intervalSeconds = 60;
+            }
+
+            Console.WriteLine($"[INFO] Background liquidation job will run every {intervalSeconds} seconds");
 
             while (!token.IsCancellationRequested)
             {
                 try
                 {
                     Console.WriteLine("[INFO] Running liquidation job...");
+                    
+                    // TODO: Implement actual liquidation check logic here
+                    // var liquidationService = _serviceProvider.GetService<ILiquidationService>();
+                    // await liquidationService.CheckLiquidations();
 
                     await Task.Delay(TimeSpan.FromSeconds(intervalSeconds), token);
                 }
-                catch (TaskCanceledException) { /* Swallow exception on shutdown */ }
+                catch (TaskCanceledException)
+                {
+                    Console.WriteLine("[INFO] Background job cancelled (service stopping)");
+                }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[ERROR] Background job: {ex.Message}");
+                    Console.WriteLine($"[ERROR] Background job error: {ex.Message}");
+                    Console.WriteLine($"[ERROR] Stack trace: {ex.StackTrace}");
+                    
+                    // Wait before retrying to avoid tight error loops
+                    try
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(10), token);
+                    }
+                    catch (TaskCanceledException) { }
                 }
             }
         }
@@ -77,13 +88,23 @@ namespace PropMT5ConnectionService
         public void Stop()
         {
             Console.WriteLine("[INFO] WebServer stopping...");
+            
+            // Cancel background jobs
             _cts?.Cancel();
+            
             try
             {
-                _backgroundTask?.Wait();
+                // Wait for background task to complete with timeout
+                _backgroundTask?.Wait(TimeSpan.FromSeconds(10));
             }
-            catch (AggregateException) { }
+            catch (AggregateException ex)
+            {
+                Console.WriteLine($"[WARNING] Error while stopping background task: {ex.Message}");
+            }
+            
+            // Dispose web app
             _webapp?.Dispose();
+            
             Console.WriteLine("[INFO] WebServer stopped.");
         }
     }

@@ -7,86 +7,89 @@ using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
 {
+    /// <summary>
+    /// Controller for disabling live accounts and force-closing positions
+    /// </summary>
     [RoutePrefix("api/mt5/account")]
-    public class LiveAccountDisableController : ApiController
+    public class LiveAccountDisableController : BaseApiController
     {
-        CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
-        public LiveAccountDisableController()
-        {
+        public LiveAccountDisableController(CIMTManagerAPI manager) : base(manager) { }
 
-        }
-
+        /// <summary>
+        /// Disable user accounts and force-close all open positions
+        /// </summary>
         [HttpPost]
         [Route("disable")]
-        public Dictionary<ulong, MTRetCode> DisableUserAndTrading([FromBody] List<long> loginIds)
+        public IHttpActionResult DisableUserAndTrading([FromBody] List<long> loginIds)
         {
-            var results = new Dictionary<ulong, MTRetCode>();
+            if (loginIds == null || loginIds.Count == 0)
+                return BadRequest("No login IDs provided.");
 
-            foreach (ulong loginId in loginIds)
+            return ExecuteSafe(() =>
             {
-                CIMTUser user = _manager.UserCreate();
-                if (user == null)
-                {
-                    results[loginId] = MTRetCode.MT_RET_ERROR;
-                    continue;
-                }
+                var results = new Dictionary<ulong, string>();
 
-                try
+                foreach (long id in loginIds)
                 {
-                    // 1? Fetch user
-                    var ret = _manager.UserGet(loginId, user);
-                    if (ret != MTRetCode.MT_RET_OK)
+                    ulong loginId = (ulong)id;
+                    CIMTUser user = _manager.UserCreate();
+                    if (user == null)
                     {
-                        results[loginId] = ret;
+                        results[loginId] = "Failed: Unable to create user object";
                         continue;
                     }
 
-                    // 2? Disable trading and login rights
-                    var rights = user.Rights();
-                    rights |= CIMTUser.EnUsersRights.USER_RIGHT_TRADE_DISABLED;
-                    rights &= ~CIMTUser.EnUsersRights.USER_RIGHT_ENABLED;
-                    user.Rights(rights);
-
-                    ret = _manager.UserUpdate(user);
-                    if (ret != MTRetCode.MT_RET_OK)
+                    try
                     {
-                        results[loginId] = ret;
-                        continue;
-                    }
-
-                    // 3? Force-close all open positions using CIMTAdminAPI
-                    CIMTPositionArray positions = _manager.PositionCreateArray();
-                    ret = _manager.PositionRequest(loginId, positions); // get all positions for this login
-
-                    if (ret == MTRetCode.MT_RET_OK)
-                    {
-                        for (uint i = 0; i < positions.Total(); i++)
+                        var ret = _manager.UserGet(loginId, user);
+                        if (ret != MTRetCode.MT_RET_OK)
                         {
-                            CIMTPosition pos = positions.Next(i);
-                            if (pos == null) continue;
-
-                            var deleteRet = _manager.PositionDelete(pos); // force close
-                            Console.WriteLine($"Position {pos.Symbol()} for login {loginId} deleted, result={deleteRet}");
+                            results[loginId] = $"Failed: User not found ({ret})";
+                            continue;
                         }
+
+                        // Disable trading and login rights
+                        var rights = user.Rights();
+                        rights |= CIMTUser.EnUsersRights.USER_RIGHT_TRADE_DISABLED;
+                        rights &= ~CIMTUser.EnUsersRights.USER_RIGHT_ENABLED;
+                        user.Rights(rights);
+
+                        ret = _manager.UserUpdate(user);
+                        if (ret != MTRetCode.MT_RET_OK)
+                        {
+                            results[loginId] = $"Failed: Update rights failed ({ret})";
+                            continue;
+                        }
+
+                        // Force-close all open positions
+                        CIMTPositionArray positions = _manager.PositionCreateArray();
+                        ret = _manager.PositionRequest(loginId, positions);
+
+                        if (ret == MTRetCode.MT_RET_OK)
+                        {
+                            for (uint i = 0; i < positions.Total(); i++)
+                            {
+                                CIMTPosition pos = positions.Next(i);
+                                if (pos == null) continue;
+                                _manager.PositionDelete(pos);
+                            }
+                        }
+                        positions.Release();
+
+                        results[loginId] = "Success: Disabled and positions force-closed";
                     }
-                    positions.Release();
+                    catch (Exception ex)
+                    {
+                        results[loginId] = $"Error: {ex.Message}";
+                    }
+                    finally
+                    {
+                        user.Release();
+                    }
+                }
 
-                    results[loginId] = MTRetCode.MT_RET_OK;
-                    Console.WriteLine($"Account {loginId}: disabled and all positions force-closed successfully!");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error processing account {loginId}: {ex.Message}");
-                    results[loginId] = MTRetCode.MT_RET_ERROR;
-                }
-                finally
-                {
-                    user.Release();
-                }
-            }
-
-            return results;
+                return new BaseResponse<Dictionary<ulong, string>>().WithSuccess(results, "Disable process completed.");
+            });
         }
-
     }
 }

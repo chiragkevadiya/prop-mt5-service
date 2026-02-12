@@ -11,7 +11,7 @@ namespace PropMT5ConnectionService.Controllers
     public class CreditOperationsController : ApiController // Renamed class for consistency
     {
         CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
-        public CreditInOutController()
+        public CreditOperationsController()
         {
 
         }

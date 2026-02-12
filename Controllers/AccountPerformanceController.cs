@@ -12,7 +12,7 @@ namespace PropMT5ConnectionService.Controllers
     public class AccountPerformanceDataController : ApiController // Renamed class for consistency
     {
         CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
-        public AccountPerformanceController()
+        public AccountPerformanceDataController()
         {
 
         }

@@ -1,64 +1,62 @@
-﻿using MetaQuotes.MT5CommonAPI;
+using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
 using PropMT5ConnectionService.Helpers;
 using PropMT5ConnectionService.ViewModels;
-using System;
 using System.Collections.Generic;
 using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
 {
-    public class UserAccountDetailsController : ApiController
+    /// <summary>
+    /// Controller for retrieving account details for multiple users
+    /// </summary>
+    [RoutePrefix("api/mt5/account-details")]
+    public class UserAccountDetailsController : BaseApiController
     {
-        CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
+        public UserAccountDetailsController(CIMTManagerAPI manager) : base(manager) { }
 
-        public UserAccountDetailsController()
-        {
-
-        }
-
+        /// <summary>
+        /// Get account details for multiple login IDs
+        /// </summary>
         [HttpPost]
-        public List<AccountDetailsVM> GetAccountDetails([FromBody] List<ulong> LoginId)
+        [Route("batch")]
+        public IHttpActionResult GetAccountDetails([FromBody] List<ulong> loginIds)
         {
-            try
+            if (loginIds == null || loginIds.Count == 0)
+                return BadRequest("No login IDs provided.");
+
+            return ExecuteSafe(() =>
             {
-                List<AccountDetailsVM> liveAccounts = new List<AccountDetailsVM>();
+                var accounts = new List<AccountDetailsVM>();
 
-                foreach (ulong loginId in LoginId)
+                foreach (ulong loginId in loginIds)
                 {
-                    CIMTUser cIMTUserc = _manager.UserCreate();
+                    CIMTUser user = _manager.UserCreate();
+                    MTRetCode userCode = _manager.UserGet(loginId, user);
 
-                    MTRetCode mTRetCode1 = _manager.UserGet(loginId, cIMTUserc);
+                    CIMTAccount accountInfo = _manager.UserCreateAccount();
+                    MTRetCode accountCode = _manager.UserAccountGet(loginId, accountInfo);
 
-                    CIMTAccount cIMTAccountInfo = _manager.UserCreateAccount();
-
-                    MTRetCode mTRetCode2 = _manager.UserAccountGet(loginId, cIMTAccountInfo);
-
-                    if (MTRetCode.MT_RET_OK == mTRetCode1)
+                    if (userCode == MTRetCode.MT_RET_OK)
                     {
-                        AccountDetailsVM liveAccountVM = new AccountDetailsVM()
+                        accounts.Add(new AccountDetailsVM
                         {
-                            Login = cIMTUserc.Login(),
-                            Credit = cIMTUserc.Credit(),
-                            Balance = cIMTUserc.Balance(),
-                            MarginFree = cIMTAccountInfo.MarginFree(),
-                            Equity = cIMTAccountInfo.Equity(),
-                            Profit = cIMTAccountInfo.Profit(),
-                        };
-
-                        liveAccounts.Add(liveAccountVM);
-
-                        cIMTUserc.Clear();
-                        cIMTUserc.Release();
+                            Login = user.Login(),
+                            Credit = user.Credit(),
+                            Balance = user.Balance(),
+                            MarginFree = accountInfo.MarginFree(),
+                            Equity = accountInfo.Equity(),
+                            Profit = accountInfo.Profit()
+                        });
                     }
+
+                    user.Clear();
+                    user.Release();
+                    accountInfo.Release();
                 }
 
-                return liveAccounts;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+                return new BaseResponse<List<AccountDetailsVM>>().WithSuccess(accounts, "Account details retrieved successfully");
+            });
         }
     }
 }

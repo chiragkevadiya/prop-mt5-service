@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using MetaQuotes.MT5CommonAPI;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 
 namespace PropMT5ConnectionService.Helpers
 {
-    // Base response without data
+    /// <summary>
+    /// Base response without data
+    /// </summary>
     public class BaseResponse
     {
         private bool _success;
@@ -14,11 +17,12 @@ namespace PropMT5ConnectionService.Helpers
             set
             {
                 _success = value;
-                StatusCode = value ? 200 : 400; // Set status code based on success
+                StatusCode = value ? 200 : 400;
             }
         }
         public string Message { get; set; }
-        public int StatusCode { get; set; } = 200; // Default to OK
+        public int StatusCode { get; set; } = 200;
+
         public BaseResponse WithError(string message, int statusCode = 400)
         {
             Success = false;
@@ -26,6 +30,7 @@ namespace PropMT5ConnectionService.Helpers
             StatusCode = statusCode;
             return this;
         }
+
         public BaseResponse WithSuccess(string message, int statusCode = 200)
         {
             Success = true;
@@ -35,7 +40,9 @@ namespace PropMT5ConnectionService.Helpers
         }
     }
 
-    // Generic base response with data
+    /// <summary>
+    /// Generic base response with data
+    /// </summary>
     public class BaseResponse<T>
     {
         private bool _success;
@@ -45,12 +52,13 @@ namespace PropMT5ConnectionService.Helpers
             set
             {
                 _success = value;
-                StatusCode = value ? 200 : 400; // Set status code based on success
+                StatusCode = value ? 200 : 400;
             }
         }
         public string Message { get; set; }
-        public int StatusCode { get; set; } = 200; // Default to OK
+        public int StatusCode { get; set; } = 200;
         public T Data { get; set; }
+
         public BaseResponse<T> WithError(string message, int statusCode = 400)
         {
             Success = false;
@@ -59,42 +67,85 @@ namespace PropMT5ConnectionService.Helpers
             return this;
         }
 
+        public BaseResponse<T> WithSuccess(T data, string message = "Success", int statusCode = 200)
+        {
+            Success = true;
+            Message = message;
+            StatusCode = statusCode;
+            Data = data;
+            return this;
+        }
     }
 
-    public class BaseResponseModel<T>
+    /// <summary>
+    /// Response model with pagination support
+    /// Consolidates BaseResponseModel and BaseResponseObject
+    /// </summary>
+    public class PagedResponse<T> : BaseResponse<T>
     {
-        private bool _success;
-        public bool Success
-        {
-            get => _success;
-            set
-            {
-                _success = value;
-                StatusCode = value ? 200 : 400; // Set status code based on success
-            }
-        }
-        public string Message { get; set; }
-        public int StatusCode { get; set; } = 200; // Default to OK
         public int TotalRecords { get; set; }
-        public T Data { get; set; }
+        public int PageNumber { get; set; }
+        public int PageSize { get; set; }
+
+        public PagedResponse<T> WithPagedData(T data, int totalRecords, int pageNumber = 1, int pageSize = 10, string message = "Success")
+        {
+            Success = true;
+            Message = message;
+            Data = data;
+            TotalRecords = totalRecords;
+            PageNumber = pageNumber;
+            PageSize = pageSize;
+            return this;
+        }
     }
 
-    public class BaseResponseObject<T>
+    /// <summary>
+    /// MT5 specific response model
+    /// </summary>
+    public class MT5Response<T> : BaseResponse<T>
     {
-        private bool _success;
-        public bool Success
+        public MTRetCode MTRetCode { get; set; }
+
+        public MT5Response<T> WithMT5Error(MTRetCode retCode, string message = null)
         {
-            get => _success;
-            set
-            {
-                _success = value;
-                StatusCode = value ? 200 : 400; // Set status code based on success
-            }
+            Success = false;
+            MTRetCode = retCode;
+            Message = message ?? GetMT5ErrorMessage(retCode);
+            StatusCode = 400;
+            return this;
         }
-        public string Message { get; set; }
-        public int StatusCode { get; set; } = 200; // Default to OK
-        public T Data { get; set; }
+
+        public MT5Response<T> WithMT5Success(T data, string message = "Success")
+        {
+            Success = true;
+            MTRetCode = MTRetCode.MT_RET_OK;
+            Message = message;
+            Data = data;
+            StatusCode = 200;
+            return this;
+        }
+
+        private string GetMT5ErrorMessage(MTRetCode retCode)
+        {
+            if (retCode == MTRetCode.MT_RET_USR_LOGIN_EXIST)
+                return "Login already exists";
+            if (retCode == MTRetCode.MT_RET_USR_INVALID_PASSWORD)
+                return "Invalid password";
+            if (retCode == MTRetCode.MT_RET_ERR_NOTFOUND)
+                return "Not found";
+            if (retCode == MTRetCode.MT_RET_ERR_PARAMS)
+                return "Invalid parameters";
+            
+            return $"MT5 operation failed: {retCode}";
+        }
     }
+
+    // Keep for backward compatibility - will be deprecated
+    [System.Obsolete("Use BaseResponse<T> instead")]
+    public class BaseResponseModel<T> : PagedResponse<T> { }
+
+    [System.Obsolete("Use BaseResponse<T> instead")]
+    public class BaseResponseObject<T> : BaseResponse<T> { }
 
     public class UploadError
     {
