@@ -787,7 +787,7 @@ namespace PropMT5ConnectionService.Configuration
         private string GenerateGroupsHtml(IEnumerable<IGrouping<string, EndpointInfo>> groups)
         {
             var html = "";
-            
+
             foreach (var group in groups)
             {
                 var groupId = group.Key.Replace(" ", "");
@@ -800,7 +800,7 @@ namespace PropMT5ConnectionService.Configuration
                 {GenerateOperationsHtml(group, groupId)}
             </div>";
             }
-            
+
             return html;
         }
 
@@ -808,12 +808,12 @@ namespace PropMT5ConnectionService.Configuration
         {
             var html = "";
             var index = 0;
-            
+
             foreach (var endpoint in endpoints)
             {
                 var operationId = $"{groupId}-{index++}";
                 var methodClass = $"method-{endpoint.Method.ToLower()}";
-                
+
                 html += $@"
                 <div class=""operation"" data-group=""{groupId}"" data-method=""{endpoint.Method}"">
                     <div class=""operation-header"" onclick=""toggleOperation('{operationId}')"">
@@ -831,13 +831,13 @@ namespace PropMT5ConnectionService.Configuration
                     </div>
                 </div>";
             }
-            
+
             return html;
         }
 
         private string GenerateOperationDetailsHtml(EndpointInfo endpoint)
         {
-            var parametersHtml = endpoint.Parameters.Any() 
+            var parametersHtml = endpoint.Parameters.Any()
                 ? $@"
                     <div class=""section-title"">Parameters</div>
                     <table class=""parameters-table"">
@@ -861,14 +861,14 @@ namespace PropMT5ConnectionService.Configuration
                     </table>"
                 : "<p>No parameters required</p>";
 
-            var exampleRequest = endpoint.Method == "POST" || endpoint.Method == "PUT" 
+            var exampleRequest = endpoint.Method == "POST" || endpoint.Method == "PUT"
                 ? @"
                     <div class=""section-title"">Example Request Body</div>
                     <div class=""code-block"">{
   ""login"": 5550001,
   ""amount"": 1000.00,
   ""comment"": ""Transaction""
-}</div>" 
+}</div>"
                 : "";
 
             var exampleResponse = @"

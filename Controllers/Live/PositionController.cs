@@ -3,7 +3,6 @@ using MetaQuotes.MT5ManagerAPI;
 using PropMT5ConnectionService.Helpers;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers

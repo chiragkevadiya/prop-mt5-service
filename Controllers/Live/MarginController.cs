@@ -39,8 +39,6 @@ namespace PropMT5ConnectionService.Controllers
                 // Get positions to calculate margin
                 var positionsArray = _manager.PositionCreateArray();
                 _manager.PositionGet((ulong)loginId, positionsArray);
-
-                double totalMargin = 0;
                 double totalProfit = 0;
                 uint totalPositions = positionsArray.Total();
 

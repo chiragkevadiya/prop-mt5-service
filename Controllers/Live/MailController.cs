@@ -1,7 +1,6 @@
 using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
 using PropMT5ConnectionService.Helpers;
-using System;
 using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
@@ -38,7 +37,7 @@ namespace PropMT5ConnectionService.Controllers
                 var mail = _manager.MailCreate();
                 mail.To(request.LoginId);
                 mail.Subject(request.Subject);
-                
+
                 // Convert string to byte array for Body
                 byte[] bodyBytes = System.Text.Encoding.UTF8.GetBytes(request.Body);
                 mail.Body(bodyBytes);
@@ -84,7 +83,7 @@ namespace PropMT5ConnectionService.Controllers
                     var mail = _manager.MailCreate();
                     mail.To(loginId);
                     mail.Subject(request.Subject);
-                    
+
                     // Convert string to byte array for Body
                     byte[] bodyBytes = System.Text.Encoding.UTF8.GetBytes(request.Body);
                     mail.Body(bodyBytes);
@@ -148,7 +147,7 @@ namespace PropMT5ConnectionService.Controllers
                         var mail = _manager.MailCreate();
                         mail.To(account.Login());
                         mail.Subject(request.Subject);
-                        
+
                         // Convert string to byte array for Body
                         byte[] bodyBytes = System.Text.Encoding.UTF8.GetBytes(request.Body);
                         mail.Body(bodyBytes);

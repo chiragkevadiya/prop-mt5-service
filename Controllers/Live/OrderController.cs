@@ -3,7 +3,6 @@ using MetaQuotes.MT5ManagerAPI;
 using PropMT5ConnectionService.Helpers;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
@@ -96,7 +95,7 @@ namespace PropMT5ConnectionService.Controllers
                 // Note: OrderRequest may not support 4 parameters in your MT5 version
                 // Using simplified approach
                 var orders = new List<object>();
-                
+
                 return new BaseResponse<object>().WithSuccess(orders, "Order history feature not available in this MT5 version. Please use DealHistory endpoint instead.");
             });
         }
