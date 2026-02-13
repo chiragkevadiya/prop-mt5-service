@@ -5,6 +5,7 @@ using PropMT5ConnectionService.Mt5Client;
 using PropMT5ConnectionService.Services;
 using Serilog;
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -87,6 +88,9 @@ namespace PropMT5ConnectionService
                 Log.Information("API Base URL: {BaseUri}", baseUri);
                 Log.Information("Health Check: {BaseUri}/health", baseUri);
                 Console.WriteLine($"[INFO] WebServer started at {baseUri}");
+
+                // Automatically open browser to welcome page
+                OpenBrowserToWelcomePage(baseUri);
             }
             catch (Exception ex)
             {
@@ -179,6 +183,52 @@ namespace PropMT5ConnectionService
             }
 
             Log.Information("Background liquidation job stopped");
+        }
+
+
+        /// <summary>
+        /// Automatically opens the default browser to the welcome page
+        /// Works in both Development and Production environments
+        /// </summary>
+        private void OpenBrowserToWelcomePage(string baseUri)
+        {
+            try
+            {
+                // Get the environment setting
+                var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Development";
+                
+                // Check if auto-open is enabled in configuration (optional setting)
+                var autoOpenBrowser = _configuration["WebServer:AutoOpenBrowser"];
+                if (!string.IsNullOrWhiteSpace(autoOpenBrowser) && autoOpenBrowser.ToLower() == "false")
+                {
+                    Log.Information("Auto-open browser is disabled in configuration");
+                    return;
+                }
+
+                // Construct the welcome page URL
+                var welcomeUrl = baseUri.TrimEnd('/') + "/welcome";
+                
+                Log.Information("Opening browser to welcome page: {WelcomeUrl}", welcomeUrl);
+                Console.WriteLine($"[INFO] Opening browser to: {welcomeUrl}");
+
+                // Use Process.Start to open the default browser
+                // This works for both Development and Production environments
+                var psi = new ProcessStartInfo
+                {
+                    FileName = welcomeUrl,
+                    UseShellExecute = true // Important: Use shell execute to open with default browser
+                };
+
+                Process.Start(psi);
+                
+                Log.Information("Browser opened successfully in {Environment} environment", environment);
+            }
+            catch (Exception ex)
+            {
+                // Don't fail the startup if browser opening fails
+                Log.Warning(ex, "Failed to automatically open browser: {Message}", ex.Message);
+                Console.WriteLine($"[WARNING] Could not automatically open browser: {ex.Message}");
+            }
         }
 
 

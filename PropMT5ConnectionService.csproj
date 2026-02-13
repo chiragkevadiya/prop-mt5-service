@@ -521,6 +521,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="Documentation\API_DOCUMENTATION_LIVE.md" />
+    <None Include="Documentation\AUTO_OPEN_BROWSER_FEATURE.md" />
     <None Include="Documentation\PropMT5_API_Collection.postman_collection.json" />
     <None Include="Mt5Client\MIGRATION_GUIDE.md" />
     <None Include="packages.config" />
