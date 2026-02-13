@@ -1,4 +1,4 @@
-using Nancy;
+﻿using Nancy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,59 +8,24 @@ using System.Web.Http;
 namespace PropMT5ConnectionService.Configuration
 {
     /// <summary>
-    /// API Explorer Module - Lists all available REST API endpoints
-    /// Combines both Nancy and Web API endpoints for comprehensive documentation
+    /// API Explorer Module - Professional Swagger-style API documentation
+    /// Lists all available REST API endpoints with interactive UI
     /// </summary>
     public class ApiExplorerModule : NancyModule
     {
         public ApiExplorerModule()
         {
-            // Primary API Explorer endpoint (Nancy can handle this)
+            // Primary API Explorer endpoint
             Get("/explorer", _ =>
             {
                 var html = GenerateApiExplorerPage();
                 return Response.AsText(html, "text/html");
             });
-
-            // Alternative route for convenience
-            Get("/endpoints", _ =>
-            {
-                return Response.AsRedirect("/explorer");
-            });
-
-            // JSON endpoint for programmatic access (Nancy can handle this)
-            Get("/explorer/json", _ =>
-            {
-                var endpoints = DiscoverAllEndpoints();
-                return Response.AsJson(endpoints);
-            });
         }
 
-        private object DiscoverAllEndpoints()
+        private List<EndpointInfo> DiscoverAllEndpoints()
         {
-            var webApiEndpoints = DiscoverWebApiEndpoints();
-            var nancyEndpoints = DiscoverNancyEndpoints();
-
-            return new
-            {
-                timestamp = DateTime.UtcNow,
-                totalEndpoints = webApiEndpoints.Count + nancyEndpoints.Count,
-                webApi = new
-                {
-                    count = webApiEndpoints.Count,
-                    endpoints = webApiEndpoints
-                },
-                nancy = new
-                {
-                    count = nancyEndpoints.Count,
-                    endpoints = nancyEndpoints
-                }
-            };
-        }
-
-        private List<object> DiscoverWebApiEndpoints()
-        {
-            var endpoints = new List<object>();
+            var endpoints = new List<EndpointInfo>();
 
             try
             {
@@ -91,13 +56,22 @@ namespace PropMT5ConnectionService.Configuration
                                     ? routeAttr.Template
                                     : $"{routePrefix}/{routeAttr.Template}".TrimEnd('/');
 
-                                endpoints.Add(new
+                                var parameters = method.GetParameters()
+                                    .Select(p => new ParameterInfo
+                                    {
+                                        Name = p.Name,
+                                        Type = p.ParameterType.Name,
+                                        Required = !p.IsOptional
+                                    }).ToList();
+
+                                endpoints.Add(new EndpointInfo
                                 {
-                                    controller = controllerType.Name.Replace("Controller", ""),
-                                    method = httpMethod,
-                                    route = "/" + fullRoute.TrimStart('/'),
-                                    action = method.Name,
-                                    framework = "Web API"
+                                    Controller = controllerType.Name.Replace("Controller", ""),
+                                    Method = httpMethod,
+                                    Route = "/" + fullRoute.TrimStart('/'),
+                                    Action = method.Name,
+                                    Parameters = parameters,
+                                    Description = GetMethodDescription(method)
                                 });
                             }
                         }
@@ -106,83 +80,10 @@ namespace PropMT5ConnectionService.Configuration
             }
             catch (Exception ex)
             {
-                // Log error but continue
-                System.Diagnostics.Debug.WriteLine($"Error discovering Web API endpoints: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error discovering endpoints: {ex.Message}");
             }
 
-            return endpoints.OrderBy(e => ((dynamic)e).route).ToList();
-        }
-
-        private List<object> DiscoverNancyEndpoints()
-        {
-            var endpoints = new List<object>();
-
-            // Manually add known Nancy endpoints
-            // Nancy doesn't provide easy reflection-based discovery, so we list them explicitly
-            endpoints.Add(new
-            {
-                module = "Documentation",
-                method = "GET",
-                route = "/docs",
-                description = "Swagger API documentation UI",
-                framework = "Nancy"
-            });
-
-            endpoints.Add(new
-            {
-                module = "Documentation",
-                method = "GET",
-                route = "/docs/swagger.json",
-                description = "OpenAPI/Swagger JSON specification",
-                framework = "Nancy"
-            });
-
-            endpoints.Add(new
-            {
-                module = "Documentation",
-                method = "GET",
-                route = "/swagger",
-                description = "Swagger UI (redirects to /docs)",
-                framework = "Nancy"
-            });
-
-            endpoints.Add(new
-            {
-                module = "Explorer",
-                method = "GET",
-                route = "/explorer",
-                description = "API endpoint explorer",
-                framework = "Nancy"
-            });
-
-            endpoints.Add(new
-            {
-                module = "Explorer",
-                method = "GET",
-                route = "/explorer/json",
-                description = "JSON export of all endpoints",
-                framework = "Nancy"
-            });
-
-            endpoints.Add(new
-            {
-                module = "Explorer",
-                method = "GET",
-                route = "/endpoints",
-                description = "API endpoints (redirects to /explorer)",
-                framework = "Nancy"
-            });
-
-            endpoints.Add(new
-            {
-                module = "Welcome",
-                method = "GET",
-                route = "/",
-                description = "Welcome page",
-                framework = "Nancy"
-            });
-
-            return endpoints.OrderBy(e => ((dynamic)e).route).ToList();
+            return endpoints.OrderBy(e => e.Route).ToList();
         }
 
         private string GetHttpMethod(MethodInfo method)
@@ -195,11 +96,19 @@ namespace PropMT5ConnectionService.Configuration
             return null;
         }
 
+        private string GetMethodDescription(MethodInfo method)
+        {
+            // Try to get XML documentation or use method name
+            return method.Name.Replace("Get", "Get ")
+                             .Replace("Post", "Create ")
+                             .Replace("Put", "Update ")
+                             .Replace("Delete", "Delete ");
+        }
+
         private string GenerateApiExplorerPage()
         {
             var endpoints = DiscoverAllEndpoints();
-            var webApiEndpoints = ((dynamic)endpoints).webApi.endpoints as List<object>;
-            var nancyEndpoints = ((dynamic)endpoints).nancy.endpoints as List<object>;
+            var groupedEndpoints = endpoints.GroupBy(e => e.Controller).OrderBy(g => g.Key);
 
             return $@"
 <!DOCTYPE html>
@@ -207,7 +116,7 @@ namespace PropMT5ConnectionService.Configuration
 <head>
     <meta charset=""UTF-8"">
     <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-    <title>API Explorer - Prop MT5 Connection Service</title>
+    <title>API Explorer - Swagger Style</title>
     <style>
         * {{
             margin: 0;
@@ -216,348 +125,414 @@ namespace PropMT5ConnectionService.Configuration
         }}
 
         body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #fafafa;
+            color: #3b4151;
             line-height: 1.6;
         }}
 
-        .container {{
-            max-width: 1400px;
-            margin: 30px auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
+        .swagger-ui {{
+            max-width: 1460px;
+            margin: 0 auto;
         }}
 
-        .header {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .topbar {{
+            background: #1b1b1b;
+            padding: 15px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }}
+
+        .topbar-logo {{
+            color: #49cc90;
+            font-size: 1.8em;
+            font-weight: bold;
+        }}
+
+        .topbar-nav {{
+            display: flex;
+            gap: 20px;
+        }}
+
+        .topbar-link {{
             color: white;
-            padding: 40px;
-            text-align: center;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background 0.3s;
         }}
 
-        .header h1 {{
+        .topbar-link:hover {{
+            background: #2a2a2a;
+        }}
+
+        .info-section {{
+            background: white;
+            padding: 40px;
+            border-bottom: 1px solid #e8e8e8;
+        }}
+
+        .info-title {{
             font-size: 2.5em;
+            color: #3b4151;
             margin-bottom: 10px;
         }}
 
-        .header p {{
-            font-size: 1.2em;
-            opacity: 0.9;
+        .info-description {{
+            font-size: 1.1em;
+            color: #3b4151;
+            opacity: 0.8;
+            margin-bottom: 20px;
         }}
 
-        .stats {{
+        .info-metadata {{
             display: flex;
-            justify-content: center;
             gap: 30px;
             margin-top: 20px;
         }}
 
-        .stat-card {{
-            background: rgba(255, 255, 255, 0.2);
-            padding: 15px 30px;
-            border-radius: 10px;
-        }}
-
-        .stat-number {{
-            font-size: 2em;
-            font-weight: bold;
-        }}
-
-        .stat-label {{
-            font-size: 0.9em;
-            opacity: 0.9;
-        }}
-
-        .nav {{
-            background: #f8f9fa;
-            padding: 20px 40px;
-            border-bottom: 2px solid #e9ecef;
+        .info-item {{
             display: flex;
-            gap: 15px;
+            flex-direction: column;
+        }}
+
+        .info-label {{
+            font-size: 0.85em;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }}
+
+        .info-value {{
+            font-size: 1.2em;
+            color: #3b4151;
+            font-weight: 600;
+        }}
+
+        .filter-section {{
+            background: white;
+            padding: 20px 40px;
+            border-bottom: 1px solid #e8e8e8;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }}
+
+        .search-input {{
+            width: 100%;
+            padding: 12px 20px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }}
+
+        .search-input:focus {{
+            outline: none;
+            border-color: #49cc90;
+        }}
+
+        .filter-tags {{
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
             flex-wrap: wrap;
         }}
 
-        .nav-link {{
-            padding: 10px 20px;
+        .filter-tag {{
+            padding: 6px 14px;
             background: white;
-            border: 2px solid #667eea;
-            border-radius: 25px;
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
+            border: 1px solid #d9d9d9;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
             transition: all 0.3s;
         }}
 
-        .nav-link:hover {{
-            background: #667eea;
-            color: white;
+        .filter-tag:hover {{
+            border-color: #49cc90;
+            color: #49cc90;
         }}
 
-        .content {{
+        .filter-tag.active {{
+            background: #49cc90;
+            color: white;
+            border-color: #49cc90;
+        }}
+
+        .operations-section {{
+            background: white;
             padding: 40px;
         }}
 
-        .section {{
+        .operation-group {{
             margin-bottom: 40px;
         }}
 
-        .section h2 {{
-            color: #667eea;
-            font-size: 2em;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #667eea;
+        .group-header {{
+            background: #fafafa;
+            padding: 15px 20px;
+            border-left: 4px solid #49cc90;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
         }}
 
-        .framework-badge {{
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 15px;
-            font-size: 0.8em;
+        .group-header:hover {{
+            background: #f0f0f0;
+        }}
+
+        .group-title {{
+            font-size: 1.5em;
+            color: #3b4151;
             font-weight: 600;
+        }}
+
+        .group-count {{
+            font-size: 0.9em;
+            color: #999;
             margin-left: 10px;
         }}
 
-        .framework-webapi {{
-            background: #007bff;
-            color: white;
-        }}
-
-        .framework-nancy {{
-            background: #28a745;
-            color: white;
-        }}
-
-        .endpoint-table {{
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            border-radius: 8px;
+        .operation {{
+            border: 1px solid #e8e8e8;
+            border-radius: 4px;
+            margin-bottom: 10px;
             overflow: hidden;
+            transition: all 0.3s;
+            background: white;
         }}
 
-        .endpoint-table thead {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .operation:hover {{
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }}
+
+        .operation-header {{
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+            background: white;
+            gap: 10px;
+            min-height: 60px;
+        }}
+
+        .operation-header:hover {{
+            background: #fafafa;
+        }}
+
+        .http-method {{
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.85em;
             color: white;
+            min-width: 70px;
+            text-align: center;
+            text-transform: uppercase;
+            flex-shrink: 0;
         }}
 
-        .endpoint-table th {{
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
+        .method-get {{ background: #49cc90; }}
+        .method-post {{ background: #61affe; }}
+        .method-put {{ background: #fca130; }}
+        .method-delete {{ background: #f93e3e; }}
+        .method-patch {{ background: #50e3c2; }}
+
+        .operation-path {{
+            flex: 1;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 1em;
+            color: #3b4151;
+            margin: 0 20px;
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }}
 
-        .endpoint-table td {{
-            padding: 15px;
-            border-bottom: 1px solid #e9ecef;
+        .operation-summary {{
+            color: #999;
+            font-size: 0.9em;
+            white-space: nowrap;
+            margin-right: 15px;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }}
 
-        .endpoint-table tr:hover {{
-            background: #f8f9fa;
-        }}
-
-        .endpoint-table tbody tr.clickable {{
+        .expand-arrow {{
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s;
+            flex-shrink: 0;
+            margin-left: auto;
             cursor: pointer;
         }}
 
-        .endpoint-table tbody tr.clickable:hover {{
-            background: #e3f2fd;
+        .expand-arrow.expanded {{
+            transform: rotate(180deg);
         }}
 
-        .details-row {{
+        .operation-details {{
             display: none;
-            background: #f8f9fa !important;
+            border-top: 1px solid #e8e8e8;
+            background: #fafafa;
         }}
 
-        .details-row.visible {{
-            display: table-row;
+        .operation-details.visible {{
+            display: block;
         }}
 
         .details-content {{
-            padding: 20px;
-            border-left: 4px solid #667eea;
+            padding: 30px;
         }}
 
-        .details-section {{
-            margin-bottom: 20px;
-        }}
-
-        .details-section h4 {{
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 1.1em;
-        }}
-
-        .code-example {{
-            background: #2d2d2d;
-            color: #f8f8f2;
-            padding: 15px;
-            border-radius: 5px;
-            overflow-x: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-            margin-top: 10px;
-            white-space: pre-wrap;
-        }}
-
-        .param-table {{
-            width: 100%;
-            margin-top: 10px;
-            border-collapse: collapse;
-        }}
-
-        .param-table th {{
-            background: #667eea;
-            color: white;
-            padding: 8px;
-            text-align: left;
-            font-size: 0.9em;
-        }}
-
-        .param-table td {{
-            padding: 8px;
-            border: 1px solid #dee2e6;
-            font-size: 0.9em;
-        }}
-
-        .expand-icon {{
-            font-size: 0.8em;
-            margin-left: 8px;
-            color: #667eea;
-            transition: transform 0.3s;
-            display: inline-block;
-        }}
-
-        .expand-icon.expanded {{
-            transform: rotate(90deg);
-        }}
-
-        .response-status {{
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 5px;
-            font-size: 0.85em;
+        .section-title {{
+            font-size: 1.2em;
+            color: #3b4151;
             font-weight: 600;
+            margin-bottom: 15px;
+        }}
+
+        .parameters-table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 4px;
+            overflow: hidden;
+        }}
+
+        .parameters-table th {{
+            background: #e8e8e8;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #3b4151;
+        }}
+
+        .parameters-table td {{
+            padding: 12px;
+            border-bottom: 1px solid #e8e8e8;
+            font-size: 0.9em;
+        }}
+
+        .param-name {{
+            font-family: 'Monaco', 'Courier New', monospace;
+            color: #3b4151;
+            font-weight: 600;
+        }}
+
+        .param-type {{
+            color: #999;
+            font-family: 'Monaco', 'Courier New', monospace;
+        }}
+
+        .param-required {{
+            color: #f93e3e;
+            font-weight: 600;
+            font-size: 0.8em;
+        }}
+
+        .response-examples {{
+            margin-bottom: 30px;
+        }}
+
+        .response-code {{
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.85em;
             margin-right: 10px;
         }}
 
-        .response-status.success {{
-            background: #d4edda;
-            color: #155724;
+        .code-200 {{ background: #d4edda; color: #155724; }}
+        .code-400 {{ background: #fff3cd; color: #856404; }}
+        .code-404 {{ background: #f8d7da; color: #721c24; }}
+        .code-500 {{ background: #f8d7da; color: #721c24; }}
+
+        .code-block {{
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.85em;
+            line-height: 1.5;
+            margin-top: 10px;
         }}
 
-        .response-status.error {{
-            background: #f8d7da;
-            color: #721c24;
+        .try-section {{
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
         }}
 
         .try-button {{
-            padding: 8px 16px;
-            background: #667eea;
+            background: #4990e2;
             color: white;
             border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            padding: 12px 30px;
+            border-radius: 4px;
+            font-size: 1em;
             font-weight: 600;
-            margin-top: 10px;
+            cursor: pointer;
             transition: all 0.3s;
         }}
 
         .try-button:hover {{
-            background: #5568d3;
+            background: #357abd;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(73, 144, 226, 0.3);
         }}
 
-        .method {{
-            padding: 5px 15px;
-            border-radius: 5px;
-            font-weight: 700;
-            font-size: 0.85em;
-            color: white;
-            display: inline-block;
-            min-width: 60px;
+        .no-results {{
             text-align: center;
+            padding: 60px 20px;
+            color: #999;
         }}
 
-        .method.get {{ background: #28a745; }}
-        .method.post {{ background: #007bff; }}
-        .method.put {{ background: #ffc107; color: #333; }}
-        .method.delete {{ background: #dc3545; }}
-        .method.patch {{ background: #17a2b8; }}
-
-        .route {{
-            font-family: 'Courier New', monospace;
-            color: #667eea;
-            font-weight: 600;
-        }}
-
-        .search-box {{
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
-            font-size: 1em;
+        .no-results-icon {{
+            font-size: 4em;
             margin-bottom: 20px;
         }}
 
-        .search-box:focus {{
-            outline: none;
-            border-color: #667eea;
-        }}
-
-        .filter-buttons {{
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }}
-
-        .filter-btn {{
-            padding: 10px 20px;
-            border: 2px solid #dee2e6;
-            background: white;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }}
-
-        .filter-btn.active {{
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }}
-
-        .footer {{
-            background: #2d2d2d;
+        footer {{
+            background: #1b1b1b;
             color: white;
             text-align: center;
             padding: 30px;
+            margin-top: 40px;
         }}
 
         @media (max-width: 768px) {{
-            .container {{
-                margin: 10px;
+            .topbar {{
+                flex-direction: column;
+                gap: 15px;
             }}
 
-            .header h1 {{
-                font-size: 1.8em;
-            }}
-
-            .content {{
+            .info-section {{
                 padding: 20px;
             }}
 
-            .endpoint-table {{
-                font-size: 0.9em;
+            .operations-section {{
+                padding: 20px;
             }}
 
-            .stats {{
+            .operation-header {{
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }}
+
+            .info-metadata {{
                 flex-direction: column;
                 gap: 15px;
             }}
@@ -565,461 +540,374 @@ namespace PropMT5ConnectionService.Configuration
     </style>
 </head>
 <body>
-    <div class=""container"">
-        <div class=""header"">
-            <h1>&#128200; API Explorer</h1>
-            <p>Complete REST API Endpoint Reference</p>
-            <div class=""stats"">
-                <div class=""stat-card"">
-                    <div class=""stat-number"">{((dynamic)endpoints).totalEndpoints}</div>
-                    <div class=""stat-label"">Total Endpoints</div>
-                </div>
-                <div class=""stat-card"">
-                    <div class=""stat-number"">{((dynamic)endpoints).webApi.count}</div>
-                    <div class=""stat-label"">Web API</div>
-                </div>
-                <div class=""stat-card"">
-                    <div class=""stat-number"">{((dynamic)endpoints).nancy.count}</div>
-                    <div class=""stat-label"">Nancy</div>
-                </div>
+    <div class=""swagger-ui"">
+        <!-- Top Navigation Bar -->
+        <div class=""topbar"">
+            <div class=""topbar-logo"">
+                &#9889; API Explorer
+            </div>
+            <div class=""topbar-nav"">
+                <a href=""/welcome"" class=""topbar-link"">&#127968; Home</a>
             </div>
         </div>
 
-        <div class=""nav"">
-            <a href=""/"" class=""nav-link"">&#127968; Home</a>
-            <a href=""/docs"" class=""nav-link"">&#128214; Swagger Docs</a>
-            <a href=""/api/health"" class=""nav-link"">&#127973; Health Check</a>
-            <a href=""/explorer/json"" class=""nav-link"">&#128190; JSON Export</a>
-        </div>
-
-        <div class=""content"">
-            <div class=""section"">
-                <input type=""text"" id=""searchBox"" class=""search-box"" placeholder=""&#128269; Search endpoints by route, controller, or method..."" onkeyup=""filterEndpoints()"">
-                
-                <div class=""filter-buttons"">
-                    <button class=""filter-btn active"" onclick=""filterByFramework('all')"">All ({((dynamic)endpoints).totalEndpoints})</button>
-                    <button class=""filter-btn"" onclick=""filterByFramework('webapi')"">Web API ({((dynamic)endpoints).webApi.count})</button>
-                    <button class=""filter-btn"" onclick=""filterByFramework('nancy')"">Nancy ({((dynamic)endpoints).nancy.count})</button>
-                    <button class=""filter-btn"" onclick=""filterByMethod('GET')"">GET</button>
-                    <button class=""filter-btn"" onclick=""filterByMethod('POST')"">POST</button>
-                    <button class=""filter-btn"" onclick=""filterByMethod('PUT')"">PUT</button>
-                    <button class=""filter-btn"" onclick=""filterByMethod('DELETE')"">DELETE</button>
-                </div>
-            </div>
-
-            <div class=""section"">
-                <h2>&#128225; Web API Endpoints<span class=""framework-badge framework-webapi"">ASP.NET Web API</span></h2>
-                <table class=""endpoint-table"" id=""webapiTable"">
-                    <thead>
-                        <tr>
-                            <th>Method</th>
-                            <th>Route</th>
-                            <th>Controller</th>
-                            <th>Action</th>
-                            <th style=""text-align: center;"">Details</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-{GenerateWebApiRows(webApiEndpoints)}
-                    </tbody>
-                </table>
-            </div>
-
-            <div class=""section"">
-                <h2>&#128640; Nancy Endpoints<span class=""framework-badge framework-nancy"">Nancy Framework</span></h2>
-                <table class=""endpoint-table"" id=""nancyTable"">
-                    <thead>
-                        <tr>
-                            <th>Method</th>
-                            <th>Route</th>
-                            <th>Module</th>
-                            <th>Description</th>
-                            <th style=""text-align: center;"">Details</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-{GenerateNancyRows(nancyEndpoints)}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class=""footer"">
-            <p style=""font-size: 1.2em; margin-bottom: 10px;""><strong>Prop MT5 Connection Service</strong></p>
-            <p>API Explorer | Version 1.0.0</p>
-            <p style=""margin-top: 15px; opacity: 0.8;"">
-                Built with &#10084; for Professional Trading | &copy; 2025
+        <!-- API Info Section -->
+        <div class=""info-section"">
+            <h1 class=""info-title"">Prop MT5 Connection Service API</h1>
+            <p class=""info-description"">
+                Complete REST API documentation for MetaTrader 5 operations including accounts, trading, positions, orders, and analytics.
             </p>
+            <div class=""info-metadata"">
+                <div class=""info-item"">
+                    <span class=""info-label"">Version</span>
+                    <span class=""info-value"">1.0.0</span>
+                </div>
+                <div class=""info-item"">
+                    <span class=""info-label"">Base URL</span>
+                    <span class=""info-value"">http://localhost:8086</span>
+                </div>
+                <div class=""info-item"">
+                    <span class=""info-label"">Total Endpoints</span>
+                    <span class=""info-value"">{endpoints.Count}</span>
+                </div>
+                <div class=""info-item"">
+                    <span class=""info-label"">Framework</span>
+                    <span class=""info-value"">ASP.NET Web API</span>
+                </div>
+            </div>
         </div>
+
+        <!-- Filter Section -->
+        <div class=""filter-section"">
+            <input type=""text"" id=""searchInput"" class=""search-input"" placeholder=""Search endpoints..."" onkeyup=""filterOperations()"">
+            <div class=""filter-tags"">
+                <span class=""filter-tag active"" onclick=""filterByMethod('ALL')"">All ({endpoints.Count})</span>
+                <span class=""filter-tag"" onclick=""filterByMethod('GET')"">GET</span>
+                <span class=""filter-tag"" onclick=""filterByMethod('POST')"">POST</span>
+                <span class=""filter-tag"" onclick=""filterByMethod('PUT')"">PUT</span>
+                <span class=""filter-tag"" onclick=""filterByMethod('DELETE')"">DELETE</span>
+            </div>
+        </div>
+
+        <!-- Operations Section -->
+        <div class=""operations-section"">
+            {GenerateGroupsHtml(groupedEndpoints)}
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p>© 2025 Prop MT5 Connection Service | Built with ASP.NET Web API & Nancy Framework</p>
+            <p style=""margin-top: 10px; opacity: 0.7;"">Author: Amit Kumar | Version: 1.0.0</p>
+        </footer>
     </div>
 
     <script>
-        let currentFrameworkFilter = 'all';
-        let currentMethodFilter = null;
-
-        function filterEndpoints() {{
-            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
-            filterTable('webapiTable', searchTerm);
-            filterTable('nancyTable', searchTerm);
-        }}
-
-        function filterTable(tableId, searchTerm) {{
-            const table = document.getElementById(tableId);
-            const rows = table.getElementsByTagName('tr');
-
-            for (let i = 1; i < rows.length; i++) {{
-                const row = rows[i];
-                const text = row.textContent.toLowerCase();
-                
-                let matchesSearch = searchTerm === '' || text.includes(searchTerm);
-                let matchesFramework = currentFrameworkFilter === 'all' || 
-                    (currentFrameworkFilter === 'webapi' && tableId === 'webapiTable') ||
-                    (currentFrameworkFilter === 'nancy' && tableId === 'nancyTable');
-                let matchesMethod = currentMethodFilter === null || text.includes(currentMethodFilter.toLowerCase());
-
-                row.style.display = (matchesSearch && matchesFramework && matchesMethod) ? '' : 'none';
-            }}
-        }}
-
-        function filterByFramework(framework) {{
-            currentFrameworkFilter = framework;
+        function toggleOperation(operationId) {{
+            var details = document.getElementById('details-' + operationId);
+            var arrow = document.getElementById('arrow-' + operationId);
             
-            // Update button states
-            document.querySelectorAll('.filter-btn').forEach(btn => {{
-                btn.classList.remove('active');
-            }});
-            event.target.classList.add('active');
+            if (details && arrow) {{
+                if (details.classList.contains('visible')) {{
+                    details.classList.remove('visible');
+                    arrow.classList.remove('expanded');
+                }} else {{
+                    details.classList.add('visible');
+                    arrow.classList.add('expanded');
+                }}
+            }}
+        }}
 
-            const webapiTable = document.getElementById('webapiTable').parentElement.parentElement;
-            const nancyTable = document.getElementById('nancyTable').parentElement.parentElement;
-
-            if (framework === 'all') {{
-                webapiTable.style.display = 'block';
-                nancyTable.style.display = 'block';
-            }} else if (framework === 'webapi') {{
-                webapiTable.style.display = 'block';
-                nancyTable.style.display = 'none';
-            }} else if (framework === 'nancy') {{
-                webapiTable.style.display = 'none';
-                nancyTable.style.display = 'block';
+        function toggleGroup(groupId) {{
+            var operations = document.querySelectorAll('.operation[data-group=""' + groupId + '""]');
+            var anyVisible = false;
+            
+            for (var i = 0; i < operations.length; i++) {{
+                if (operations[i].style.display !== 'none') {{
+                    anyVisible = true;
+                    break;
+                }}
             }}
 
-            filterEndpoints();
+            for (var i = 0; i < operations.length; i++) {{
+                operations[i].style.display = anyVisible ? 'none' : 'block';
+            }}
+        }}
+
+        function filterOperations() {{
+            var searchValue = document.getElementById('searchInput').value.toLowerCase();
+            var operations = document.querySelectorAll('.operation');
+            var visibleCount = 0;
+
+            for (var i = 0; i < operations.length; i++) {{
+                var operation = operations[i];
+                var path = operation.querySelector('.operation-path').textContent.toLowerCase();
+                var method = operation.querySelector('.http-method').textContent.toLowerCase();
+                var summaryEl = operation.querySelector('.operation-summary');
+                var summary = summaryEl ? summaryEl.textContent.toLowerCase() : '';
+                
+                if (path.indexOf(searchValue) !== -1 || method.indexOf(searchValue) !== -1 || summary.indexOf(searchValue) !== -1) {{
+                    operation.style.display = 'block';
+                    visibleCount++;
+                }} else {{
+                    operation.style.display = 'none';
+                }}
+            }}
+
+            updateNoResults(visibleCount);
         }}
 
         function filterByMethod(method) {{
-            if (currentMethodFilter === method) {{
-                currentMethodFilter = null;
-                event.target.classList.remove('active');
-            }} else {{
-                currentMethodFilter = method;
-                document.querySelectorAll('.filter-btn').forEach(btn => {{
-                    if (btn.textContent.includes('GET') || btn.textContent.includes('POST') || 
-                        btn.textContent.includes('PUT') || btn.textContent.includes('DELETE')) {{
-                        btn.classList.remove('active');
-                    }}
-                }});
-                event.target.classList.add('active');
-            }}
-            filterEndpoints();
-        }}
+            var operations = document.querySelectorAll('.operation');
+            var filterTags = document.querySelectorAll('.filter-tag');
+            var visibleCount = 0;
 
-        function toggleDetails(rowId) {{
-            const detailsRow = document.getElementById('details-' + rowId);
-            const icon = document.getElementById('icon-' + rowId);
-            
-            if (detailsRow.classList.contains('visible')) {{
-                detailsRow.classList.remove('visible');
-                icon.classList.remove('expanded');
-            }} else {{
-                detailsRow.classList.add('visible');
-                icon.classList.add('expanded');
-            }}
-        }}
-
-        async function tryEndpoint(route, method) {{
-            try {{
-                const url = 'http://localhost:8086' + route;
-                const response = await fetch(url, {{
-                    method: method,
-                    headers: {{
-                        'Content-Type': 'application/json'
-                    }}
-                }});
-
-                const contentType = response.headers.get('content-type');
-                let data;
-                
-                if (contentType && contentType.includes('application/json')) {{
-                    data = await response.json();
+            for (var i = 0; i < filterTags.length; i++) {{
+                var tag = filterTags[i];
+                if (tag.textContent.indexOf(method) !== -1) {{
+                    tag.classList.add('active');
                 }} else {{
-                    data = await response.text();
+                    tag.classList.remove('active');
                 }}
-
-                alert('Response Status: ' + response.status + '\\n\\n' + 
-                      'Response Data:\\n' + 
-                      (typeof data === 'object' ? JSON.stringify(data, null, 2) : data.substring(0, 500)));
-            }} catch (error) {{
-                alert('Error: ' + error.message);
             }}
+
+            for (var i = 0; i < operations.length; i++) {{
+                var operation = operations[i];
+                var operationMethod = operation.querySelector('.http-method').textContent;
+                
+                if (method === 'ALL' || operationMethod === method) {{
+                    operation.style.display = 'block';
+                    visibleCount++;
+                }} else {{
+                    operation.style.display = 'none';
+                }}
+            }}
+
+            updateNoResults(visibleCount);
+        }}
+
+        function updateNoResults(count) {{
+            var noResults = document.getElementById('no-results');
+            
+            if (count === 0) {{
+                if (!noResults) {{
+                    noResults = document.createElement('div');
+                    noResults.id = 'no-results';
+                    noResults.className = 'no-results';
+                    noResults.innerHTML = '<div class=""no-results-icon"">&#128269;</div><h3>No endpoints found</h3><p>Try adjusting your search or filters</p>';
+                    document.querySelector('.operations-section').appendChild(noResults);
+                }}
+            }} else {{
+                if (noResults) {{
+                    noResults.remove();
+                }}
+            }}
+        }}
+
+        function tryEndpoint(method, path) {{
+            var baseUrl = window.location.origin;
+            var fullUrl = baseUrl + path;
+            var curlCommand = 'curl -X ' + method + ' ""' + fullUrl + '"" -H ""Content-Type: application/json""';
+            
+            var modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+            modal.id = 'try-modal';
+            
+            var modalContent = document.createElement('div');
+            modalContent.style.cssText = 'background: white; padding: 30px; border-radius: 8px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;';
+            
+            modalContent.innerHTML = '<h2 style=""margin-bottom: 20px; color: #3b4151;"">Try it out</h2>' +
+                '<div style=""margin-bottom: 20px;""><label style=""display: block; font-weight: 600; margin-bottom: 8px; color: #3b4151;"">Method</label>' +
+                '<span class=""http-method method-' + method.toLowerCase() + '"" style=""display: inline-block;"">' + method + '</span></div>' +
+                '<div style=""margin-bottom: 20px;""><label style=""display: block; font-weight: 600; margin-bottom: 8px; color: #3b4151;"">URL</label>' +
+                '<div style=""background: #f5f5f5; padding: 12px; border-radius: 4px; font-family: monospace; word-break: break-all;"">' + fullUrl + '</div></div>' +
+                '<div style=""margin-bottom: 20px;""><label style=""display: block; font-weight: 600; margin-bottom: 8px; color: #3b4151;"">cURL Command</label>' +
+                '<div style=""background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 0.85em; overflow-x: auto; word-break: break-all;"">' + curlCommand + '</div></div>' +
+                '<div style=""margin-bottom: 20px;""><p style=""color: #666; font-size: 0.95em; line-height: 1.6;"">' +
+                'Copy the cURL command above or use these tools to test the endpoint:<br><br>' +
+                '&#8226; <strong>Postman</strong>: Import as cURL or create new request<br>' +
+                '&#8226; <strong>Browser</strong>: For GET requests only<br>' +
+                '&#8226; <strong>Thunder Client</strong>: VS Code extension<br>' +
+                '&#8226; <strong>Insomnia</strong>: REST API client</p></div>' +
+                '<div style=""display: flex; gap: 10px; justify-content: flex-end;"">' +
+                '<button id=""copyUrlBtn"" style=""padding: 10px 20px; background: #49cc90; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;"">&#128203; Copy URL</button>' +
+                '<button id=""copyCurlBtn"" style=""padding: 10px 20px; background: #4990e2; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;"">&#128203; Copy cURL</button>' +
+                '<button id=""closeBtn"" style=""padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;"">Close</button></div>';
+            
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+            
+            document.getElementById('copyUrlBtn').onclick = function() {{ copyToClipboard(fullUrl, this); }};
+            document.getElementById('copyCurlBtn').onclick = function() {{ copyToClipboard(curlCommand, this); }};
+            document.getElementById('closeBtn').onclick = closeModal;
+            
+            modal.addEventListener('click', function(e) {{
+                if (e.target === modal) {{
+                    modal.remove();
+                }}
+            }});
+        }}
+        
+        function closeModal() {{
+            var modal = document.getElementById('try-modal');
+            if (modal) {{
+                modal.remove();
+            }}
+        }}
+        
+        function copyToClipboard(text, btn) {{
+            var textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {{
+                document.execCommand('copy');
+                var originalText = btn.textContent;
+                var originalBg = btn.style.background;
+                btn.textContent = '&#10004; Copied!';
+                btn.style.background = '#28a745';
+                
+                setTimeout(function() {{
+                    btn.textContent = originalText;
+                    btn.style.background = originalBg;
+                }}, 2000);
+            }} catch (err) {{
+                alert('Copy failed. Please copy manually.');
+            }}
+            
+            document.body.removeChild(textarea);
         }}
     </script>
 </body>
-</html>
-";
+</html>";
         }
 
-        private string GenerateWebApiRows(List<object> endpoints)
+        private string GenerateGroupsHtml(IEnumerable<IGrouping<string, EndpointInfo>> groups)
         {
-            var rows = "";
-            var rowId = 0;
-            foreach (dynamic endpoint in endpoints)
+            var html = "";
+            
+            foreach (var group in groups)
             {
-                string methodClass = endpoint.method.ToString().ToLower();
-                string route = endpoint.route.ToString();
-                string method = endpoint.method.ToString();
-                string controller = endpoint.controller.ToString();
-                string action = endpoint.action.ToString();
-
-                // Generate request/response examples
-                var examples = GenerateRequestResponseExamples(method, route, controller, action);
-
-                rows += $@"
-                        <tr class=""clickable"" onclick=""toggleDetails({rowId})"">
-                            <td><span class=""method {methodClass}"">{method}</span></td>
-                            <td><span class=""route"">{route}</span></td>
-                            <td>{controller}</td>
-                            <td>{action}</td>
-                            <td style=""text-align: center;"">
-                                <span class=""expand-icon"" id=""icon-{rowId}"">?</span>
-                            </td>
-                        </tr>
-                        <tr class=""details-row"" id=""details-{rowId}"">
-                            <td colspan=""5"">
-                                <div class=""details-content"">
-                                    {examples}
-                                </div>
-                            </td>
-                        </tr>";
-                rowId++;
+                var groupId = group.Key.Replace(" ", "");
+                html += $@"
+            <div class=""operation-group"">
+                <div class=""group-header"" onclick=""toggleGroup('{groupId}')"">
+                    <span class=""group-title"">{group.Key}</span>
+                    <span class=""group-count"">({group.Count()} endpoints)</span>
+                </div>
+                {GenerateOperationsHtml(group, groupId)}
+            </div>";
             }
-            return rows;
+            
+            return html;
         }
 
-        private string GenerateNancyRows(List<object> endpoints)
+        private string GenerateOperationsHtml(IEnumerable<EndpointInfo> endpoints, string groupId)
         {
-            var rows = "";
-            var rowId = 1000; // Start at 1000 to avoid conflicts with Web API rows
-            foreach (dynamic endpoint in endpoints)
+            var html = "";
+            var index = 0;
+            
+            foreach (var endpoint in endpoints)
             {
-                string methodClass = endpoint.method.ToString().ToLower();
-                string route = endpoint.route.ToString();
-                string method = endpoint.method.ToString();
-                string module = endpoint.module.ToString();
-                string description = endpoint.description.ToString();
-
-                // Generate request/response examples
-                var examples = GenerateNancyRequestResponseExamples(method, route, module);
-
-                rows += $@"
-                        <tr class=""clickable"" onclick=""toggleDetails({rowId})"">
-                            <td><span class=""method {methodClass}"">{method}</span></td>
-                            <td><span class=""route"">{route}</span></td>
-                            <td>{module}</td>
-                            <td>{description}</td>
-                            <td style=""text-align: center;"">
-                                <span class=""expand-icon"" id=""icon-{rowId}"">?</span>
-                            </td>
-                        </tr>
-                        <tr class=""details-row"" id=""details-{rowId}"">
-                            <td colspan=""5"">
-                                <div class=""details-content"">
-                                    {examples}
-                                </div>
-                            </td>
-                        </tr>";
-                rowId++;
+                var operationId = $"{groupId}-{index++}";
+                var methodClass = $"method-{endpoint.Method.ToLower()}";
+                
+                html += $@"
+                <div class=""operation"" data-group=""{groupId}"" data-method=""{endpoint.Method}"">
+                    <div class=""operation-header"" onclick=""toggleOperation('{operationId}')"">
+                        <span class=""http-method {methodClass}"">{endpoint.Method}</span>
+                        <span class=""operation-path"">{endpoint.Route}</span>
+                        <span class=""operation-summary"">{endpoint.Description}</span>
+                        <svg id=""arrow-{operationId}"" class=""expand-arrow"" width=""20"" height=""20"" viewBox=""0 0 20 20"">
+                            <path d=""M5 8l5 5 5-5"" fill=""none"" stroke=""currentColor"" stroke-width=""2""/>
+                        </svg>
+                    </div>
+                    <div id=""details-{operationId}"" class=""operation-details"">
+                        <div class=""details-content"">
+                            {GenerateOperationDetailsHtml(endpoint)}
+                        </div>
+                    </div>
+                </div>";
             }
-            return rows;
+            
+            return html;
         }
 
-        private string GenerateRequestResponseExamples(string method, string route, string controller, string action)
+        private string GenerateOperationDetailsHtml(EndpointInfo endpoint)
         {
-            // Generate example request and response based on endpoint
-            var examples = "";
-
-            // Request section
-            examples += @"
-                <div class=""details-section"">
-                    <h4>?? Request</h4>
-                    <div><strong>URL:</strong> <code>http://localhost:8086" + route + @"</code></div>
-                    <div><strong>Method:</strong> <span class=""method " + method.ToLower() + @""">" + method + @"</span></div>";
-
-            // Add parameters based on route
-            if (route.Contains("{"))
-            {
-                examples += @"
-                    <table class=""param-table"">
+            var parametersHtml = endpoint.Parameters.Any() 
+                ? $@"
+                    <div class=""section-title"">Parameters</div>
+                    <table class=""parameters-table"">
                         <thead>
-                            <tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr>
-                        </thead>
-                        <tbody>";
-
-                // Extract parameters from route
-                var paramMatches = System.Text.RegularExpressions.Regex.Matches(route, @"\{([^}]+)\}");
-                foreach (System.Text.RegularExpressions.Match match in paramMatches)
-                {
-                    string paramName = match.Groups[1].Value;
-                    examples += $@"
                             <tr>
-                                <td><code>{paramName}</code></td>
-                                <td>string</td>
-                                <td>Yes</td>
-                                <td>The {paramName} identifier</td>
-                            </tr>";
-                }
-
-                examples += @"
+                                <th>Name</th>
+                                <th>Located In</th>
+                                <th>Type</th>
+                                <th>Required</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {string.Join("", endpoint.Parameters.Select(p => $@"
+                            <tr>
+                                <td><span class=""param-name"">{p.Name}</span></td>
+                                <td>path</td>
+                                <td><span class=""param-type"">{p.Type}</span></td>
+                                <td>{(p.Required ? "<span class=\"param-required\">required</span>" : "optional")}</td>
+                            </tr>"))}
                         </tbody>
-                    </table>";
-            }
+                    </table>"
+                : "<p>No parameters required</p>";
 
-            // Add request body example for POST/PUT
-            if (method == "POST" || method == "PUT")
-            {
-                examples += @"
-                    <div><strong>Request Body:</strong></div>
-                    <div class=""code-example"">{
-  ""property1"": ""value1"",
-  ""property2"": ""value2""
-}</div>";
-            }
+            var exampleRequest = endpoint.Method == "POST" || endpoint.Method == "PUT" 
+                ? @"
+                    <div class=""section-title"">Example Request Body</div>
+                    <div class=""code-block"">{
+  ""login"": 5550001,
+  ""amount"": 1000.00,
+  ""comment"": ""Transaction""
+}</div>" 
+                : "";
 
-            examples += @"</div>";
-
-            // Response section
-            examples += @"
-                <div class=""details-section"">
-                    <h4>?? Response</h4>
-                    <div>
-                        <span class=""response-status success"">200 OK</span>
-                        <span style=""color: #666;"">Successful response</span>
-                    </div>
-                    <div class=""code-example"">";
-
-            // Generate response example based on controller/action
-            if (controller.Contains("Health"))
-            {
-                examples += @"{
-  ""status"": ""Healthy"",
-  ""timestamp"": ""2025-02-12T10:30:00Z"",
-  ""uptime"": ""1d 2h 30m"",
-  ""version"": ""1.0.0""
-}";
-            }
-            else if (controller.Contains("Account"))
-            {
-                examples += @"{
+            var exampleResponse = @"
+                <div class=""section-title"">Response</div>
+                <div class=""response-examples"">
+                    <span class=""response-code code-200"">200</span> Success
+                    <div class=""code-block"">{
   ""success"": true,
-  ""data"": {
-    ""login"": 12345,
-    ""balance"": 10000.00,
-    ""equity"": 10500.00,
-    ""credit"": 0.00
-  }
-}";
-            }
-            else
-            {
-                examples += @"{
-  ""success"": true,
-  ""data"": {},
-  ""message"": ""Operation completed successfully""
-}";
-            }
-
-            examples += @"</div>
+  ""message"": ""Operation successful"",
+  ""data"": { ... }
+}</div>
                 </div>";
 
-            // Try it button
-            examples += @"
-                <button class=""try-button"" onclick=""tryEndpoint('" + route + @"', '" + method + @"')"">
-                    ?? Try it out
-                </button>";
-
-            return examples;
+            return $@"
+                <div class=""try-section"">
+                    <button class=""try-button"" onclick=""tryEndpoint('{endpoint.Method.Replace("'", "\\'")}', '{endpoint.Route.Replace("'", "\\'")}')"">
+                       Try it out
+                    </button>
+                </div>
+                {parametersHtml}
+                {exampleRequest}
+                {exampleResponse}";
         }
+    }
 
-        private string GenerateNancyRequestResponseExamples(string method, string route, string module)
-        {
-            var examples = "";
+    public class EndpointInfo
+    {
+        public string Controller { get; set; }
+        public string Method { get; set; }
+        public string Route { get; set; }
+        public string Action { get; set; }
+        public string Description { get; set; }
+        public List<ParameterInfo> Parameters { get; set; } = new List<ParameterInfo>();
+    }
 
-            // Request section
-            examples += @"
-                <div class=""details-section"">
-                    <h4>?? Request</h4>
-                    <div><strong>URL:</strong> <code>http://localhost:8086" + route + @"</code></div>
-                    <div><strong>Method:</strong> <span class=""method " + method.ToLower() + @""">" + method + @"</span></div>
-                </div>";
-
-            // Response section
-            examples += @"
-                <div class=""details-section"">
-                    <h4>?? Response</h4>
-                    <div>
-                        <span class=""response-status success"">200 OK</span>
-                        <span style=""color: #666;"">Successful response</span>
-                    </div>
-                    <div class=""code-example"">";
-
-            if (route.Contains("/docs"))
-            {
-                examples += @"<!-- HTML Swagger UI Page -->";
-            }
-            else if (route.Contains("/explorer"))
-            {
-                if (route.EndsWith("json"))
-                {
-                    examples += @"{
-  ""timestamp"": ""2025-02-12T10:30:00Z"",
-  ""totalEndpoints"": 50,
-  ""webApi"": {
-    ""count"": 44,
-    ""endpoints"": [...]
-  },
-  ""nancy"": {
-    ""count"": 6,
-    ""endpoints"": [...]
-  }
-}";
-                }
-                else
-                {
-                    examples += @"<!-- HTML API Explorer Page -->";
-                }
-            }
-            else if (route == "/")
-            {
-                examples += @"<!-- HTML Welcome Page -->";
-            }
-            else
-            {
-                examples += @"{
-  ""status"": ""success"",
-  ""data"": {}
-}";
-            }
-
-            examples += @"</div>
-                </div>";
-
-            // Try it button
-            examples += @"
-                <button class=""try-button"" onclick=""tryEndpoint('" + route + @"', '" + method + @"')"">
-                    ?? Try it out
-                </button>";
-
-            return examples;
-        }
+    public class ParameterInfo
+    {
+        public string Name { get; set; }
+        public string Type { get; set; }
+        public bool Required { get; set; }
     }
 }

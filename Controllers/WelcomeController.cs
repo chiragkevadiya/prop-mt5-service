@@ -19,9 +19,7 @@ namespace PropMT5ConnectionService.Controllers
         private const string Author = "Amit Kumar";
 
         [HttpGet]
-        [Route("")]
         [Route("welcome")]
-        [Route("home")]
         public HttpResponseMessage GetWelcomePage()
         {
             try
@@ -374,8 +372,7 @@ namespace PropMT5ConnectionService.Controllers
         <div class=""nav"">
             <a href=""#overview"" class=""nav-link"">Overview</a>
             <a href=""#status"" class=""nav-link"">Status</a>
-            <a href=""#endpoints"" class=""nav-link"">API Endpoints</a>
-            <a href=""/api/health"" class=""nav-link"">Health Check</a>
+            <a href=""/explorer"" class=""nav-link"">Explorer</a>
         </div>
 
         <!-- Content -->
@@ -469,35 +466,7 @@ namespace PropMT5ConnectionService.Controllers
                     
                     <!-- Health Status Cards Grid -->
                     <div style=""display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;"">
-                        <!-- OWIN Status Card -->
-                        <div id=""owninCard"" style=""background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #28a745; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"">
-                            <div style=""display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;"">
-                                <span style=""font-size: 1.3em;"">&#128268;</span>
-                                <span id=""owninStatus"" style=""padding: 4px 12px; background: #28a745; color: white; border-radius: 12px; font-size: 0.8em; font-weight: 600;"">OK</span>
-                            </div>
-                            <h4 style=""color: #667eea; margin: 0; font-size: 1.1em;"">OWIN Server</h4>
-                            <p style=""color: #666; font-size: 0.9em; margin: 5px 0 0 0;"">Web server status</p>
-                        </div>
-
-                        <!-- Web API Status Card -->
-                        <div id=""webapiCard"" style=""background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #28a745; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"">
-                            <div style=""display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;"">
-                                <span style=""font-size: 1.3em;"">&#128225;</span>
-                                <span id=""webapiStatus"" style=""padding: 4px 12px; background: #28a745; color: white; border-radius: 12px; font-size: 0.8em; font-weight: 600;"">OK</span>
-                            </div>
-                            <h4 style=""color: #667eea; margin: 0; font-size: 1.1em;"">Web API</h4>
-                            <p style=""color: #666; font-size: 0.9em; margin: 5px 0 0 0;"">REST API status</p>
-                        </div>
-
-                        <!-- Nancy Status Card -->
-                        <div id=""nancyCard"" style=""background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #28a745; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"">
-                            <div style=""display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;"">
-                                <span style=""font-size: 1.3em;"">&#128640;</span>
-                                <span id=""nancyStatus"" style=""padding: 4px 12px; background: #28a745; color: white; border-radius: 12px; font-size: 0.8em; font-weight: 600;"">OK</span>
-                            </div>
-                            <h4 style=""color: #667eea; margin: 0; font-size: 1.1em;"">Nancy Framework</h4>
-                            <p style=""color: #666; font-size: 0.9em; margin: 5px 0 0 0;"">Framework status</p>
-                        </div>
+                        
                     </div>
 
                     <!-- Additional Health Info Card -->
@@ -524,9 +493,7 @@ namespace PropMT5ConnectionService.Controllers
 
                     <!-- Raw JSON Toggle (Collapsible) -->
                     <div style=""margin-top: 15px;"">
-                        <button onclick=""toggleRawJson()"" style=""padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: 600;"">
-                            &#128196; Show/Hide Raw JSON
-                        </button>
+                        
                         <div id=""rawJsonContainer"" style=""display: none; margin-top: 10px; background: #2d2d2d; padding: 15px; border-radius: 8px; overflow-x: auto;"">
                             <pre id=""healthDetails"" style=""margin: 0; color: #f8f8f2; font-family: 'Courier New', monospace; font-size: 0.85em;"">Loading health check data...</pre>
                         </div>
@@ -535,178 +502,7 @@ namespace PropMT5ConnectionService.Controllers
 
                 <div style=""margin-top: 20px; display: flex; gap: 15px; flex-wrap: wrap;"">
                     <button onclick=""refreshStatus()"">&#128260; Refresh Status</button>
-                    <a href=""/api/health"" target=""_blank"" style=""padding: 12px 24px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; text-decoration: none; display: inline-block;"">
-                        &#127973; View Raw Health Data
-                    </a>
-                    <a href=""/api/mt5/accounts"" target=""_blank"" style=""padding: 12px 24px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; text-decoration: none; display: inline-block;"">
-                        &#128101; View Accounts
-                    </a>
                 </div>
-            </section>
-
-            <!-- API Endpoints -->
-            <section id=""endpoints"" class=""section"">
-                <h2>&#128225; Key API Endpoints</h2>
-
-                <div class=""endpoint-category"">
-                    <h3>&#127973; Health &amp; Status</h3>
-                    <div class=""endpoint"">
-                        <div class=""endpoint-header"">
-                            <span class=""method get"">GET</span>
-                            <span class=""endpoint-path"">/api/health</span>
-                        </div>
-                        <p class=""endpoint-description"">Service health check with system diagnostics</p>
-                    </div>
-                </div>
-
-                <div class=""endpoint-category"">
-                    <h3>&#128101; Account Management</h3>
-                    
-                    <div class=""endpoint"">
-                        <div class=""endpoint-header"">
-                            <span class=""method get"">GET</span>
-                            <span class=""endpoint-path"">/api/mt5/accounts</span>
-                        </div>
-                        <p class=""endpoint-description"">Get all MT5 trading accounts</p>
-                    </div>
-
-                    <div class=""endpoint"">
-                        <div class=""endpoint-header"">
-                            <span class=""method get"">GET</span>
-                            <span class=""endpoint-path"">/api/mt5/account/{loginId}</span>
-                        </div>
-                        <p class=""endpoint-description"">Get specific account by login ID</p>
-                    </div>
-
-                    <div class=""endpoint"">
-                        <div class=""endpoint-header"">
-                            <span class=""method post"">POST</span>
-                            <span class=""endpoint-path"">/api/mt5/account/create</span>
-                        </div>
-                        <p class=""endpoint-description"">Create new MT5 trading account</p>
-                    </div>
-
-                    <div class=""endpoint"">
-                        <div class=""endpoint-header"">
-                            <span class=""method get"">GET</span>
-                            <span class=""endpoint-path"">/api/accountperformance/performance</span>
-                        </div>
-                        <p class=""endpoint-description"">Get account performance metrics</p>
-                    </div>
-                </div>
-
-                <div class=""endpoint-category"">
-                    <h3>&#9889; Trading Operations</h3>
-                    
-                    <div class=""endpoint"">
-                        <div class=""endpoint-header"">
-                            <span class=""method get"">GET</span>
-                            <span class=""endpoint-path"">/api/liquidation/MT5Liquidation</span>
-                        </div>
-                        <p class=""endpoint-description"">Check and execute automated liquidations</p>
-                    </div>
-
-                    <div class=""endpoint"">
-                        <div class=""endpoint-header"">
-                            <span class=""method get"">GET</span>
-                            <span class=""endpoint-path"">/api/opentradedetail</span>
-                        </div>
-                        <p class=""endpoint-description"">Get all open trading positions</p>
-                    </div>
-
-                    <div class=""endpoint"">
-                        <div class=""endpoint-header"">
-                            <span class=""method get"">GET</span>
-                            <span class=""endpoint-path"">/api/livedealhistory</span>
-                        </div>
-                        <p class=""endpoint-description"">Get trading history and closed positions</p>
-                    </div>
-                </div>
-
-                <div class=""endpoint-category"">
-                    <h3>&#128176; Financial Operations</h3>
-                    
-                    <div class=""endpoint"">
-                        <div class=""endpoint-header"">
-                            <span class=""method post"">POST</span>
-                            <span class=""endpoint-path"">/api/livewithdrawal</span>
-                        </div>
-                        <p class=""endpoint-description"">Process withdrawal requests</p>
-                    </div>
-
-                    <div class=""endpoint"">
-                        <div class=""endpoint-header"">
-                            <span class=""method post"">POST</span>
-                            <span class=""endpoint-path"">/api/accounttransfer</span>
-                        </div>
-                        <p class=""endpoint-description"">Transfer funds between accounts</p>
-                    </div>
-                </div>
-
-                <div class=""endpoint-category"">
-                    <h3>&#128200; Analytics &amp; Reports</h3>
-                    
-                    <div class=""endpoint"">
-                        <div class=""endpoint-header"">
-                            <span class=""method get"">GET</span>
-                            <span class=""endpoint-path"">/api/livedashboard</span>
-                        </div>
-                        <p class=""endpoint-description"">Get dashboard metrics and statistics</p>
-                    </div>
-
-                    <div class=""endpoint"">
-                        <div class=""endpoint-header"">
-                            <span class=""method get"">GET</span>
-                            <span class=""endpoint-path"">/api/leaderboard</span>
-                        </div>
-                        <p class=""endpoint-description"">Get trader leaderboard rankings</p>
-                    </div>
-
-                    <div class=""endpoint"">
-                        <div class=""endpoint-header"">
-                            <span class=""method get"">GET</span>
-                            <span class=""endpoint-path"">/api/profitbysymbol</span>
-                        </div>
-                        <p class=""endpoint-description"">Get profit analysis by trading symbol</p>
-                    </div>
-                </div>
-
-                <div class=""endpoint-category"">
-                    <h3>&#9881; Configuration</h3>
-                    
-                    <div class=""endpoint"">
-                        <div class=""endpoint-header"">
-                            <span class=""method get"">GET</span>
-                            <span class=""endpoint-path"">/api/group</span>
-                        </div>
-                        <p class=""endpoint-description"">Get MT5 trading groups</p>
-                    </div>
-
-                    <div class=""endpoint"">
-                        <div class=""endpoint-header"">
-                            <span class=""method get"">GET</span>
-                            <span class=""endpoint-path"">/api/symbol/GetAllSymbols</span>
-                        </div>
-                        <p class=""endpoint-description"">Get all available trading symbols</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Quick Start -->
-            <section class=""section"">
-                <h2>&#128640; Quick Start Guide</h2>
-                
-                <h3 style=""color: #764ba2; margin-top: 20px;"">1. Check Service Health</h3>
-                <div class=""code-block"">curl http://localhost:8086/api/health</div>
-
-                <h3 style=""color: #764ba2; margin-top: 20px;"">2. List All Accounts</h3>
-                <div class=""code-block"">curl http://localhost:8086/api/mt5/accounts</div>
-
-                <h3 style=""color: #764ba2; margin-top: 20px;"">3. Get Account Performance</h3>
-                <div class=""code-block"">curl http://localhost:8086/api/accountperformance/performance</div>
-
-                <h3 style=""color: #764ba2; margin-top: 20px;"">4. Check Liquidations</h3>
-                <div class=""code-block"">curl http://localhost:8086/api/liquidation/MT5Liquidation</div>
             </section>
         </div>
 
@@ -867,8 +663,7 @@ namespace PropMT5ConnectionService.Controllers
         });
     </script>
 </body>
-</html>
-";
+</html>";
         }
 
         private string GenerateFallbackWelcomePageHtml()

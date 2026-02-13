@@ -1,437 +1,339 @@
-﻿# API Documentation Summary
+# MetaTrader 5 REST API - Complete Endpoints Documentation
 
-## 📍 Service Information
-- **Base URL**: http://localhost:8086
-- **Version**: 1.0
-- **Status**: Production Ready
+This document provides a comprehensive list of all REST API endpoints available in the PropMT5ConnectionService.
 
-## 🎯 Complete API Endpoints List
-
-### 1. Health & Status Monitoring
+## Base URL
 ```
-GET  /health                                 - Basic health check
-GET  /api/health                            - Detailed health check with MT5 status
+http://your-server:port/api
 ```
-
-### 2. Live Account Management
-```
-GET    /api/mt5/accounts                    - Get all live accounts
-GET    /api/mt5/account/{loginId}           - Get single account details
-POST   /api/mt5/account/create              - Create new account
-PUT    /api/mt5/account/update              - Update account details
-DELETE /api/mt5/account/delete              - Delete account
-POST   /api/LivePasswordChange              - Change account password
-POST   /api/LivePasswordReset               - Reset account password
-POST   /api/LiveLeverageUpdate              - Update account leverage
-POST   /api/LiveGroupUpdate                 - Change account group
-PUT    /api/LiveAccountStatus               - Enable/disable account
-GET    /api/LiveOnlineUser                  - Get online users
-POST   /api/LiveAccountDisable              - Disable account
-```
-
-### 3. Demo Account Management
-```
-GET    /api/DemoAccount                     - Get all demo accounts
-POST   /api/DemoAccount/Create              - Create demo account
-POST   /api/DemoAccountStatus               - Update demo account status
-POST   /api/DemoGroupUpdate                 - Update demo group
-```
-
-### 4. Trading Operations
-```
-GET  /api/LiveTradingHistory/{loginId}      - Get trading history
-GET  /api/OpenTradeDetail/{loginId}         - Get open positions
-POST /api/CloseTrace/ClosePosition          - Close specific position
-GET  /api/LiveDealHistory/{loginId}         - Get deal history
-GET  /api/LiveTradingData/{loginId}         - Get real-time trading data
-```
-
-### 5. Liquidation & Risk Management
-```
-GET  /api/liquidation/MT5Liquidation?accountId={id}  - Check and liquidate accounts
-```
-
-### 6. Deposit & Withdrawal
-```
-POST /api/CreditInOut/Deposit               - Deposit funds
-POST /api/CreditInOut/Withdraw              - Withdraw funds (internal)
-POST /api/LiveWithdrawal/Withdraw           - Process withdrawal
-POST /api/AccountTransfer                   - Transfer between accounts
-```
-
-### 7. Performance & Analytics
-```
-GET  /api/AccountPerformance/{loginId}      - Get performance metrics
-GET  /api/Leaderboard                       - Get top performers
-GET  /api/ProfitBySymbol/{loginId}          - Profit by symbol
-GET  /api/LiveDashboard                     - Dashboard statistics
-GET  /api/TradeAccountOverview              - Account overview
-GET  /api/AccountProfitChartByDate          - Profit chart data
-```
-
-### 8. Group Management
-```
-GET  /api/Group/GetAllGroups                - List all groups
-GET  /api/Group/GetGroup/{name}             - Get group details
-POST /api/Group/CreateGroup                 - Create new group
-PUT  /api/Group/UpdateGroup                 - Update group settings
-```
-
-### 9. Symbol Management
-```
-GET  /api/Symbol/GetAllSymbols              - List all symbols
-GET  /api/Symbol/GetSymbol/{name}           - Get symbol details
-POST /api/DemoSymbol/UpdateSymbol           - Update symbol configuration
-```
-
-### 10. User Account Details
-```
-GET  /api/UserAccountDetails/{loginId}      - Get detailed user account info
-GET  /api/UserAccountGetByGroup             - Get accounts by group
-POST /api/AccountAvailabilityCheck          - Check account availability
-```
-
-## 📝 Request/Response Examples
-
-### Example 1: Create Live Account
-**Request:**
-```http
-POST /api/mt5/account/create
-Content-Type: application/json
-
-{
-  "userId": 12345,
-  "name": "John Doe",
-  "email": "john.doe@example.com",
-  "group": "PropTrading\\Live",
-  "leverage": 100,
-  "balance": 10000.00
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Account created successfully",
-  "data": {
-    "login": 5551001,
-    "password": "Abc123!@#",
-    "investor": "Inv456!@#",
-    "server": "PropTradingMT5",
-    "group": "PropTrading\\Live"
-  }
-}
-```
-
-### Example 2: Get Account Details
-**Request:**
-```http
-GET /api/mt5/account/1000
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Account retrieved successfully",
-  "data": {
-    "login": 1000,
-    "name": "John Doe",
-    "email": "john.doe@example.com",
-    "group": "PropTrading\\Live",
-    "balance": 10000.00,
-    "equity": 10250.50,
-    "margin": 500.00,
-    "marginFree": 9750.50,
-    "marginLevel": 2050.10,
-    "leverage": 100,
-    "credit": 0.00,
-    "profit": 250.50,
-    "lastUpdate": "2025-01-13T10:30:00Z"
-  }
-}
-```
-
-### Example 3: Deposit Funds
-**Request:**
-```http
-POST /api/CreditInOut/Deposit
-Content-Type: application/json
-
-{
-  "login": 1000,
-  "amount": 1000.00,
-  "comment": "Deposit via wire transfer"
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Deposit processed successfully",
-  "data": {
-    "deal": 456789,
-    "login": 1000,
-    "amount": 1000.00,
-    "previousBalance": 10000.00,
-    "newBalance": 11000.00,
-    "timestamp": "2025-01-13T10:30:00Z"
-  }
-}
-```
-
-### Example 4: Close Position
-**Request:**
-```http
-POST /api/CloseTrace/ClosePosition
-Content-Type: application/json
-
-{
-  "login": 1000,
-  "position": 987654,
-  "volume": 1.0,
-  "symbol": "EURUSD"
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Position closed successfully",
-  "data": {
-    "deal": 789012,
-    "position": 987654,
-    "profit": 150.00,
-    "closePrice": 1.0965,
-    "commission": -2.50,
-    "swap": -0.50,
-    "netProfit": 147.00
-  }
-}
-```
-
-### Example 5: Get Performance Metrics
-**Request:**
-```http
-GET /api/AccountPerformance/1000
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Performance data retrieved",
-  "data": {
-    "login": 1000,
-    "totalTrades": 150,
-    "winningTrades": 95,
-    "losingTrades": 55,
-    "winRate": 63.33,
-    "totalProfit": 5250.00,
-    "totalLoss": -2100.00,
-    "netProfit": 3150.00,
-    "profitFactor": 2.5,
-    "sharpeRatio": 1.85,
-    "maxDrawdown": -850.00,
-    "maxDrawdownPercent": -8.5,
-    "averageWin": 55.26,
-    "averageLoss": -38.18,
-    "largestWin": 450.00,
-    "largestLoss": -280.00,
-    "consecutiveWins": 8,
-    "consecutiveLosses": 3
-  }
-}
-```
-
-### Example 6: Check Liquidations
-**Request:**
-```http
-GET /api/liquidation/MT5Liquidation
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Liquidation check completed",
-  "data": {
-    "accountsChecked": 150,
-    "accountsLiquidated": 3,
-    "accountsAtRisk": 5,
-    "timestamp": "2025-01-13T10:30:00Z",
-    "liquidatedAccounts": [
-      {
-        "login": 1005,
-        "reason": "Margin level below threshold",
-        "marginLevel": 25.5,
-        "equity": 250.00
-      }
-    ]
-  }
-}
-```
-
-### Example 7: Get Leaderboard
-**Request:**
-```http
-GET /api/Leaderboard?limit=10
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Leaderboard retrieved",
-  "data": [
-    {
-      "rank": 1,
-      "login": 1005,
-      "name": "Top Trader",
-      "profit": 12500.00,
-      "returnPercentage": 125.00,
-      "totalTrades": 250,
-      "winRate": 75.2
-    },
-    {
-      "rank": 2,
-      "login": 1008,
-      "name": "Second Best",
-      "profit": 9800.00,
-      "returnPercentage": 98.00,
-      "totalTrades": 180,
-      "winRate": 68.9
-    }
-  ]
-}
-```
-
-## 🔐 Authentication & Security
-
-### Headers
-All requests should include:
-```http
-Content-Type: application/json
-X-Api-Key: your-api-key (if enabled)
-```
-
-### Security Features
-- ✅ CORS enabled and configurable
-- ✅ Security headers (X-Frame-Options, X-Content-Type-Options, etc.)
-- ✅ Request ID tracking (X-Request-Id header in response)
-- ✅ Response time tracking (X-Response-Time header)
-- ✅ Global exception handling
-- ✅ Structured logging with Serilog
-
-## 📊 Standard Response Format
-
-### Success Response
-```json
-{
-  "success": true,
-  "message": "Operation completed successfully",
-  "data": { ... }
-}
-```
-
-### Error Response
-```json
-{
-  "success": false,
-  "message": "Error description",
-  "errors": [
-    "Detailed error 1",
-    "Detailed error 2"
-  ],
-  "requestId": "guid-here",
-  "timestamp": "2025-01-13T10:30:00Z"
-}
-```
-
-## 🎯 Testing with cURL
-
-```bash
-# Health check
-curl http://localhost:8086/health
-
-# Get all accounts
-curl http://localhost:8086/api/mt5/accounts
-
-# Get specific account
-curl http://localhost:8086/api/mt5/account/1000
-
-# Create account
-curl -X POST http://localhost:8086/api/mt5/account/create \
-  -H "Content-Type: application/json" \
-  -d '{"userId":12345,"name":"John Doe","email":"john@example.com"}'
-
-# Deposit
-curl -X POST http://localhost:8086/api/CreditInOut/Deposit \
-  -H "Content-Type: application/json" \
-  -d '{"login":1000,"amount":1000,"comment":"Test deposit"}'
-```
-
-## 🎯 Testing with Postman
-
-1. Import the base URL: `http://localhost:8086`
-2. Create requests for each endpoint
-3. Use environment variables for common values
-4. Save response examples for documentation
-
-## 📱 Integration Examples
-
-### JavaScript/TypeScript
-```javascript
-const baseUrl = 'http://localhost:8086';
-
-// Get account
-async function getAccount(loginId) {
-  const response = await fetch(`${baseUrl}/api/mt5/account/${loginId}`);
-  return await response.json();
-}
-
-// Create account
-async function createAccount(userData) {
-  const response = await fetch(`${baseUrl}/api/mt5/account/create`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(userData)
-  });
-  return await response.json();
-}
-```
-
-### Python
-```python
-import requests
-
-base_url = 'http://localhost:8086'
-
-# Get account
-def get_account(login_id):
-    response = requests.get(f'{base_url}/api/mt5/account/{login_id}')
-    return response.json()
-
-# Create account
-def create_account(user_data):
-    response = requests.post(
-        f'{base_url}/api/mt5/account/create',
-        json=user_data
-    )
-    return response.json()
-```
-
-## 📄 Additional Resources
-
-- Full documentation: http://localhost:8086
-- Health check: http://localhost:8086/health
-- API health: http://localhost:8086/api/health
 
 ---
 
-**Last Updated**: January 13, 2025
-**Version**: 1.0
-**Status**: Production Ready
+## 1. ACCOUNT MANAGEMENT APIs
+
+### Live Account Controller (`/api/mt5`)
+- `GET /api/mt5/account/{loginId}` - Get single live account by login ID
+- `GET /api/mt5/accounts` - Get all live accounts
+- `POST /api/mt5/account/create` - Create a new live account
+- `POST /api/mt5/account/delete` - Delete multiple accounts (LiveAccountDeleteController)
+
+### Account Status (`/api/account/status`)
+- `POST /api/account/status/update` - Update account active/inactive status
+
+### Deposit Operations (`/api/deposit`)
+- `POST /api/deposit` - Deposit funds into an account
+- `POST /api/deposit/raw` - Deposit funds with raw balance operation (no margin check)
+
+### Withdrawal Operations (`/api/livewithdrawal`)
+- `POST /api/livewithdrawal` - Withdraw funds from an account
+
+### Credit Operations (`/api/credit-operations`)
+- `POST /api/credit-operations/balance` - Credit In/Out operations
+
+### Account Transfer (`/api/accounttransfer`)
+- `POST /api/accounttransfer` - Transfer funds between accounts
+
+### Leverage Update (`/api/liveleverageupdate`)
+- `GET /api/liveleverageupdate` - Update account leverage
+
+### Account Disable (`/api/account/disable`)
+- `POST /api/account/disable` - Disable an account
+
+### Account Availability Check (`/api/account/availability`)
+- `GET /api/account/availability` - Check account availability
+
+---
+
+## 2. PASSWORD MANAGEMENT APIs
+
+### Password Management (`/api/password`)
+- `POST /api/password/change` - Change MT5 master or investor password
+
+### Password Reset (`/api/livepasswordreset`)
+- `GET /api/livepasswordreset` - Reset and generate new passwords
+
+---
+
+## 3. POSITION & ORDER MANAGEMENT APIs
+
+### Positions (`/api/positions`)
+- `GET /api/positions/{loginId}` - Get all open positions for an account
+- `GET /api/positions/position/{positionId}` - Get specific position by position ID
+- `GET /api/positions/symbol/{symbol}` - Get positions by symbol
+- `GET /api/positions/{loginId}/count` - Get total open positions count
+
+### Orders (`/api/orders`)
+- `GET /api/orders/{loginId}` - Get all pending orders for an account
+- `DELETE /api/orders/{orderId}` - Delete a pending order
+- `GET /api/orders/{loginId}/history` - Get order history within date range
+- `GET /api/orders/group/{groupName}` - Get all orders by group
+
+### Open Trades (`/api/opentradedetail`)
+- `GET /api/opentradedetail` - Get open trade details by login IDs
+
+### Close Trades (`/api/trading/close`)
+- `POST /api/trading/close/positions` - Close multiple trading positions
+- `POST /api/trading/close/trades-orders-close` - Legacy endpoint for closing trades
+
+---
+
+## 4. DEALS & HISTORY APIs
+
+### Deals (`/api/deals`)
+- `GET /api/deals/{loginId}` - Get deals for an account within date range
+- `GET /api/deals/deal/{dealId}` - Get specific deal by deal ID
+- `GET /api/deals/group/{groupName}` - Get deals by group within date range
+- `GET /api/deals/position/{positionId}` - Get deals by position ID
+- `GET /api/deals/{loginId}/count` - Get total deals count
+
+### Deal History (`/api/livedealhistory`)
+- `GET /api/livedealhistory` - Get deal history by group with filters
+
+### Trading History (`/api/trading/history`)
+- `GET /api/trading/history/{loginId}` - Get trading history for an account
+
+### Trading Data (`/api/trading/data`)
+- `GET /api/trading/data/{loginId}` - Get trading data for an account
+
+---
+
+## 5. USER MANAGEMENT APIs
+
+### User Management (`/api/users`)
+- `GET /api/users` - Get all users
+- `GET /api/users/{loginId}` - Get user by login
+- `PUT /api/users/{loginId}` - Update user information
+- `GET /api/users/group/{groupName}` - Get users by group
+- `GET /api/users/{loginId}/exists` - Check if login exists
+- `GET /api/users/search` - Search users by name
+
+### User Account Details (`/api/user/account`)
+- `GET /api/user/account/{loginId}` - Get detailed user account information
+
+### User Account Batch Operations (`/api/useraccount/batch`)
+- `POST /api/useraccount/batch` - Batch operations on user accounts
+
+### Online Users (`/api/online`)
+- `GET /api/online` - Get all online users
+
+---
+
+## 6. GROUP MANAGEMENT APIs
+
+### Groups (`/api/groups`)
+- `GET /api/groups` - Get all groups
+- `GET /api/groups/{groupName}` - Get specific group details
+- `GET /api/groups/{groupName}/symbols` - Get symbols configured for a group
+- `GET /api/groups/{groupName}/commissions` - Get commission settings for a group
+- `GET /api/groups/{groupName}/accounts/count` - Get accounts count in a group
+
+### Group Operations (`/api/group`)
+- `GET /api/group` - Get group names and details
+- `POST /api/group/update` - Update group settings
+
+### User Account by Group (`/api/useraccountbygroup`)
+- `GET /api/useraccountbygroup` - Get user accounts by group
+
+---
+
+## 7. SYMBOL MANAGEMENT APIs
+
+### Symbols (`/api/symbols`)
+- `GET /api/symbols` - Get all available symbols
+- `GET /api/symbols/{symbolName}` - Get specific symbol details
+- `GET /api/symbols/path/{path}` - Get symbols by path/category
+- `GET /api/symbols/{symbolName}/sessions` - Get symbol trading sessions/hours
+
+### Symbol Operations (`/api/symbol`)
+- `GET /api/symbol` - Get all symbols with details
+
+---
+
+## 8. MARKET DATA APIs
+
+### Market Data (`/api/market`)
+- `GET /api/market/tick/{symbol}` - Get current market tick for a symbol
+- `GET /api/market/ticks/{symbol}` - Get last ticks within time range
+- `GET /api/market/book/{symbol}` - Get market depth (book) for a symbol
+- `POST /api/market/quotes` - Get current quotes for multiple symbols
+
+---
+
+## 9. MARGIN & CALCULATIONS APIs
+
+### Margin (`/api/margin`)
+- `POST /api/margin/calculate` - Calculate margin for a potential trade
+- `GET /api/margin/{loginId}` - Get current margin information for an account
+- `POST /api/margin/profit` - Calculate profit for a potential trade
+
+---
+
+## 10. REPORTS & ANALYTICS APIs
+
+### Reports (`/api/reports`)
+- `GET /api/reports/account/{loginId}/summary` - Get account summary report
+- `GET /api/reports/account/{loginId}/statistics` - Get trading statistics
+- `GET /api/reports/account/{loginId}/daily` - Get daily profit/loss report
+- `GET /api/reports/group/{groupName}/summary` - Get group report
+
+### Dashboard (`/api/dashboard`)
+- `GET /api/dashboard/{loginId}` - Get dashboard data for an account
+
+### Account Performance (`/api/performance`)
+- `GET /api/performance/{loginId}` - Get account performance metrics
+
+### Leaderboard (`/api/leaderboard`)
+- `GET /api/leaderboard` - Get leaderboard data
+
+### Profit by Symbol (`/api/profitbysymbol`)
+- `GET /api/profitbysymbol/{loginId}` - Get profit breakdown by symbol
+
+### Account Profit Chart (`/api/profitchart`)
+- `GET /api/profitchart/{loginId}` - Get account profit chart data by date
+
+---
+
+## 11. SERVER MANAGEMENT APIs
+
+### Server (`/api/server`)
+- `GET /api/server/time` - Get server time
+- `GET /api/server/ping` - Ping the server
+- `GET /api/server/version` - Get MT5 API version
+- `GET /api/server/stats` - Get server statistics
+- `POST /api/server/subscribe` - Subscribe to trading events
+- `GET /api/server/connected` - Check if manager is connected
+
+### Health Check (`/api/health`)
+- `GET /api/health` - Server health check endpoint
+
+---
+
+## 12. MAIL OPERATIONS APIs
+
+### Mail (`/api/mail`)
+- `POST /api/mail/send` - Send mail to a specific user
+- `POST /api/mail/send/bulk` - Send mail to multiple users
+- `POST /api/mail/send/group/{groupName}` - Send mail to all users in a group
+
+---
+
+## 13. LIQUIDATION APIs
+
+### Liquidation (`/api/liquidation`)
+- `POST /api/liquidation/check` - Check for accounts requiring liquidation
+- `POST /api/liquidation/execute` - Execute liquidation for specific accounts
+
+---
+
+## 14. DEMO ACCOUNT APIs
+
+### Demo Account Controller (`/api/demo`)
+- `GET /api/demo/account/{loginId}` - Get demo account
+- `GET /api/demo/accounts` - Get all demo accounts
+- `POST /api/demo/account/create` - Create demo account
+- `POST /api/demo/account/delete` - Delete demo account
+
+### Demo Account Status (`/api/demo/status`)
+- `POST /api/demo/status/update` - Update demo account status
+
+### Demo Group (`/api/demo/group`)
+- `GET /api/demo/group` - Get demo groups
+- `POST /api/demo/group/update` - Update demo group
+
+### Demo Symbol (`/api/demo/symbol`)
+- `GET /api/demo/symbol` - Get demo symbols
+
+### Demo Trading History (`/api/demo/history`)
+- `GET /api/demo/history/{loginId}` - Get demo trading history
+
+### Demo User Account (`/api/demo/useraccount`)
+- `GET /api/demo/useraccount/{loginId}` - Get demo user account details
+
+### Demo Batch Operations (`/api/demo/batch`)
+- `POST /api/demo/batch` - Batch operations on demo accounts
+
+---
+
+## 15. TRADE ACCOUNT OVERVIEW APIs
+
+### Trade Overview (`/api/trade/overview`)
+- `GET /api/trade/overview/{loginId}` - Get comprehensive trade account overview
+
+---
+
+## Request/Response Format
+
+### Standard Response Format
+```json
+{
+  "Success": true,
+  "Message": "Operation successful",
+  "StatusCode": 200,
+  "Data": { }
+}
+```
+
+### Error Response Format
+```json
+{
+  "Success": false,
+  "Message": "Error message",
+  "StatusCode": 400,
+  "Data": null
+}
+```
+
+---
+
+## Common HTTP Status Codes
+- `200` - OK (Success)
+- `400` - Bad Request (Invalid parameters)
+- `404` - Not Found (Resource not found)
+- `500` - Internal Server Error
+
+---
+
+## Authentication
+All API endpoints require proper authentication and authorization. Ensure the MT5 Manager API connection is established before making requests.
+
+---
+
+## Date Format
+Most date parameters accept ISO 8601 format:
+```
+2024-01-15T10:30:00Z
+```
+
+Or simple date format:
+```
+2024-01-15
+```
+
+---
+
+## Volume Format
+Volumes are typically expressed in lots multiplied by 10000:
+- 1 lot = 10000
+- 0.1 lot = 1000
+- 0.01 lot = 100
+
+---
+
+## Notes
+1. All monetary values are returned with appropriate decimal precision
+2. Unix timestamps are used for time representations in many responses
+3. Some endpoints support pagination (check individual endpoint documentation)
+4. Rate limiting may apply depending on your MT5 server configuration
+5. All endpoints follow RESTful conventions
+6. Batch operations are available for improved performance when dealing with multiple entities
+
+---
+
+## Support
+For MT5 Manager API documentation, refer to the official MetaQuotes documentation.
+
+---
+
+**Last Updated:** 2025-01-15
+**API Version:** 1.0
+**MT5 Manager API Version:** Compatible with MT5 Build 3000+

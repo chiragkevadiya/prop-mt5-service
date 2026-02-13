@@ -383,10 +383,19 @@
     <Compile Include="Configuration\ApiExplorerModule.cs" />
     <Compile Include="Configuration\BaseResponseModel.cs" />
     <Compile Include="Configuration\AppSettings.cs" />
-    <Compile Include="Configuration\NancySwaggerModule.cs" />
     <Compile Include="Constants\MT5Constants.cs" />
     <Compile Include="Controllers\Live\BaseApiController.cs" />
+    <Compile Include="Controllers\Live\DepositController.cs" />
+    <Compile Include="Controllers\Live\GroupManagementController.cs" />
     <Compile Include="Controllers\Live\HealthCheckController.cs" />
+    <Compile Include="Controllers\Live\MailController.cs" />
+    <Compile Include="Controllers\Live\MarginController.cs" />
+    <Compile Include="Controllers\Live\OrderController.cs" />
+    <Compile Include="Controllers\Live\PositionController.cs" />
+    <Compile Include="Controllers\Live\ReportController.cs" />
+    <Compile Include="Controllers\Live\ServerController.cs" />
+    <Compile Include="Controllers\Live\SymbolManagementController.cs" />
+    <Compile Include="Controllers\Live\UserManagementController.cs" />
     <Compile Include="Controllers\WelcomeController.cs" />
     <Compile Include="Diagnostics\Mt5ConnectionDiagnostics.cs" />
     <Compile Include="Mt5Client\Mt5ClientBase.cs" />
@@ -412,7 +421,6 @@
     <Compile Include="Controllers\Demo\DemoUserAccountController.cs" />
     <Compile Include="Controllers\Live\AccountTransferController.cs" />
     <Compile Include="Controllers\Live\LiveUserAccountBatchController.cs" />
-    <Compile Include="Controllers\Live\GroupController.cs" />
     <Compile Include="Controllers\Live\LiveAccountStatusController.cs" />
     <Compile Include="Controllers\Live\LiveDealHistoryController.cs" />
     <Compile Include="Controllers\Live\LiveDashboardController.cs" />
@@ -424,8 +432,6 @@
     <Compile Include="Controllers\Live\LiveTradingDataController.cs" />
     <Compile Include="Controllers\Live\LiveTradingHistoryController.cs" />
     <Compile Include="Controllers\Live\LiveWithdrawalController.cs" />
-    <Compile Include="Controllers\Live\OpenTradeDetailController.cs" />
-    <Compile Include="Controllers\Live\SymbolController.cs" />
     <Compile Include="Controllers\Live\LiveUserAccountController.cs" />
     <Compile Include="Controllers\Live\UserAccountDetailsController.cs" />
     <Compile Include="Controllers\Live\UserAccountGetByGroupController.cs" />
