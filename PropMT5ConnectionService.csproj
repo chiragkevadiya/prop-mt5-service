@@ -513,18 +513,9 @@
     <Compile Include="WebServer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="API_DOCUMENTATION.md" />
-    <None Include="API_EXPLORER_ENHANCED.md" />
     <None Include="App.config" />
-    <None Include="IMPLEMENTATION_SUMMARY.md" />
     <None Include="Mt5Client\MIGRATION_GUIDE.md" />
     <None Include="packages.config" />
-    <None Include="Program.cs.fallback" />
-    <None Include="ROUTE_FIX_GUIDE.md" />
-    <None Include="ROUTE_PREFIXES.md" />
-    <None Include="SWAGGER_DOCUMENTATION.md" />
-    <None Include="TROUBLESHOOTING.md" />
-    <None Include="WELCOME_PAGE_FIX.md" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\MetaQuotes.MT5CommonAPI.dll" />
