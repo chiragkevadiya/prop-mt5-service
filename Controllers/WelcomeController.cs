@@ -983,7 +983,7 @@ namespace PropMT5ConnectionService.Controllers
                 Built with &#10084; for Professional Trading
             </p>
             <p style=""margin-top: 10px; font-size: 0.9em;"">
-                &copy; 2025 Prop MT5 Connection Service. All rights reserved.
+                &copy; 2026 Prop MT5 Connection Service. All rights reserved.
             </p>
         </div>
     </div>

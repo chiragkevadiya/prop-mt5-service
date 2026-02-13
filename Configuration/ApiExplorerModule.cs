@@ -596,7 +596,7 @@ namespace PropMT5ConnectionService.Configuration
 
         <!-- Footer -->
         <footer>
-            <p>© 2025 Prop MT5 Connection Service | Built with ASP.NET Web API & Nancy Framework</p>
+            <p>© 2026 Prop MT5 Connection Service | Built with ASP.NET Web API & Nancy Framework</p>
             <p style=""margin-top: 10px; opacity: 0.7;"">Author: Amit Kumar | Version: 1.0.0</p>
         </footer>
     </div>
