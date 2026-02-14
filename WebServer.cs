@@ -196,7 +196,7 @@ namespace PropMT5ConnectionService
             {
                 // Get the environment setting
                 var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Development";
-                
+
                 // Check if auto-open is enabled in configuration (optional setting)
                 var autoOpenBrowser = _configuration["WebServer:AutoOpenBrowser"];
                 if (!string.IsNullOrWhiteSpace(autoOpenBrowser) && autoOpenBrowser.ToLower() == "false")
@@ -207,7 +207,7 @@ namespace PropMT5ConnectionService
 
                 // Construct the welcome page URL
                 var welcomeUrl = baseUri.TrimEnd('/') + "/welcome";
-                
+
                 Log.Information("Opening browser to welcome page: {WelcomeUrl}", welcomeUrl);
                 Console.WriteLine($"[INFO] Opening browser to: {welcomeUrl}");
 
@@ -220,7 +220,7 @@ namespace PropMT5ConnectionService
                 };
 
                 Process.Start(psi);
-                
+
                 Log.Information("Browser opened successfully in {Environment} environment", environment);
             }
             catch (Exception ex)

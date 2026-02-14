@@ -5,6 +5,7 @@ using PropMT5ConnectionService.Mt5Client;
 using PropMT5ConnectionService.Services;
 using Serilog;
 using System;
+using System.IO;
 using System.Linq;
 using Topshelf;
 
@@ -90,10 +91,34 @@ namespace PropMT5ConnectionService
         /// </summary>
         static void ConfigureServices(IServiceCollection services, string environment)
         {
+            //var configuration = new ConfigurationBuilder()
+            //    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+            //    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            //    .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
+            //    .Build();
+
+            var configDir = @"C:\MT5WindowsService\prop_mt5";
+
+            // Ensure directory exists
+            if (!Directory.Exists(configDir))
+                Directory.CreateDirectory(configDir);
+
+            var configFile = Path.Combine(configDir, "appsettings.json");
+
+            // Fail fast if config missing
+            if (!File.Exists(configFile))
+                throw new Exception(
+                    "Configuration file missing.\n\n" +
+                    "Please copy appsettings.json to:\n" +
+                    "C:\\ProgramData\\PropMT5ConnectionService\\"
+                );
+
+            Console.WriteLine($"[INFO] Loading configuration from {configDir}");
+
             var configuration = new ConfigurationBuilder()
-                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .SetBasePath(configDir)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{environment}.json", optional: true)
                 .Build();
 
             services.AddSingleton<IConfiguration>(configuration);
