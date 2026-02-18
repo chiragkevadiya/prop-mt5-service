@@ -14,6 +14,7 @@ namespace PropMT5ConnectionService.Controllers
         private readonly CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
 
         [HttpGet]
+        [Route("")]
         public BaseResponseModel<ProfitLossBySymbolDaywiseVM> GetProfitBySymbolPast5Days(string groupMask = "*")
         {
             try

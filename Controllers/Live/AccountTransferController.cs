@@ -18,6 +18,7 @@ namespace PropMT5ConnectionService.Controllers
         }
 
         [HttpPost]
+        [Route("")]
         public BaseResponseModel<TransferTerminalToTerminalResponse> TransferTerminalToTerminal([FromBody] TransferTerminalToTerminalVM entity)
         {
             try

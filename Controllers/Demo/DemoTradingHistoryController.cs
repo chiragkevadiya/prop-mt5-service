@@ -15,6 +15,7 @@ namespace PropMT5ConnectionService.Controllers
         CIMTManagerAPI _managerDemo = Mt5DemoManagerFactory.GetManagerDemo();
 
         [HttpGet]
+        [Route("")]
         public IEnumerable<Mt5TradingHistoryVM> TradingHistoryFromDateToDate(ulong LoginId, string fromDatet, string toDatet)
         {
             try

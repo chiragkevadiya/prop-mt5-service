@@ -11,6 +11,7 @@ namespace PropMT5ConnectionService.Controllers
         CIMTManagerAPI _managerDemo = Mt5DemoManagerFactory.GetManagerDemo();
 
         [HttpGet]
+        [Route("")]
         public BaseResponseModel<int> DemoMT5LiveGroupNameChanges(ulong LoginId, string GroupName)
         {
             try

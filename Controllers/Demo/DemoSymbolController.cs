@@ -10,6 +10,7 @@ namespace PropMT5ConnectionService.Controllers
         CIMTManagerAPI _managerDemo = Mt5DemoManagerFactory.GetManagerDemo();
 
         [HttpGet]
+        [Route("")]
         public SymbolNameListVM GetDemoSymbolName()
         {
             return MT5SymbolOperations.GetAllSymbols(_managerDemo);

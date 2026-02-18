@@ -14,6 +14,7 @@ namespace PropMT5ConnectionService.Controllers
         CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
 
         [HttpGet]
+        [Route("")]
         public BaseResponseModel<List<ulong>> MT5LiveGroupNameChanges(string account, string GroupName)
         {
             if (string.IsNullOrWhiteSpace(account))

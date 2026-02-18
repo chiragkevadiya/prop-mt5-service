@@ -11,6 +11,7 @@ using System.Web.Http;
 
 namespace PropMT5ConnectionService
 {
+    [RoutePrefix("api/TradeAccountOverview")]
     public class TradeAccountOverviewController : ApiController
     {
         CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
@@ -20,6 +21,7 @@ namespace PropMT5ConnectionService
         }
 
         [HttpGet]
+        [Route("")]
         public BaseResponseModel<GetUserAccountSummary> TradeAccountOverview(ulong LoginId)
         {
             try
@@ -186,6 +188,7 @@ namespace PropMT5ConnectionService
         }
 
         [HttpPost]
+        [Route("TradeAccountOverview")]
         public BaseResponseModel<List<GetUserAccountSummary>> TradeAccountOverview([FromBody] List<ulong> loginIds)
         {
             List<GetUserAccountSummary> summaryList = new List<GetUserAccountSummary>();

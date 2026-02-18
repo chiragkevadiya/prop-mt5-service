@@ -22,6 +22,7 @@ namespace PropMT5ConnectionService.Controllers
         /// </summary>
         /// <param name="accountId">Optional: Pass accountId to liquidate a single account. Pass 0 (or skip) for all accounts.</param>
         [HttpGet]
+        [Route("mt5-liquidation")]
         public async Task<IHttpActionResult> MT5Liquidation(long accountId = 0)
         {
             try

@@ -15,6 +15,7 @@ namespace PropMT5ConnectionService.Controllers
         CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
 
         [HttpGet]
+        [Route("")]
         public BaseResponseModel<DealMasterList> MT5DealRequestByGroup(string fromDate, string toDate, string actions = null, string byGroups = null)
         {
             try
@@ -160,7 +161,6 @@ namespace PropMT5ConnectionService.Controllers
             }
         }
 
-
         #region old code
         //[HttpGet]
         //public BaseResponseModel<DealMasterList> MT5DealRequestByGroup(string fromDate, string toDate, string actions = null)
@@ -280,7 +280,5 @@ namespace PropMT5ConnectionService.Controllers
         //    }
         //}
         #endregion
-
-
     }
 }

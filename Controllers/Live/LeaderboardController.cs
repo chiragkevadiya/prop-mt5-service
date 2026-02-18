@@ -191,6 +191,7 @@ namespace PropMT5ConnectionService.Controllers
         //}
 
         [HttpGet]
+        [System.Web.Http.Route("")]
         public BaseResponseModel<LeaderboardResponse> MT5LeaderBoard([FromQuery] string loginIds)
         {
             try
@@ -360,7 +361,6 @@ namespace PropMT5ConnectionService.Controllers
                 };
             }
         }
-
 
     }
 

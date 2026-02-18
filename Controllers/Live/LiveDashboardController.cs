@@ -15,6 +15,7 @@ namespace PropMT5ConnectionService.Controllers
 
 
         [HttpGet]
+        [Route("mt5-dashboard-detail")]
         public BaseResponseModel<Mt5DashboardVM> MT5LiveDashboardDetail(string loginIds)
         {
             try

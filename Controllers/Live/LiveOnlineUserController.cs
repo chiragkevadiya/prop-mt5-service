@@ -14,6 +14,7 @@ namespace PropMT5ConnectionService.Controllers
         CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
 
         [HttpGet]
+        [Route("")]
         public BaseResponseModel<Mt5OnlineUserVM> MT5LiveOnlineUserActiveDetail(string groupNames)
         {
             try

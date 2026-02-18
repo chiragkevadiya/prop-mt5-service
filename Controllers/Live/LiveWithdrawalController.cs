@@ -13,6 +13,7 @@ namespace PropMT5ConnectionService.Controllers
         CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
 
         [HttpPost]
+        [Route("")]
         public MTRetCode MT5Withdrawal([FromBody] Mt5DepositBalanceVM entity)
         {
             try

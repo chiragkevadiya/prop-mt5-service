@@ -18,6 +18,7 @@ namespace PropMT5ConnectionService.Controllers
         }
 
         [HttpGet]
+        [Route("")]
         public UserPasswordChangeVM UserPasswordChange(ulong LoginId)
         {
 

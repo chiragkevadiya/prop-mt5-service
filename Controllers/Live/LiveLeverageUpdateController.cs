@@ -12,6 +12,7 @@ namespace PropMT5ConnectionService.Controllers
         CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
 
         [HttpGet]
+        [Route("")]
         public BaseResponseModel<int> MT5LiveLeverageUpdate(ulong LoginId, uint Leverage)
         {
             try
