@@ -3,6 +3,7 @@ using MetaQuotes.MT5ManagerAPI;
 using PropMT5ConnectionService.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace PropMT5ConnectionService.Controllers
@@ -73,5 +74,57 @@ namespace PropMT5ConnectionService.Controllers
                 };
             }
         }
+
+
+        [HttpGet]
+        [Route("performance")]
+        public async Task<BaseResponseModel<AccountPerformanceVM>> GetAccountPerformance(ulong accountId)
+        {
+            try
+            {
+                var user = _manager.UserCreate();
+                var result = _manager.UserGet(accountId, user);
+
+                if (result != MTRetCode.MT_RET_OK)
+                {
+                    return new BaseResponseModel<AccountPerformanceVM>
+                    {
+                        Success = false,
+                        Message = $"Account not found"
+                    };
+                }
+
+                var account = _manager.UserCreateAccount();
+                _manager.UserAccountGet(accountId, account);
+
+                var response = new AccountPerformanceVM
+                {
+                    Login = user.Login(),
+                    Balance = user.Balance(),
+                    Credit = user.Credit(),
+                    Equity = account.Equity(),
+                    Profit = account.Profit()
+                };
+
+                account.Release();
+                user.Release();
+
+                return new BaseResponseModel<AccountPerformanceVM>
+                {
+                    Success = true,
+                    Message = $"Sucess",
+                    Data = response
+                };
+            }
+            catch (Exception ex)
+            {
+                return new BaseResponseModel<AccountPerformanceVM>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
     }
 }

@@ -60,7 +60,7 @@ namespace PropMT5ConnectionService.Controllers
                 if (result == MTRetCode.MT_RET_OK)
                 {
                     closedDeals = dealArray.ToArray()
-                        .Where(deal => deal.Entry() == 1) // DEAL_ENTRY_OUT
+                        .Where(deal => deal.Entry() == 1 || deal.Entry() == 0) // DEAL_ENTRY_OUT
                         .ToList();
                 }
 
