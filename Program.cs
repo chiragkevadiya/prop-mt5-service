@@ -97,7 +97,7 @@ namespace PropMT5ConnectionService
             //    .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
             //    .Build();
 
-            var configDir = @"C:\MT5WindowsService\prop_mt5";
+            var configDir = @"C:\PropMT5WindowsService";
 
             // Ensure directory exists
             if (!Directory.Exists(configDir))

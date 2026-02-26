@@ -5,7 +5,7 @@ namespace PropMT5ConnectionService.Helpers
 {
     public static class AccountLogHelper
     {
-        private static string _baseLogDirectory = @"C:\MT5ServicesLogSave";
+        private static string _baseLogDirectory = @"C:\PropMT5WindowsService\MT5ServicesLogSave";
 
         public static void SetLogDirectory(string basePath)
         {
