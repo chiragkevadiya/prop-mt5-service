@@ -26,8 +26,8 @@ namespace PropMT5ConnectionService.Controllers
         /// <param name="fromDate">Start date (format: yyyy-MM-dd)</param>
         /// <param name="toDate">End date (format: yyyy-MM-dd)</param>
         [HttpGet]
-        [Route("")]
-        public async Task<IHttpActionResult> GetTradingData(ulong loginId, uint entryType, string fromDate, string toDate)
+        [Route("history")]
+        public async Task<IHttpActionResult> GetTradingData(ulong loginId, uint? entryType, string fromDate, string toDate)
         {
             var result = await _tradingService.GetTradingDataAsync(loginId, entryType, fromDate, toDate);
             return Content((System.Net.HttpStatusCode)result.StatusCode, result);

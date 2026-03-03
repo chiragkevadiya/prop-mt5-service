@@ -16,7 +16,7 @@ namespace PropMT5ConnectionService.Services
     public interface IMT5TradingService
     {
         Task<BaseResponse<List<Mt5TradingHistoryVM>>> GetTradingHistoryAsync(ulong loginId, string fromDate, string toDate);
-        Task<BaseResponse<List<Mt5TradingDataVM>>> GetTradingDataAsync(ulong loginId, uint entryType, string fromDate, string toDate);
+        Task<BaseResponse<List<Mt5TradingDataVM>>> GetTradingDataAsync(ulong loginId, uint? entryType, string fromDate, string toDate);
         Task<BaseResponse<List<ClosedTradeResponse>>> ClosePositionsAsync(ClosePositionRequest request);
         Task<BaseResponse<List<Mt5TradingDataVM>>> GetOpenTradesAsync(ulong loginId);
         Task<BaseResponse<List<Mt5TradingDataVM>>> GetClosedTradesAsync(ulong loginId, string fromDate, string toDate);
@@ -114,7 +114,7 @@ namespace PropMT5ConnectionService.Services
         /// <summary>
         /// Get trading data filtered by entry type
         /// </summary>
-        public async Task<BaseResponse<List<Mt5TradingDataVM>>> GetTradingDataAsync(ulong loginId, uint entryType, string fromDate, string toDate)
+        public async Task<BaseResponse<List<Mt5TradingDataVM>>> GetTradingDataAsync(ulong loginId, uint? entryType, string fromDate, string toDate)
         {
             return await Task.Run(() =>
             {
