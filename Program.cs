@@ -64,6 +64,28 @@ namespace PropMT5ConnectionService
                         });
                     });
 
+                    x.OnException(ex =>
+                    {
+                        Console.WriteLine($"[FATAL] Topshelf exception: {ex.Message}");
+                        Console.WriteLine(ex.StackTrace);
+
+                        // Unwrap inner exceptions to find the real cause
+                        var inner = ex.InnerException;
+                        int depth = 1;
+                        while (inner != null)
+                        {
+                            Console.WriteLine($"\n--- Inner Exception (depth {depth}) ---");
+                            Console.WriteLine($"Type: {inner.GetType().FullName}");
+                            Console.WriteLine($"Message: {inner.Message}");
+                            Console.WriteLine(inner.StackTrace);
+                            inner = inner.InnerException;
+                            depth++;
+                        }
+
+                        Console.WriteLine("\n[Press any key to exit...]");
+                        Console.ReadKey();
+                    });
+
                     x.RunAsLocalSystem();
                     x.SetDescription("Manages connections to MT5 (MetaTrader 5) servers for trading operations");
                     x.SetDisplayName("Prop MT5 Connection Service");
@@ -82,6 +104,8 @@ namespace PropMT5ConnectionService
                 Console.WriteLine($"[FATAL] Application terminated unexpectedly: {ex.Message}");
                 Console.WriteLine(ex.StackTrace);
                 Log.CloseAndFlush();
+                Console.WriteLine("\n[Press any key to exit...]");
+                Console.ReadKey();
                 throw;
             }
         }
@@ -197,9 +221,14 @@ namespace PropMT5ConnectionService
             var config = provider.GetRequiredService<IConfiguration>();
 
             var demoServer = config["MT5:Demo:Server"];
-            if (string.IsNullOrEmpty(demoServer))
+            var demoLoginStr = config["MT5:Demo:Login"];
+
+            ulong demoLogin = 0;
+            ulong.TryParse(demoLoginStr, out demoLogin);
+
+            if (string.IsNullOrEmpty(demoServer) || demoLogin == 0)
             {
-                Console.WriteLine("[INFO] Demo MT5 server not configured, skipping");
+                Console.WriteLine("[INFO] Demo MT5 server not configured (Login=0 or Server empty), skipping");
                 return null;
             }
 
@@ -214,7 +243,7 @@ namespace PropMT5ConnectionService
                 return null;
             }
 
-            var login = ulong.Parse(config["MT5:Demo:Login"]);
+            var login = demoLogin;
             var password = config["MT5:Demo:Password"];
             var timeout = uint.Parse(config["MT5:Demo:Timeout"] ?? "30000");
 

@@ -9,15 +9,17 @@ namespace PropMT5ConnectionService.Controllers
     [RoutePrefix("api/demo/account")]
     public class DemoAccountStatusController : ApiController
     {
-        CIMTManagerAPI _managerDemo = Mt5DemoManagerFactory.GetManagerDemo();
-
         [HttpPost]
         [Route("inactive")]
         public Helpers.BaseResponseModel<int> DemoMT5AccountInActive([FromBody] Mt5AccountStatusVM entity)
         {
+            var managerDemo = Mt5DemoManagerFactory.GetManagerDemo();
+            if (managerDemo == null)
+                return new Helpers.BaseResponseModel<int> { Success = false, Message = "Demo MT5 server is not configured." };
+
             try
             {
-                return MT5AccountOperations.SetAccountActiveStatus(_managerDemo, entity);
+                return MT5AccountOperations.SetAccountActiveStatus(managerDemo, entity);
             }
             catch (Exception)
             {

@@ -101,14 +101,14 @@ namespace PropMT5ConnectionService.Mt5Client
 
                 var result = Manager.Connect(server, login, password, null, CIMTManagerAPI.EnPumpModes.PUMP_MODE_FULL, timeout);
 
-                // Initialize factory-specific manager
-                InitializeManagerFactory();
-
                 if (result != MTRetCode.MT_RET_OK)
                 {
                     _logger.Error("{ClientType}: Connection to {Server} failed - {Result}", ClientType, server, result);
                     return result;
                 }
+
+                // Initialize factory-specific manager only after successful connection
+                InitializeManagerFactory();
 
                 _logger.Information("{ClientType}: Successfully connected to {Server}", ClientType, server);
                 return MTRetCode.MT_RET_OK;

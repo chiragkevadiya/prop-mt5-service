@@ -8,6 +8,7 @@ namespace PropMT5ConnectionService.Configuration
 
     public class MT5ServerConfig
     {
+        public bool Enabled { get; set; } = true;
         public string Server { get; set; }
         public ulong Login { get; set; }
         public string Password { get; set; }

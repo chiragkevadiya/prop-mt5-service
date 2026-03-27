@@ -48,6 +48,12 @@ namespace PropMT5ConnectionService.Services.Implementations
             Console.WriteLine("[INFO] Live MT5 Manager connected successfully");
 
             // Initialize Demo Manager
+            if (!_settings.Demo.Enabled || _settings.Demo.Login == 0)
+            {
+                Console.WriteLine("[INFO] MT5 Demo client is disabled or not configured, skipping.");
+                return;
+            }
+
             var demoConnector = new ClientConnectDemo();
             var demoInitResult = demoConnector.Initialize_demo();
             if (demoInitResult != MTRetCode.MT_RET_OK)
