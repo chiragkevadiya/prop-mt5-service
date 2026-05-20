@@ -1,9 +1,9 @@
 using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.ViewModels.SymbolName;
+using PropMT5Service.ViewModels.SymbolName;
 using System.Collections.Generic;
 
-namespace PropMT5ConnectionService.Helpers
+namespace PropMT5Service.Helpers
 {
     public static class MT5SymbolOperations
     {

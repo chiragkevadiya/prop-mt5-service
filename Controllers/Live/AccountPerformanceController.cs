@@ -1,12 +1,12 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.ViewModels;
+using PropMT5Service.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
 
-namespace PropMT5ConnectionService.Controllers
+namespace PropMT5Service.Controllers
 {
     [RoutePrefix("api/accountperformance")]
     public class AccountPerformanceDataController : BaseApiController

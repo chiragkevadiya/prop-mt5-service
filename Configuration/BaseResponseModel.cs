@@ -1,6 +1,6 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 
-namespace PropMT5ConnectionService
+namespace PropMT5Service
 {
     public class BaseResponseModel<T>
     {

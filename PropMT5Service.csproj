@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{2FF1DA41-C9DA-4C12-A752-E30DF3509417}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>PropMT5ConnectionService</RootNamespace>
-    <AssemblyName>PropMT5ConnectionService</AssemblyName>
+    <RootNamespace>PropMT5Service</RootNamespace>
+    <AssemblyName>PropMT5Service</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -15,7 +15,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <PublishUrl>C:\PropMT5WindowsService\</PublishUrl>
+    <PublishUrl>C:\MT5ContestService\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
     <UpdateEnabled>false</UpdateEnabled>
@@ -25,7 +25,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>15</ApplicationRevision>
+    <ApplicationRevision>16</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -77,9 +77,6 @@
   <ItemGroup>
     <Reference Include="BouncyCastle.Cryptography, Version=2.0.0.0, Culture=neutral, PublicKeyToken=072edcf4a5328938, processorArchitecture=MSIL">
       <HintPath>packages\BouncyCastle.Cryptography.2.6.1\lib\net461\BouncyCastle.Cryptography.dll</HintPath>
-    </Reference>
-    <Reference Include="MailKit, Version=4.14.0.0, Culture=neutral, PublicKeyToken=4e064fe7c44a8f1b, processorArchitecture=MSIL">
-      <HintPath>packages\MailKit.4.14.0\lib\net48\MailKit.dll</HintPath>
     </Reference>
     <Reference Include="MetaQuotes.MT5CommonAPI, Version=5.3391.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
@@ -290,6 +287,9 @@
     <Reference Include="Serilog, Version=4.3.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
       <HintPath>packages\Serilog.4.3.0\lib\net471\Serilog.dll</HintPath>
     </Reference>
+    <Reference Include="Swashbuckle.Core">
+      <HintPath>packages\Swashbuckle.Core.5.6.0\lib\net40\Swashbuckle.Core.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\System.Buffers.4.6.0\lib\net462\System.Buffers.dll</HintPath>
@@ -381,13 +381,11 @@
     <Compile Include="ApiResponse\APIResponse.cs" />
     <Compile Include="Configuration\ApiExplorerModule.cs" />
     <Compile Include="Configuration\BaseResponseModel.cs" />
-    <Compile Include="Configuration\AppSettings.cs" />
     <Compile Include="Constants\MT5Constants.cs" />
     <Compile Include="Controllers\Live\BaseApiController.cs" />
     <Compile Include="Controllers\Live\DepositController.cs" />
     <Compile Include="Controllers\Live\GroupManagementController.cs" />
     <Compile Include="Controllers\Live\HealthCheckController.cs" />
-    <Compile Include="Controllers\Live\MailController.cs" />
     <Compile Include="Controllers\Live\MarginController.cs" />
     <Compile Include="Controllers\Live\OrderController.cs" />
     <Compile Include="Controllers\Live\PositionController.cs" />
@@ -396,28 +394,17 @@
     <Compile Include="Controllers\Live\SymbolManagementController.cs" />
     <Compile Include="Controllers\Live\UserManagementController.cs" />
     <Compile Include="Controllers\WelcomeController.cs" />
-    <Compile Include="Diagnostics\Mt5ConnectionDiagnostics.cs" />
     <Compile Include="Mt5Client\Mt5ClientBase.cs" />
     <Compile Include="Mt5Client\Mt5LiveClient.cs" />
-    <Compile Include="Mt5Client\Mt5DemoClient.cs" />
     <Compile Include="Controllers\Live\AccountAvailabilityCheckController.cs" />
     <Compile Include="Controllers\Live\AccountPerformanceController.cs" />
     <Compile Include="Controllers\Live\AccountProfitChartByDateController.cs" />
     <Compile Include="Controllers\Live\CloseTradeController.cs" />
     <Compile Include="Controllers\Live\CreditInOutController.cs" />
-    <Compile Include="Controllers\Demo\DemoUserAccountBatchController.cs" />
-    <Compile Include="Controllers\Demo\DemoGroupController.cs" />
-    <Compile Include="Controllers\Demo\DemoAccountStatusController.cs" />
-    <Compile Include="Controllers\Demo\DemoAccountController.cs" />
     <Compile Include="Controllers\Live\LiveAccountDeleteController.cs" />
     <Compile Include="Controllers\Live\LiveAccountDisableController.cs" />
     <Compile Include="Controllers\Live\LeaderboardController.cs" />
-    <Compile Include="Controllers\Live\LiquidationController.cs" />
     <Compile Include="Controllers\Live\ProfitBySymbolController.cs" />
-    <Compile Include="Controllers\Demo\DemoGroupUpdateController.cs" />
-    <Compile Include="Controllers\Demo\DemoTradingHistoryController.cs" />
-    <Compile Include="Controllers\Demo\DemoSymbolController.cs" />
-    <Compile Include="Controllers\Demo\DemoUserAccountController.cs" />
     <Compile Include="Controllers\Live\AccountTransferController.cs" />
     <Compile Include="Controllers\Live\LiveUserAccountBatchController.cs" />
     <Compile Include="Controllers\Live\LiveAccountStatusController.cs" />
@@ -436,54 +423,26 @@
     <Compile Include="Controllers\Live\UserAccountGetByGroupController.cs" />
     <Compile Include="Configuration\CustomContentTypeProvider.cs" />
     <Compile Include="Controllers\Live\LiveAccountController.cs" />
-    <Compile Include="Data\PropTradingDBContext.cs" />
-    <Compile Include="Extensions\JsonExtensions.cs" />
     <Compile Include="Helpers\AccountLogHelper.cs" />
     <Compile Include="Helpers\BaseResponse.cs" />
-    <Compile Include="Helpers\CommonServices.cs" />
-    <Compile Include="Helpers\Constant.cs" />
-    <Compile Include="Helpers\Mt5AdminFactory.cs" />
-    <Compile Include="Helpers\Mt5DemoManagerFactory.cs" />
     <Compile Include="Helpers\Mt5ManagerFactory.cs" />
     <Compile Include="Helpers\DependencyResolver.cs" />
-    <Compile Include="Helpers\EmailHelper.cs" />
-    <Compile Include="Helpers\EmailSubjectName.cs" />
-    <Compile Include="Helpers\EmailTemplateBuilder.cs" />
-    <Compile Include="Helpers\InvalidResponseFactory.cs" />
-    <Compile Include="Helpers\MailRequest.cs" />
-    <Compile Include="Helpers\MailRequestAPI.cs" />
-    <Compile Include="Helpers\MailSettings.cs" />
     <Compile Include="Helpers\MT5AccountOperations.cs" />
     <Compile Include="Helpers\MT5SymbolOperations.cs" />
     <Compile Include="Helpers\MT5UserMapper.cs" />
-    <Compile Include="Helpers\ProjectHelper.cs" />
     <Compile Include="Middleware\CustomMiddleware.cs" />
-    <Compile Include="Models\BaseEntity.cs" />
-    <Compile Include="Models\Email\EmailTemplateAttachmentsMaster.cs" />
-    <Compile Include="Models\Email\EmailTemplatesDetailsMaster.cs" />
-    <Compile Include="Models\Email\EmailTemplatesMaster.cs" />
-    <Compile Include="Models\Email\EmailTemplatesStaticKeyValueMaster.cs" />
-    <Compile Include="Models\Email\EmailVariablesMaster.cs" />
-    <Compile Include="Models\PropAccountMaster.cs" />
-    <Compile Include="Models\UserChallengeHistory.cs" />
-    <Compile Include="Models\UserChallengePhase.cs" />
-    <Compile Include="Models\UserMaster.cs" />
     <Compile Include="Configuration\NancyDemo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\CachingService.cs" />
     <Compile Include="Services\HttpClientService.cs" />
-    <Compile Include="Services\EmailService.cs" />
     <Compile Include="Services\ILiquidationService.cs" />
     <Compile Include="Services\IMT5ManagerService.cs" />
     <Compile Include="Services\LiquidationService.cs" />
-    <Compile Include="Services\LoggingService.cs" />
     <Compile Include="Services\MT5AccountService.cs" />
     <Compile Include="Services\MT5TradingService.cs" />
     <Compile Include="Services\PerformanceMonitoringService.cs" />
-    <Compile Include="Services\TickSink.cs" />
     <Compile Include="Startup.cs" />
-    <Compile Include="Utilities\ConnectionString.cs" />
     <Compile Include="Utilities\DateFormatConverter.cs" />
     <Compile Include="Utilities\PasswordGenerator.cs" />
     <Compile Include="Controllers\Live\TradeAccountOverviewController.cs" />
@@ -493,8 +452,6 @@
     <Compile Include="ViewModels\ChallengeSettlement\ChallengeSettlementResult.cs" />
     <Compile Include="ViewModels\ClosePositionRequest.cs" />
     <Compile Include="ViewModels\DealMasterVM.cs" />
-    <Compile Include="Models\Email\EmailLog.cs" />
-    <Compile Include="ViewModels\Email\EmailTemplateETKeyVM.cs" />
     <Compile Include="ViewModels\GroupName\GroupNameVM.cs" />
     <Compile Include="ViewModels\GroupwithSymbolVM.cs" />
     <Compile Include="ViewModels\LeaderBoard\LeaderBoardVM.cs" />
@@ -519,18 +476,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="appsettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="appsettings.Production.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Documentation\API_DOCUMENTATION_LIVE.md" />
-    <None Include="Documentation\AUTO_OPEN_BROWSER_FEATURE.md" />
-    <None Include="Documentation\PropMT5_API_Collection.postman_collection.json" />
-    <None Include="Documentation\MIGRATION_GUIDE.md" />
     <None Include="packages.config" />
-    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\MetaQuotes.MT5CommonAPI.dll" />
@@ -560,41 +506,5 @@
     <Error Condition="!Exists('packages\Serilog.4.3.0\build\Serilog.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Serilog.4.3.0\build\Serilog.targets'))" />
   </Target>
   <Import Project="packages\Serilog.4.3.0\build\Serilog.targets" Condition="Exists('packages\Serilog.4.3.0\build\Serilog.targets')" />
-  <ItemGroup>
-    <None Include="appsettings.Development.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <PublishFile Include="appsettings.Development.json">
-      <Visible>False</Visible>
-      <Group>
-      </Group>
-      <TargetPath>
-      </TargetPath>
-      <PublishState>Include</PublishState>
-      <IncludeHash>True</IncludeHash>
-      <FileType>File</FileType>
-    </PublishFile>
-    <PublishFile Include="appsettings.json">
-      <Visible>False</Visible>
-      <Group>
-      </Group>
-      <TargetPath>
-      </TargetPath>
-      <PublishState>Include</PublishState>
-      <IncludeHash>True</IncludeHash>
-      <FileType>File</FileType>
-    </PublishFile>
-    <PublishFile Include="appsettings.Production.json">
-      <Visible>False</Visible>
-      <Group>
-      </Group>
-      <TargetPath>
-      </TargetPath>
-      <PublishState>Include</PublishState>
-      <IncludeHash>True</IncludeHash>
-      <FileType>File</FileType>
-    </PublishFile>
-  </ItemGroup>
+  <ItemGroup />
 </Project>

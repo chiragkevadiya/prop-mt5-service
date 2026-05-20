@@ -1,11 +1,10 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Helpers;
-using PropMT5ConnectionService.ViewModels;
-using System;
+using PropMT5Service.Helpers;
+using PropMT5Service.ViewModels;
 using System.Web.Http;
 
-namespace PropMT5ConnectionService.Controllers
+namespace PropMT5Service.Controllers
 {
     [RoutePrefix("api/credit-operations")] // Updated route prefix for consistency
     public class CreditOperationsController : ApiController // Renamed class for consistency
@@ -20,36 +19,29 @@ namespace PropMT5ConnectionService.Controllers
         [Route("balance")] // Explicit route for the action
         public MTRetCode CreditInOutBalance([FromBody] Mt5DepositBalanceVM entity)
         {
-            try
+            ulong variable;
+            MTRetCode result;
+
+            switch (entity.Comment)
             {
-                ulong variable;
-                MTRetCode result;
+                case "CreditIn":
+                    result = _manager.DealerBalanceRaw(entity.Login, entity.Amount, 3, entity.Comment, out variable);
+                    return result == MTRetCode.MT_RET_REQUEST_DONE ? MTRetCode.MT_RET_REQUEST_DONE : MTRetCode.MT_RET_ERR_NOTFOUND;
 
-                switch (entity.Comment)
-                {
-                    case "CreditIn":
-                        result = _manager.DealerBalanceRaw(entity.Login, entity.Amount, 3, entity.Comment, out variable);
-                        return result == MTRetCode.MT_RET_REQUEST_DONE ? MTRetCode.MT_RET_REQUEST_DONE : MTRetCode.MT_RET_ERR_NOTFOUND;
-
-                    case "CreditOut":
-                        var user = _manager.UserCreate();
-                        if (_manager.UserGet(entity.Login, user) != MTRetCode.MT_RET_OK)
-                            return MTRetCode.MT_RET_ERR_NOTFOUND;
-
-                        double balance = GetBalanceForLogin(entity.Login);
-                        if (entity.Amount <= 0 || balance <= 0 || balance < entity.Amount)
-                            return MTRetCode.MT_RET_REQUEST_NO_MONEY;
-
-                        result = _manager.DealerBalance(entity.Login, -entity.Amount, 3, entity.Comment, out variable);
-                        return result == MTRetCode.MT_RET_REQUEST_DONE ? MTRetCode.MT_RET_REQUEST_DONE : MTRetCode.MT_RET_REQUEST_NO_MONEY;
-
-                    default:
+                case "CreditOut":
+                    var user = _manager.UserCreate();
+                    if (_manager.UserGet(entity.Login, user) != MTRetCode.MT_RET_OK)
                         return MTRetCode.MT_RET_ERR_NOTFOUND;
-                }
-            }
-            catch (Exception)
-            {
-                throw;
+
+                    double balance = GetBalanceForLogin(entity.Login);
+                    if (entity.Amount <= 0 || balance <= 0 || balance < entity.Amount)
+                        return MTRetCode.MT_RET_REQUEST_NO_MONEY;
+
+                    result = _manager.DealerBalance(entity.Login, -entity.Amount, 3, entity.Comment, out variable);
+                    return result == MTRetCode.MT_RET_REQUEST_DONE ? MTRetCode.MT_RET_REQUEST_DONE : MTRetCode.MT_RET_REQUEST_NO_MONEY;
+
+                default:
+                    return MTRetCode.MT_RET_ERR_NOTFOUND;
             }
         }
 

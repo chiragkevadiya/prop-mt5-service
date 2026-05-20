@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 
-namespace PropMT5ConnectionService.Helpers
+namespace PropMT5Service.Helpers
 {
     /// <summary>
     /// Base response without data

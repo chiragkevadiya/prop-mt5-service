@@ -1,15 +1,16 @@
 ﻿using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Controllers;
-using PropMT5ConnectionService.Helpers;
-using PropMT5ConnectionService.Services;
-using PropMT5ConnectionService.ViewModels;
+using PropMT5Service.Controllers;
+using PropMT5Service.Helpers;
+using PropMT5Service.Services;
+using PropMT5Service.ViewModels;
 using System.Collections.Generic;
 using System.Web.Http;
+using static PropMT5Service.Constants.MT5Constants;
 using FromBodyAttribute = Microsoft.AspNetCore.Mvc.FromBodyAttribute;
 using HttpGetAttribute = System.Web.Http.HttpGetAttribute;
 using HttpPostAttribute = System.Web.Http.HttpPostAttribute;
 
-namespace PropMT5ConnectionService
+namespace PropMT5Service
 {
     /// <summary>
     /// Controller for managing Live MT5 accounts
@@ -23,9 +24,7 @@ namespace PropMT5ConnectionService
         {
             var config = new AccountCreationConfig
             {
-                LoginPrefix = "555",
-                ServerName = "PropTradingMT5",
-                AccountType = "Live"
+
             };
             _accountService = new MT5AccountService(manager, config);
         }

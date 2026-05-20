@@ -1,19 +1,17 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Owin;
+﻿using Microsoft.Owin;
 using Microsoft.Owin.StaticFiles;
+using PropMT5Service.Constants;
+using PropMT5Service.Helpers;
+using PropMT5Service.Middleware;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Owin;
-using PropMT5ConnectionService.Helpers;
-using PropMT5ConnectionService.Middleware;
-using Serilog;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Web.Http;
 
-namespace PropMT5ConnectionService
+namespace PropMT5Service
 {
     /// <summary>
     /// OWIN Startup configuration for the Web API
@@ -23,21 +21,17 @@ namespace PropMT5ConnectionService
     public class Startup
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly IConfiguration _configuration;
         private readonly Stopwatch _startupTimer;
 
         public Startup(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-            _configuration = serviceProvider.GetService<IConfiguration>();
             _startupTimer = Stopwatch.StartNew();
 
-            Log.Information("=== Startup Configuration Initiated ===");
         }
 
         public void Configuration(IAppBuilder app)
         {
-            Log.Information("Configuring OWIN pipeline");
 
             // 1. Request ID and Timing Middleware (First)
             app.Use<RequestIdMiddleware>();
@@ -76,8 +70,6 @@ namespace PropMT5ConnectionService
             ConfigureNancy(app);
 
             _startupTimer.Stop();
-            Log.Information("OWIN pipeline configuration completed in {ElapsedMs}ms", _startupTimer.ElapsedMilliseconds);
-            Log.Information("=== Application Ready to Accept Requests ===");
         }
 
         #region Global Exception Handler
@@ -96,7 +88,6 @@ namespace PropMT5ConnectionService
                 }
             });
 
-            Log.Information("Global exception handler configured");
         }
 
         private async Task HandleExceptionAsync(Microsoft.Owin.IOwinContext context, Exception ex)
@@ -105,8 +96,6 @@ namespace PropMT5ConnectionService
                 ? context.Environment["RequestId"]?.ToString()
                 : Guid.NewGuid().ToString();
 
-            Log.Error(ex, "Unhandled exception in OWIN pipeline. RequestId: {RequestId}, Path: {Path}",
-                requestId, context.Request.Path);
 
             context.Response.StatusCode = 500;
             context.Response.ContentType = "application/json";
@@ -141,23 +130,17 @@ namespace PropMT5ConnectionService
                 var path = context.Request.Path.Value;
                 var queryString = context.Request.QueryString.Value;
 
-                Log.Information("HTTP {Method} {Path}{QueryString} started. RequestId: {RequestId}",
-                    method, path, queryString, requestId);
 
                 await next.Invoke();
 
                 sw.Stop();
                 var statusCode = context.Response.StatusCode;
-                var level = statusCode >= 500 ? Serilog.Events.LogEventLevel.Error
-                          : statusCode >= 400 ? Serilog.Events.LogEventLevel.Warning
-                          : Serilog.Events.LogEventLevel.Information;
+                var levelPrefix = statusCode >= 500 ? "[ERROR]"
+                                : statusCode >= 400 ? "[WARNING]"
+                                : "[INFO]";
 
-                Log.Write(level,
-                    "HTTP {Method} {Path}{QueryString} responded {StatusCode} in {ElapsedMs}ms. RequestId: {RequestId}",
-                    method, path, queryString, statusCode, sw.ElapsedMilliseconds, requestId);
             });
 
-            Log.Information("Request logging middleware configured");
         }
 
         #endregion
@@ -169,25 +152,24 @@ namespace PropMT5ConnectionService
             app.Use(async (context, next) =>
             {
                 // Security Headers
-                context.Response.Headers["X-Content-Type-Options"] = "nosniff";
-                context.Response.Headers["X-Frame-Options"] = "DENY";
-                context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
-                context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
-                context.Response.Headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()";
+                context.Response.Headers["X-Content-Type-Options"] = MT5Constants.SecurityHeaders.XContentTypeOptions;
+                context.Response.Headers["X-Frame-Options"] = MT5Constants.SecurityHeaders.XFrameOptions;
+                context.Response.Headers["X-XSS-Protection"] = MT5Constants.SecurityHeaders.XXSSProtection;
+                context.Response.Headers["Referrer-Policy"] = MT5Constants.SecurityHeaders.ReferrerPolicy;
+                context.Response.Headers["Permissions-Policy"] = MT5Constants.SecurityHeaders.PermissionsPolicy;
 
                 // Remove server information
                 context.Response.Headers.Remove("Server");
                 context.Response.Headers.Remove("X-AspNet-Version");
 
                 // Custom headers
-                context.Response.Headers["Product"] = "Prop MT5 Services Connection";
-                context.Response.Headers["X-Powered-By"] = "OWIN/ASP.NET Web API";
+                context.Response.Headers["Product"] = MT5Constants.ServiceInfo.ProductHeader;
+                context.Response.Headers["X-Powered-By"] = MT5Constants.ServiceInfo.PoweredBy;
                 context.Response.Headers["X-Application-Version"] = GetApplicationVersion();
 
                 await next.Invoke();
             });
 
-            Log.Information("Security headers middleware configured");
         }
 
         private string GetApplicationVersion()
@@ -199,7 +181,7 @@ namespace PropMT5ConnectionService
             }
             catch
             {
-                return "1.0.0";
+                return MT5Constants.ServiceInfo.Version;
             }
         }
 
@@ -211,14 +193,14 @@ namespace PropMT5ConnectionService
         {
             app.Use(async (context, next) =>
             {
-                var allowedOrigins = _configuration?["CORS:AllowedOrigins"] ?? "*";
-                var allowedMethods = _configuration?["CORS:AllowedMethods"] ?? "GET, POST, PUT, DELETE, OPTIONS";
-                var allowedHeaders = _configuration?["CORS:AllowedHeaders"] ?? "Content-Type, Authorization, X-Requested-With, X-Api-Key";
+                var allowedOrigins = MT5Constants.Cors.AllowedOrigins;
+                var allowedMethods = MT5Constants.Cors.AllowedMethods;
+                var allowedHeaders = MT5Constants.Cors.AllowedHeaders;
 
                 context.Response.Headers.Add("Access-Control-Allow-Origin", new[] { allowedOrigins });
                 context.Response.Headers.Add("Access-Control-Allow-Methods", new[] { allowedMethods });
                 context.Response.Headers.Add("Access-Control-Allow-Headers", new[] { allowedHeaders });
-                context.Response.Headers.Add("Access-Control-Max-Age", new[] { "3600" });
+                context.Response.Headers.Add("Access-Control-Max-Age", new[] { MT5Constants.Cors.MaxAgeSeconds });
 
                 if (context.Request.Method == "OPTIONS")
                 {
@@ -229,7 +211,6 @@ namespace PropMT5ConnectionService
                 await next.Invoke();
             });
 
-            Log.Information("CORS middleware configured");
         }
 
         #endregion
@@ -242,11 +223,9 @@ namespace PropMT5ConnectionService
             {
                 // Enable compression if available (requires Microsoft.Owin.Compression or similar)
                 // app.Use(typeof(CompressionMiddleware));
-                Log.Debug("Compression middleware skipped (optional feature)");
             }
             catch (Exception ex)
             {
-                Log.Debug("Compression middleware not available: {Message}", ex.Message);
             }
         }
 
@@ -258,21 +237,21 @@ namespace PropMT5ConnectionService
         {
             app.Use(async (context, next) =>
             {
-                if (context.Request.Path.Value.Equals("/health", StringComparison.OrdinalIgnoreCase) ||
-                    context.Request.Path.Value.Equals("/api/health", StringComparison.OrdinalIgnoreCase))
+                if (context.Request.Path.Value.Equals(MT5Constants.HealthCheck.PathSimple, StringComparison.OrdinalIgnoreCase) ||
+                    context.Request.Path.Value.Equals(MT5Constants.HealthCheck.PathApi, StringComparison.OrdinalIgnoreCase))
                 {
                     var health = new
                     {
-                        status = "Healthy",
+                        status = MT5Constants.HealthCheck.StatusHealthy,
                         timestamp = DateTime.UtcNow,
                         uptime = GetUptime(),
                         version = GetApplicationVersion(),
                         environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production",
                         checks = new
                         {
-                            owin = "OK",
-                            webapi = "OK",
-                            nancy = "OK"
+                            owin = MT5Constants.HealthCheck.ComponentOk,
+                            webapi = MT5Constants.HealthCheck.ComponentOk,
+                            nancy = MT5Constants.HealthCheck.ComponentOk
                         }
                     };
 
@@ -285,7 +264,6 @@ namespace PropMT5ConnectionService
                 await next.Invoke();
             });
 
-            Log.Information("Health check endpoint configured at /health and /api/health");
         }
 
         private string GetUptime()
@@ -330,7 +308,6 @@ namespace PropMT5ConnectionService
             // Filters (for authorization, exception handling)
             ConfigureFilters(config);
 
-            Log.Information("Web API configuration completed");
         }
 
         private void ConfigureRoutes(HttpConfiguration config)
@@ -351,21 +328,15 @@ namespace PropMT5ConnectionService
                 defaults: new { id = RouteParameter.Optional }
             );
 
-            Log.Information("Web API routes configured");
         }
 
         private void ConfigureMessageHandlers(HttpConfiguration config)
         {
             try
             {
-                // Add custom message handlers here
-                // config.MessageHandlers.Add(new AuthenticationHandler());
-                // config.MessageHandlers.Add(new LoggingHandler());
-                Log.Debug("Message handlers configured");
             }
             catch (Exception ex)
             {
-                Log.Warning(ex, "Failed to configure message handlers");
             }
         }
 
@@ -373,14 +344,9 @@ namespace PropMT5ConnectionService
         {
             try
             {
-                // Add global filters
-                // config.Filters.Add(new AuthorizeAttribute());
-                // config.Filters.Add(new ExceptionFilterAttribute());
-                Log.Debug("Web API filters configured");
             }
             catch (Exception ex)
             {
-                Log.Warning(ex, "Failed to configure filters");
             }
         }
 
@@ -399,11 +365,9 @@ namespace PropMT5ConnectionService
                     StaticFileOptions = { ContentTypeProvider = new CustomContentTypeProvider() }
                 };
                 app.UseFileServer(options);
-                Log.Information("File server configured (static files enabled)");
             }
             catch (Exception ex)
             {
-                Log.Warning(ex, "Failed to configure file server");
             }
         }
 
@@ -418,15 +382,18 @@ namespace PropMT5ConnectionService
                 // Nancy should only handle routes that Web API doesn't handle
                 // Web API takes priority for /api/* routes
                 app.MapWhen(
-                    context => !context.Request.Path.Value.StartsWith("/api/", StringComparison.OrdinalIgnoreCase) &&
-                               !context.Request.Path.Value.Equals("/health", StringComparison.OrdinalIgnoreCase),
+                    context =>
+                    {
+                        var path = context.Request.Path.Value;
+                        return !path.StartsWith("/api/", StringComparison.OrdinalIgnoreCase) &&
+                               !path.StartsWith("/health", StringComparison.OrdinalIgnoreCase) &&
+                               !path.Equals(MT5Constants.HealthCheck.PathSimple, StringComparison.OrdinalIgnoreCase);
+                    },
                     nancyApp => nancyApp.UseNancy()
                 );
-                Log.Information("Nancy framework enabled (for non-API routes only)");
             }
             catch (Exception ex)
             {
-                Log.Debug("Nancy framework not available: {Message}", ex.Message);
             }
         }
 

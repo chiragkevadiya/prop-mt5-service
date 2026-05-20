@@ -1,7 +1,7 @@
 using MetaQuotes.MT5CommonAPI;
-using PropMT5ConnectionService.ViewModels;
+using PropMT5Service.ViewModels;
 
-namespace PropMT5ConnectionService.Helpers
+namespace PropMT5Service.Helpers
 {
     public static class MT5UserMapper
     {
@@ -39,40 +39,5 @@ namespace PropMT5ConnectionService.Helpers
             return vm;
         }
 
-        public static Mt5LiveAccountVM MapToBasicLiveAccountVM(CIMTUser user)
-        {
-            return new Mt5LiveAccountVM
-            {
-                Login = user.Login(),
-                FirstName = user.FirstName(),
-                LastName = user.LastName(),
-                Group = user.Group(),
-                Country = user.Country(),
-                Credit = user.Credit(),
-                Balance = user.Balance(),
-                Leverage = user.Leverage(),
-                Status = user.Status()
-            };
-        }
-
-        public static Mt5LiveAccountVM MapToAccountWithMargin(CIMTUser user, CIMTAccount account)
-        {
-            return new Mt5LiveAccountVM
-            {
-                Login = user.Login(),
-                FirstName = user.FirstName(),
-                LastName = user.LastName(),
-                Group = user.Group(),
-                Country = user.Country(),
-                Credit = user.Credit(),
-                Balance = user.Balance(),
-                Leverage = user.Leverage(),
-                Status = user.Status(),
-                Margin = account.Margin(),
-                MarginFree = account.MarginFree(),
-                Profit = account.Profit(),
-                Equity = account.Equity()
-            };
-        }
     }
 }

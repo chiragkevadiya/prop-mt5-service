@@ -1,7 +1,6 @@
-﻿using PropMT5ConnectionService.Helpers;
-using Serilog;
+﻿using PropMT5Service.Helpers;
 
-namespace PropMT5ConnectionService.Mt5Client
+namespace PropMT5Service.Mt5Client
 {
     /// <summary>
     /// MT5 Live server client providing connection and management capabilities
@@ -13,10 +12,9 @@ namespace PropMT5ConnectionService.Mt5Client
         /// <summary>
         /// Create a new Live client instance
         /// </summary>
-        /// <param name="logger">Logger instance for diagnostics</param>
         /// <param name="libraryPath">Path to MT5 libraries (default: C:\dll_dot\MT5Libs)</param>
-        public Mt5LiveClient(ILogger logger, string libraryPath = @"C:\dll_dot\MT5Libs")
-            : base(logger, libraryPath)
+        public Mt5LiveClient(string libraryPath = @"C:\dll_dot\MT5Libs")
+            : base(libraryPath)
         {
         }
 

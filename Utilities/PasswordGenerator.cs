@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace PropMT5ConnectionService.Utilities
+namespace PropMT5Service.Utilities
 {
     public static class PasswordGenerator
     {
@@ -57,14 +57,18 @@ namespace PropMT5ConnectionService.Utilities
         private static string Shuffle(string input)
         {
             char[] characters = input.ToCharArray();
-            Random random = new Random();
 
-            for (int i = characters.Length - 1; i > 0; i--)
+            using (var rng = new RNGCryptoServiceProvider())
             {
-                int j = random.Next(0, i + 1);
-                char temp = characters[i];
-                characters[i] = characters[j];
-                characters[j] = temp;
+                for (int i = characters.Length - 1; i > 0; i--)
+                {
+                    byte[] randomBytes = new byte[4];
+                    rng.GetBytes(randomBytes);
+                    int j = (int)(BitConverter.ToUInt32(randomBytes, 0) % (uint)(i + 1));
+                    char temp = characters[i];
+                    characters[i] = characters[j];
+                    characters[j] = temp;
+                }
             }
 
             return new string(characters);

@@ -1,9 +1,9 @@
-﻿using PropMT5ConnectionService.ViewModels;
+﻿using PropMT5Service.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PropMT5ConnectionService.Utilities
+namespace PropMT5Service.Utilities
 {
     public static class LeaderboardCalculator
     {

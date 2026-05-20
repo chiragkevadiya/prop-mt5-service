@@ -1,6 +1,6 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Helpers;
+using PropMT5Service.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 
-namespace PropMT5ConnectionService.Controllers
+namespace PropMT5Service.Controllers
 {
     [RoutePrefix("api/account-profit-chart")] // Updated route prefix for consistency
     public class AccountProfitChartByDateController : ApiController

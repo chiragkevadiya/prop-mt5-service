@@ -1,6 +1,6 @@
 ﻿using Nancy;
 
-namespace PropMT5ConnectionService
+namespace PropMT5Service
 {
     public class NancyDemo : NancyModule
     {

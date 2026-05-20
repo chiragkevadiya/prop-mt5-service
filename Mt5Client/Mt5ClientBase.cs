@@ -1,25 +1,28 @@
 using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using Serilog;
 using System;
 
-namespace PropMT5ConnectionService.Mt5Client
+namespace PropMT5Service.Mt5Client
 {
     /// <summary>
     /// Base class for MT5 client connections providing common initialization and connection logic
     /// </summary>
     public abstract class Mt5ClientBase : IDisposable
     {
-        private readonly ILogger _logger;
         private readonly string _libraryPath;
         private bool _disposed;
+
+        // Stored so Reconnect() can re-use the same credentials
+        private string _server;
+        private ulong _login;
+        private string _password;
+        private uint _timeout;
 
         protected CIMTManagerAPI Manager { get; private set; }
         protected abstract string ClientType { get; }
 
-        protected Mt5ClientBase(ILogger logger, string libraryPath)
+        protected Mt5ClientBase(string libraryPath)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _libraryPath = libraryPath ?? throw new ArgumentNullException(nameof(libraryPath));
         }
 
@@ -30,13 +33,11 @@ namespace PropMT5ConnectionService.Mt5Client
         {
             try
             {
-                _logger.Information("{ClientType}: Initializing MT5 Manager API from {LibraryPath}", ClientType, _libraryPath);
 
                 // Initialize the factory
                 var result = SMTManagerAPIFactory.Initialize(_libraryPath);
                 if (result != MTRetCode.MT_RET_OK)
                 {
-                    _logger.Error("{ClientType}: SMTManagerAPIFactory.Initialize failed - {Result}", ClientType, result);
                     return result;
                 }
 
@@ -44,14 +45,11 @@ namespace PropMT5ConnectionService.Mt5Client
                 result = SMTManagerAPIFactory.GetVersion(out uint version);
                 if (result != MTRetCode.MT_RET_OK)
                 {
-                    _logger.Error("{ClientType}: SMTManagerAPIFactory.GetVersion failed - {Result}", ClientType, result);
                     return result;
                 }
 
                 if (version != SMTManagerAPIFactory.ManagerAPIVersion)
                 {
-                    _logger.Error("{ClientType}: Manager API version mismatch - {ActualVersion} != {ExpectedVersion}",
-                        ClientType, version, SMTManagerAPIFactory.ManagerAPIVersion);
                     return MTRetCode.MT_RET_ERROR;
                 }
 
@@ -59,22 +57,18 @@ namespace PropMT5ConnectionService.Mt5Client
                 Manager = SMTManagerAPIFactory.CreateManager(SMTManagerAPIFactory.ManagerAPIVersion, out result);
                 if (result != MTRetCode.MT_RET_OK)
                 {
-                    _logger.Error("{ClientType}: SMTManagerAPIFactory.CreateManager failed - {Result}", ClientType, result);
                     return result;
                 }
 
                 if (Manager == null)
                 {
-                    _logger.Error("{ClientType}: SMTManagerAPIFactory.CreateManager returned OK but ManagerAPI is null", ClientType);
                     return MTRetCode.MT_RET_ERR_MEM;
                 }
 
-                _logger.Information("{ClientType}: Using ManagerAPI v.{Version}", ClientType, version);
                 return MTRetCode.MT_RET_OK;
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "{ClientType}: Exception during initialization", ClientType);
                 return MTRetCode.MT_RET_ERROR;
             }
         }
@@ -93,31 +87,46 @@ namespace PropMT5ConnectionService.Mt5Client
             {
                 if (Manager == null)
                 {
-                    _logger.Error("{ClientType}: Connection to {Server} failed - Manager API is NULL", ClientType, server);
                     return MTRetCode.MT_RET_ERROR;
                 }
 
-                _logger.Information("{ClientType}: Connecting to {Server} with login {Login}", ClientType, server, login);
 
                 var result = Manager.Connect(server, login, password, null, CIMTManagerAPI.EnPumpModes.PUMP_MODE_FULL, timeout);
 
                 if (result != MTRetCode.MT_RET_OK)
                 {
-                    _logger.Error("{ClientType}: Connection to {Server} failed - {Result}", ClientType, server, result);
                     return result;
                 }
 
                 // Initialize factory-specific manager only after successful connection
                 InitializeManagerFactory();
 
-                _logger.Information("{ClientType}: Successfully connected to {Server}", ClientType, server);
+                // Store credentials for future reconnects
+                _server = server;
+                _login = login;
+                _password = password;
+                _timeout = timeout;
+
                 return MTRetCode.MT_RET_OK;
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "{ClientType}: Exception during connection to {Server}", ClientType, server);
                 return MTRetCode.MT_RET_ERROR;
             }
+        }
+
+        /// <summary>
+        /// Disconnect then reconnect using the credentials from the last successful Connect() call.
+        /// </summary>
+        public MTRetCode Reconnect()
+        {
+            if (string.IsNullOrEmpty(_server))
+            {
+                return MTRetCode.MT_RET_ERROR;
+            }
+
+            Disconnect();
+            return Connect(_server, _login, _password, _timeout);
         }
 
         /// <summary>
@@ -127,35 +136,27 @@ namespace PropMT5ConnectionService.Mt5Client
         {
             if (Manager == null)
             {
-                _logger.Error("{ClientType}: Cannot request logs - Manager was not created", ClientType);
                 return;
             }
 
             try
             {
-                _logger.Debug("{ClientType}: Requesting server logs - Mode: {Mode}, Type: {Type}", ClientType, requestMode, logType);
 
                 var records = Manager.LoggerServerRequest(requestMode, logType, from, to, filter, out var result);
 
                 if (result == MTRetCode.MT_RET_OK && records != null)
                 {
-                    _logger.Information("{ClientType}: LoggerServerRequest succeeded - returned {Count} record(s)",
-                        ClientType, records.Length);
 
                     foreach (var record in records)
                     {
-                        _logger.Debug("{ClientType}: Log record - {Record}", ClientType, record);
                     }
                 }
                 else
                 {
-                    _logger.Warning("{ClientType}: LoggerServerRequest failed - {Result}, returned {Count} record(s)",
-                        ClientType, result, records?.Length ?? 0);
                 }
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "{ClientType}: Exception during server log request", ClientType);
             }
         }
 
@@ -190,12 +191,10 @@ namespace PropMT5ConnectionService.Mt5Client
             {
                 try
                 {
-                    _logger.Information("{ClientType}: Disconnecting from server", ClientType);
                     Manager.Disconnect();
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex, "{ClientType}: Exception during disconnect", ClientType);
                 }
             }
         }
@@ -223,7 +222,6 @@ namespace PropMT5ConnectionService.Mt5Client
                     }
                     catch (Exception ex)
                     {
-                        _logger.Error(ex, "{ClientType}: Exception during manager release", ClientType);
                     }
                     Manager = null;
                 }

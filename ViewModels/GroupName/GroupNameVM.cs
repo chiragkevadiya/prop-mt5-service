@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace PropMT5ConnectionService.ViewModels.GroupName
+namespace PropMT5Service.ViewModels.GroupName
 {
     public class GroupNameVM
     {

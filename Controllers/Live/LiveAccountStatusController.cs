@@ -1,10 +1,10 @@
 ﻿using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Helpers;
-using PropMT5ConnectionService.Services;
-using PropMT5ConnectionService.ViewModels;
+using PropMT5Service.Helpers;
+using PropMT5Service.Services;
+using PropMT5Service.ViewModels;
 using System.Web.Http;
 
-namespace PropMT5ConnectionService.Controllers
+namespace PropMT5Service.Controllers
 {
     /// <summary>
     /// Controller for managing MT5 account status
@@ -43,16 +43,6 @@ namespace PropMT5ConnectionService.Controllers
                     Data = result.Success ? 1 : 0
                 };
             });
-        }
-
-        /// <summary>
-        /// Legacy endpoint for backward compatibility
-        /// </summary>
-        [HttpPost]
-        [System.Obsolete("Use POST /api/account/status/update instead")]
-        public IHttpActionResult MT5AccountInActive([FromBody] Mt5AccountStatusVM entity)
-        {
-            return UpdateAccountStatus(entity);
         }
     }
 }

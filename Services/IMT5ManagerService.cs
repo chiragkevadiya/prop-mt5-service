@@ -2,7 +2,7 @@
 using MetaQuotes.MT5ManagerAPI;
 using System.Collections.Generic;
 
-namespace PropMT5ConnectionService.Services
+namespace PropMT5Service.Services
 {
     public interface IMT5ManagerService
     {

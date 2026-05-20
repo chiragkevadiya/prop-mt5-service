@@ -1,38 +1,23 @@
 ﻿using MetaQuotes.MT5CommonAPI;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PropMT5ConnectionService.Mt5Client;
-using PropMT5ConnectionService.Services;
-using Serilog;
+using PropMT5Service.Constants;
+using PropMT5Service.Helpers;
+using PropMT5Service.Mt5Client;
+using PropMT5Service.Services;
 using System;
-using System.IO;
 using System.Linq;
 using Topshelf;
 
-namespace PropMT5ConnectionService
+namespace PropMT5Service
 {
     /// <summary>
-    /// Main entry point for Prop MT5 Connection Service
+    /// Main entry point for MT5 Contest Service
     /// </summary>
     public class Program
     {
         static void Main(string[] args)
         {
-            ConfigureSerilog();
             StartTopshelf();
-        }
-
-        /// <summary>
-        /// Configure Serilog logging framework
-        /// Note: Requires Serilog.Sinks.Console and Serilog.Sinks.File packages for full functionality
-        /// </summary>
-        static void ConfigureSerilog()
-        {
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Information()
-                .CreateLogger();
-
-            Console.WriteLine("=== Prop MT5 Connection Service Starting ===");
         }
 
         /// <summary>
@@ -42,11 +27,8 @@ namespace PropMT5ConnectionService
         {
             try
             {
-                var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Development";
-                Console.WriteLine($"[INFO] Running in {environment} environment");
-
                 var services = new ServiceCollection();
-                ConfigureServices(services, environment);
+                ConfigureServices(services);
 
                 var serviceProvider = services.BuildServiceProvider();
 
@@ -55,41 +37,23 @@ namespace PropMT5ConnectionService
                     x.Service<WebServer>(s =>
                     {
                         s.ConstructUsing(name => serviceProvider.GetRequiredService<WebServer>());
-                        s.WhenStarted(tc => tc.Start());
-                        s.WhenStopped(tc =>
+                        s.WhenStarted((WebServer tc) => tc.Start());
+                        s.WhenStopped((WebServer tc) =>
                         {
                             tc.Stop();
-                            Console.WriteLine("[INFO] Service stopped");
-                            Log.CloseAndFlush();
-                        });
+                            });
                     });
 
                     x.OnException(ex =>
                     {
-                        Console.WriteLine($"[FATAL] Topshelf exception: {ex.Message}");
-                        Console.WriteLine(ex.StackTrace);
-
-                        // Unwrap inner exceptions to find the real cause
-                        var inner = ex.InnerException;
-                        int depth = 1;
-                        while (inner != null)
-                        {
-                            Console.WriteLine($"\n--- Inner Exception (depth {depth}) ---");
-                            Console.WriteLine($"Type: {inner.GetType().FullName}");
-                            Console.WriteLine($"Message: {inner.Message}");
-                            Console.WriteLine(inner.StackTrace);
-                            inner = inner.InnerException;
-                            depth++;
-                        }
-
-                        Console.WriteLine("\n[Press any key to exit...]");
+                        // Silent failure - log to file via FileLoggingService if needed
                         Console.ReadKey();
                     });
 
                     x.RunAsLocalSystem();
-                    x.SetDescription("Manages connections to MT5 (MetaTrader 5) servers for trading operations");
-                    x.SetDisplayName("Prop MT5 Connection Service");
-                    x.SetServiceName("PropMT5ConnectionService");
+                    x.SetDescription(MT5Constants.ServiceInfo.Description);
+                    x.SetDisplayName(MT5Constants.ServiceInfo.DisplayName);
+                    x.SetServiceName(MT5Constants.ServiceInfo.Name);
                     x.StartAutomatically();
 
                     x.EnableServiceRecovery(rc =>
@@ -101,11 +65,6 @@ namespace PropMT5ConnectionService
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[FATAL] Application terminated unexpectedly: {ex.Message}");
-                Console.WriteLine(ex.StackTrace);
-                Log.CloseAndFlush();
-                Console.WriteLine("\n[Press any key to exit...]");
-                Console.ReadKey();
                 throw;
             }
         }
@@ -113,45 +72,11 @@ namespace PropMT5ConnectionService
         /// <summary>
         /// Configure dependency injection services
         /// </summary>
-        static void ConfigureServices(IServiceCollection services, string environment)
+        static void ConfigureServices(IServiceCollection services)
         {
-            //var configuration = new ConfigurationBuilder()
-            //    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-            //    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            //    .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
-            //    .Build();
-
-            var configDir = @"C:\PropMT5WindowsService";
-
-            // Ensure directory exists
-            if (!Directory.Exists(configDir))
-                Directory.CreateDirectory(configDir);
-
-            var configFile = Path.Combine(configDir, "appsettings.json");
-
-            // Fail fast if config missing
-            if (!File.Exists(configFile))
-                throw new Exception(
-                    "Configuration file missing.\n\n" +
-                    "Please copy appsettings.json to:\n" +
-                    "C:\\ProgramData\\PropMT5ConnectionService\\"
-                );
-
-            Console.WriteLine($"[INFO] Loading configuration from {configDir}");
-
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(configDir)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{environment}.json", optional: true)
-                .Build();
-
-            services.AddSingleton<IConfiguration>(configuration);
-            services.AddSingleton(Log.Logger);
-
             RegisterMT5Clients(services);
             RegisterApplicationServices(services);
 
-            Console.WriteLine("[INFO] Service configuration completed");
         }
 
         /// <summary>
@@ -160,7 +85,6 @@ namespace PropMT5ConnectionService
         static void RegisterMT5Clients(IServiceCollection services)
         {
             services.AddSingleton<Mt5LiveClient>(provider => CreateMT5LiveClient(provider));
-            services.AddSingleton<Mt5DemoClient>(provider => CreateMT5DemoClient(provider));
 
             // Register CIMTManagerAPI from Live Client for controllers
             services.AddSingleton(provider =>
@@ -180,83 +104,29 @@ namespace PropMT5ConnectionService
         /// </summary>
         static Mt5LiveClient CreateMT5LiveClient(IServiceProvider provider)
         {
-            var logger = provider.GetRequiredService<ILogger>();
-            var config = provider.GetRequiredService<IConfiguration>();
-
-            var libraryPath = config["MT5:LibraryPath"] ?? @"C:\dll_dot\MT5Libs";
-            var client = new Mt5LiveClient(logger, libraryPath);
+            var client = new Mt5LiveClient(MT5Constants.MT5Live.LibraryPath);
 
             var initResult = client.Initialize();
             if (initResult != MTRetCode.MT_RET_OK)
             {
-                Console.WriteLine($"[FATAL] MT5 Live Client initialization failed: {initResult}");
                 throw new InvalidOperationException($"Failed to initialize MT5 Live Client: {initResult}");
             }
 
-            var server = config["MT5:Live:Server"];
-            var login = ulong.Parse(config["MT5:Live:Login"]);
-            var password = config["MT5:Live:Password"];
-            var timeout = uint.Parse(config["MT5:Live:Timeout"] ?? "30000");
 
-            Console.WriteLine($"[INFO] Connecting to MT5 Live server {server} with login {login}");
+            var connectResult = client.Connect(
+                MT5Constants.MT5Live.Server,
+                MT5Constants.MT5Live.Login,
+                MT5Constants.MT5Live.Password,
+                MT5Constants.MT5Live.Timeout);
 
-            var connectResult = client.Connect(server, login, password, timeout);
             if (connectResult != MTRetCode.MT_RET_OK)
             {
-                Console.WriteLine($"[FATAL] MT5 Live Client connection failed: {connectResult}");
                 client.Dispose();
                 throw new InvalidOperationException($"Failed to connect MT5 Live Client: {connectResult}");
             }
 
             Console.WriteLine("[INFO] Successfully connected to MT5 Live server");
             return client;
-        }
-
-        /// <summary>
-        /// Create and configure MT5 Demo Client (optional)
-        /// </summary>
-        static Mt5DemoClient CreateMT5DemoClient(IServiceProvider provider)
-        {
-            var logger = provider.GetRequiredService<ILogger>();
-            var config = provider.GetRequiredService<IConfiguration>();
-
-            var demoServer = config["MT5:Demo:Server"];
-            var demoLoginStr = config["MT5:Demo:Login"];
-
-            ulong demoLogin = 0;
-            ulong.TryParse(demoLoginStr, out demoLogin);
-
-            if (string.IsNullOrEmpty(demoServer) || demoLogin == 0)
-            {
-                Console.WriteLine("[INFO] Demo MT5 server not configured (Login=0 or Server empty), skipping");
-                return null;
-            }
-
-            var libraryPath = config["MT5:LibraryPath"] ?? @"C:\dll_dot\MT5Libs";
-            var client = new Mt5DemoClient(logger, libraryPath);
-
-            var initResult = client.Initialize();
-            if (initResult != MTRetCode.MT_RET_OK)
-            {
-                Console.WriteLine($"[WARNING] MT5 Demo Client initialization failed: {initResult}");
-                client?.Dispose();
-                return null;
-            }
-
-            var login = demoLogin;
-            var password = config["MT5:Demo:Password"];
-            var timeout = uint.Parse(config["MT5:Demo:Timeout"] ?? "30000");
-
-            var connectResult = client.Connect(demoServer, login, password, timeout);
-            if (connectResult == MTRetCode.MT_RET_OK)
-            {
-                Console.WriteLine("[INFO] Successfully connected to MT5 Demo server");
-                return client;
-            }
-
-            Console.WriteLine($"[WARNING] MT5 Demo Client connection failed: {connectResult}");
-            client?.Dispose();
-            return null;
         }
 
         /// <summary>
@@ -289,7 +159,6 @@ namespace PropMT5ConnectionService
             foreach (var controllerType in controllerTypes)
             {
                 services.AddTransient(controllerType);
-                Console.WriteLine($"[INFO] Registered controller: {controllerType.Name}");
             }
         }
     }

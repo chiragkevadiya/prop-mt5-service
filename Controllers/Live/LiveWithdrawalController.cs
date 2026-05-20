@@ -1,91 +1,46 @@
-﻿using MetaQuotes.MT5CommonAPI;
+using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Helpers;
-using PropMT5ConnectionService.ViewModels;
-using System;
+using PropMT5Service.Constants;
+using PropMT5Service.Helpers;
+using PropMT5Service.ViewModels;
 using System.Web.Http;
 
-namespace PropMT5ConnectionService.Controllers
+namespace PropMT5Service.Controllers
 {
     [RoutePrefix("api/livewithdrawal")]
-    public class LiveWithdrawalController : ApiController
+    public class LiveWithdrawalController : BaseApiController
     {
-        CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
+        public LiveWithdrawalController(CIMTManagerAPI manager) : base(manager) { }
 
         [HttpPost]
         [Route("")]
-        public MTRetCode MT5Withdrawal([FromBody] Mt5DepositBalanceVM entity)
+        public IHttpActionResult Withdraw([FromBody] Mt5DepositBalanceVM entity)
         {
-            try
+            if (entity == null)
+                return BadRequestResponse<object>(MT5Constants.ResponseMessages.ModelCannotBeNull);
+
+            if (entity.Amount <= 0)
+                return BadRequestResponse<object>("Withdrawal amount must be greater than zero.");
+
+            return ExecuteSafe(() =>
             {
-                MTRetCode mTRetCode;
-                ulong variable = 0;
+                double balance = MT5AccountOperations.GetBalanceForLogin(_manager, entity.Login);
 
-                CIMTUser cIMTUser = _manager.UserCreate();
-                mTRetCode = _manager.UserGet(entity.Login, cIMTUser);
+                if (balance <= 0 || balance < entity.Amount)
+                    return new BaseResponse<object>().WithError(
+                        $"Insufficient balance. Available: {balance:F2}, Requested: {entity.Amount:F2}.", 400);
 
-                if (mTRetCode == MTRetCode.MT_RET_OK)
-                {
-                    var balance = GetBalanceForLogin(entity.Login);
+                MTRetCode ret = _manager.DealerBalance(
+                    entity.Login, -entity.Amount,
+                    MT5Constants.AccountOperations.DealerBalanceType,
+                    entity.Comment, out _);
 
-                    if (balance < 0)
-                    {
-                        return MTRetCode.MT_RET_REQUEST_NO_MONEY;
-                    }
-                    if (entity.Amount <= 0)
-                    {
-                        return MTRetCode.MT_RET_REQUEST_NO_MONEY;
-                    }
+                if (ret == MTRetCode.MT_RET_REQUEST_DONE)
+                    return new BaseResponse<object>().WithSuccess(
+                        new { entity.Login, entity.Amount }, "Withdrawal completed successfully.");
 
-                    if (balance == 0)
-                    {
-                        return MTRetCode.MT_RET_REQUEST_NO_MONEY;
-                    }
-
-                    if (balance < entity.Amount)
-                    {
-                        return MTRetCode.MT_RET_REQUEST_NO_MONEY;
-                    }
-
-                    mTRetCode = _manager.DealerBalance(entity.Login, -entity.Amount, 2, entity.Comment, out variable);
-
-                    if (MTRetCode.MT_RET_REQUEST_DONE == mTRetCode)
-                    {
-                        return mTRetCode;
-                    }
-                    else
-                    {
-                        // If the value of this parameter is true, the free margin is checked before conducting the balance operation.
-                        // If the amount withdraw is greater than the free margin value, error MT_RET_REQUEST_NO_MONEY is returned.
-                        // If the parameter is set to false, the margin is not checked and the requested amount will be withdrawn even
-                        // if it's greater then the free margin. If the parameter is not passed, the check is considered enabled.
-                        return MTRetCode.MT_RET_REQUEST_NO_MONEY;
-                    }
-                }
-                else
-                {
-                    // User Not Found (trading account)
-                    return MTRetCode.MT_RET_ERR_NOTFOUND;
-                }
-
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
-        private double GetBalanceForLogin(ulong login)
-        {
-            CIMTUser cIMTUserc = _manager.UserCreate();
-            MTRetCode mTRetCode1 = _manager.UserGet(login, cIMTUserc);
-
-            if (MTRetCode.MT_RET_OK == mTRetCode1)
-            {
-                return cIMTUserc.Balance();
-            }
-
-            return 0;
+                return new BaseResponse<object>().WithError(GetMT5ErrorMessage(ret), 400);
+            });
         }
     }
 }

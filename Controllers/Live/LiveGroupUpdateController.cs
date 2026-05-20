@@ -1,119 +1,111 @@
-﻿using MetaQuotes.MT5CommonAPI;
+using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Helpers;
+using PropMT5Service.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 
-namespace PropMT5ConnectionService.Controllers
+namespace PropMT5Service.Controllers
 {
     [RoutePrefix("api/livegroupupdate")]
-    public class LiveGroupUpdateController : ApiController
+    public class LiveGroupUpdateController : BaseApiController
     {
-        CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
+        public LiveGroupUpdateController(CIMTManagerAPI manager) : base(manager) { }
 
         [HttpGet]
         [Route("")]
-        public BaseResponseModel<List<ulong>> MT5LiveGroupNameChanges(string account, string GroupName)
+        public IHttpActionResult MT5LiveGroupNameChanges(string account, string groupName)
         {
             if (string.IsNullOrWhiteSpace(account))
-                return new BaseResponseModel<List<ulong>>
-                {
-                    Message = $"Please enter LoginIds",
-                    Success = false,
-                    MTRetErrorCode = 0
-                };
+                return BadRequestResponse<List<ulong>>("Please enter LoginIds.");
 
-            List<ulong> loginIds = account?.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => Convert.ToUInt64(x)).ToList();
+            List<ulong> loginIds = account
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => Convert.ToUInt64(x.Trim()))
+                .ToList();
 
-
-            var originalGroups = new Dictionary<ulong, string>();
-            var usersWithOpenPositions = new List<ulong>();
-            try
+            return ExecuteSafe<List<ulong>>(() =>
             {
-                // Step 1: Pre-Check for Open Positions
-                foreach (var loginId in loginIds)
+                // Phase 1: verify all accounts exist and have no open positions
+                var usersWithOpenPositions = new List<ulong>();
+
+                foreach (ulong loginId in loginIds)
                 {
-                    CIMTUser user = _manager.UserCreate();
-                    var getUserCode = _manager.UserGet(loginId, user);
+                    MTRetCode getUserCode = MTRetCode.MT_RET_OK;
+
+                    WithUser(loginId, (user, ret) =>
+                    {
+                        getUserCode = ret;
+                        return 0;
+                    });
 
                     if (getUserCode == MTRetCode.MT_RET_ERR_NOTFOUND)
-                        return new BaseResponseModel<List<ulong>>
-                        {
-                            Data = new List<ulong> { loginId },
-                            Message = $"Login ID {loginId} not found.",
-                            Success = false,
-                            MTRetErrorCode = getUserCode
-                        };
+                        return new BaseResponse<List<ulong>>().WithError($"Login ID {loginId} not found.", 404);
 
-                    // Check open positions
-                    var positionArray = _manager.PositionCreateArray();
-                    var positionCheck = _manager.PositionGet(loginId, positionArray);
-
-                    if (positionCheck == MTRetCode.MT_RET_OK && positionArray.Total() > 0)
+                    WithPositions(loginId, (positions, ret) =>
                     {
-                        usersWithOpenPositions.Add(loginId);
+                        if (ret == MTRetCode.MT_RET_OK && positions.Total() > 0)
+                            usersWithOpenPositions.Add(loginId);
+                        return 0;
+                    });
+                }
+
+                if (usersWithOpenPositions.Count > 0)
+                    return new BaseResponse<List<ulong>>
+                    {
+                        Success = false,
+                        Message = "Group update aborted: the following accounts have open positions.",
+                        Data = usersWithOpenPositions,
+                        StatusCode = 409
+                    };
+
+                // Phase 2: apply group change with rollback on failure
+                var originalGroups = new Dictionary<ulong, string>();
+
+                foreach (ulong loginId in loginIds)
+                {
+                    MTRetCode updateCode = MTRetCode.MT_RET_OK;
+
+                    WithUser(loginId, (user, ret) =>
+                    {
+                        if (ret != MTRetCode.MT_RET_OK)
+                        {
+                            updateCode = ret;
+                            return 0;
+                        }
+
+                        originalGroups[loginId] = user.Group();
+                        user.Group(groupName);
+                        updateCode = _manager.UserUpdate(user);
+                        return 0;
+                    });
+
+                    if (!IsSuccessful(updateCode))
+                    {
+                        RollbackGroups(originalGroups);
+                        return new BaseResponse<List<ulong>>().WithError(
+                            $"Update failed for login {loginId}. All changes reverted.", 400);
                     }
                 }
 
-                // If any user has open positions, return and abort
-                if (usersWithOpenPositions.Count > 0)
-                {
-                    return new BaseResponseModel<List<ulong>>
-                    {
-                        Data = usersWithOpenPositions,
-                        Message = "Group name update aborted. Some users have open positions.",
-                        Success = false,
-                        MTRetErrorCode = MTRetCode.MT_RET_OK
-                    };
-                }
+                return new BaseResponse<List<ulong>>().WithSuccess(loginIds, "All accounts updated successfully.");
+            });
+        }
 
-                // Step 2: All good, perform update
-                foreach (var loginId in loginIds)
-                {
-                    var user = _manager.UserCreate();
-                    var getUserCode = _manager.UserGet(loginId, user);
-
-                    if (getUserCode != MTRetCode.MT_RET_OK)
-                        throw new Exception($"User fetch failed for {loginId}");
-
-                    originalGroups[loginId] = user.Group();
-
-                    user.Group(GroupName);
-                    var updateCode = _manager.UserUpdate(user);
-
-                    if (updateCode != MTRetCode.MT_RET_OK)
-                        throw new Exception($"User update failed for {loginId}: {updateCode}");
-                }
-                return new BaseResponseModel<List<ulong>>
-                {
-                    Data = loginIds,
-                    Message = "All users updated successfully.",
-                    Success = true,
-                    MTRetErrorCode = MTRetCode.MT_RET_OK
-                };
-            }
-            catch (Exception ex)
+        private void RollbackGroups(Dictionary<ulong, string> originalGroups)
+        {
+            foreach (var kvp in originalGroups)
             {
-                // Rollback in case of any error
-                foreach (var kvp in originalGroups)
+                WithUser(kvp.Key, (user, ret) =>
                 {
-                    var user = _manager.UserCreate();
-                    if (_manager.UserGet(kvp.Key, user) == MTRetCode.MT_RET_OK)
+                    if (ret == MTRetCode.MT_RET_OK)
                     {
                         user.Group(kvp.Value);
-                        _manager.UserUpdate(user); // rollback
+                        _manager.UserUpdate(user);
                     }
-                }
-                return new BaseResponseModel<List<ulong>>
-                {
-                    Data = new List<ulong>(),
-                    Message = $"Error occurred: {ex.Message}. All changes reverted.",
-                    Success = false,
-                    MTRetErrorCode = MTRetCode.MT_RET_ERROR
-                };
-                throw;
+                    return 0;
+                });
             }
         }
     }

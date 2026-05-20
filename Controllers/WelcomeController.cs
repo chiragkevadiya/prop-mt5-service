@@ -1,3 +1,4 @@
+using PropMT5Service.Constants;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -5,7 +6,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Web.Http;
 
-namespace PropMT5ConnectionService.Controllers
+namespace PropMT5Service.Controllers
 {
     /// <summary>
     /// Welcome page controller - serves dynamic welcome/documentation page
@@ -15,8 +16,8 @@ namespace PropMT5ConnectionService.Controllers
     [RoutePrefix("")]
     public class WelcomeController : ApiController
     {
-        private const string Version = "1.0.0";
-        private const string Author = "Amit Kumar";
+        private static readonly string Version = MT5Constants.ServiceInfo.Version;
+        private static readonly string Author = MT5Constants.ServiceInfo.Author;
 
         [HttpGet]
         [Route("welcome")]
@@ -59,7 +60,7 @@ namespace PropMT5ConnectionService.Controllers
 
         private string GenerateWelcomePageHtml()
         {
-            var serverTime = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
+            var serverTime = DateTime.UtcNow.ToString(MT5Constants.LoggingConfig.TimestampFormat);
             var currentDate = DateTime.UtcNow.ToString("MMMM dd, yyyy");
 
             return @"
@@ -68,7 +69,7 @@ namespace PropMT5ConnectionService.Controllers
 <head>
     <meta charset=""UTF-8"">
     <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-    <title>Prop MT5 Connection Service - API Documentation</title>
+    <title>MT5 Contest Service - API Documentation</title>
     <style>
         * {
             margin: 0;
@@ -363,7 +364,7 @@ namespace PropMT5ConnectionService.Controllers
     <div class=""container"">
         <!-- Header -->
         <div class=""header"">
-            <h1>&#128640; Prop MT5 Connection Service</h1>
+            <h1>&#128640; MT5 Contest Service</h1>
             <p>MetaTrader 5 API Integration &amp; Trading Management Platform</p>
             <p style=""margin-top: 10px; opacity: 0.8;"">Generated: " + serverTime + @" UTC</p>
         </div>
@@ -372,7 +373,7 @@ namespace PropMT5ConnectionService.Controllers
         <div class=""nav"">
             <a href=""#overview"" class=""nav-link"">Overview</a>
             <a href=""#status"" class=""nav-link"">Status</a>
-            <a href=""/explorer"" class=""nav-link"">Explorer</a>
+             <!-- <a href=""/explorer"" class=""nav-link"">Explorer</a>  -->
         </div>
 
         <!-- Content -->
@@ -381,7 +382,7 @@ namespace PropMT5ConnectionService.Controllers
             <section id=""overview"" class=""section"">
                 <h2>&#128203; Project Overview</h2>
                 <p style=""font-size: 1.1em; margin-bottom: 20px;"">
-                    The Prop MT5 Connection Service is a robust, production-ready Windows Service that provides 
+                    The MT5 Contest Service is a robust, production-ready Windows Service that provides 
                     RESTful API endpoints for managing MetaTrader 5 (MT5) trading accounts, executing trades, 
                     monitoring positions, and performing automated liquidation checks.
                 </p>
@@ -508,7 +509,7 @@ namespace PropMT5ConnectionService.Controllers
 
         <!-- Footer -->
         <div class=""footer"">
-            <p style=""font-size: 1.2em; margin-bottom: 10px;""><strong>Prop MT5 Connection Service</strong></p>
+            <p style=""font-size: 1.2em; margin-bottom: 10px;""><strong>MT5 Contest Service</strong></p>
             <p style=""font-size: 1.1em; color: #667eea; margin: 10px 0;"">&#128100; Developed by: " + Author + @"</p>
             <p>Version " + Version + @" | Released: " + currentDate + @"</p>
             <p style=""margin-top: 10px;"">Powered by OWIN + Web API + Serilog + Topshelf</p>
@@ -669,7 +670,7 @@ namespace PropMT5ConnectionService.Controllers
         private string GenerateFallbackWelcomePageHtml()
         {
             var currentDate = DateTime.UtcNow.ToString("MMMM dd, yyyy");
-            var serverTime = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
+            var serverTime = DateTime.UtcNow.ToString(MT5Constants.LoggingConfig.TimestampFormat);
 
             return @"
 <!DOCTYPE html>
@@ -677,7 +678,7 @@ namespace PropMT5ConnectionService.Controllers
 <head>
     <meta charset=""UTF-8"">
     <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-    <title>Prop MT5 Connection Service</title>
+    <title>MT5 Contest Service</title>
     <style>
         * {
             margin: 0;
@@ -885,7 +886,7 @@ namespace PropMT5ConnectionService.Controllers
     <div class=""container"">
         <!-- Header -->
         <div class=""header"">
-            <h1>&#128640; Prop MT5 Connection Service</h1>
+            <h1>&#128640; MT5 Contest Service</h1>
             <p class=""subtitle"">MetaTrader 5 API Integration &amp; Trading Management Platform</p>
             <div>
                 <span class=""badge"">Version " + Version + @"</span>
@@ -983,7 +984,7 @@ namespace PropMT5ConnectionService.Controllers
                 Built with &#10084; for Professional Trading
             </p>
             <p style=""margin-top: 10px; font-size: 0.9em;"">
-                &copy; 2026 Prop MT5 Connection Service. All rights reserved.
+                &copy; 2026 MT5 Contest Service. All rights reserved.
             </p>
         </div>
     </div>

@@ -1,10 +1,10 @@
 ﻿using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Services;
-using PropMT5ConnectionService.ViewModels;
+using PropMT5Service.Services;
+using PropMT5Service.ViewModels;
 using System.Threading.Tasks;
 using System.Web.Http;
 
-namespace PropMT5ConnectionService.Controllers
+namespace PropMT5Service.Controllers
 {
     /// <summary>
     /// Controller for managing trade closing operations
@@ -37,25 +37,6 @@ namespace PropMT5ConnectionService.Controllers
             return Content((System.Net.HttpStatusCode)result.StatusCode, result);
         }
 
-        /// <summary>
-        /// Legacy endpoint for backward compatibility
-        /// </summary>
-        [HttpPost]
-        [Route("trades-orders-close")]
-        [System.Obsolete("Use POST /api/trading/close/positions instead")]
-        public async Task<IHttpActionResult> TradesOrdersClose([FromBody] ClosePositionRequest entity)
-        {
-            var result = await _tradingService.ClosePositionsAsync(entity);
-
-            if (result.Success)
-            {
-                return Ok(new { Success = result.Success, Message = result.Message, Data = result.Data });
-            }
-            else
-            {
-                return Content((System.Net.HttpStatusCode)result.StatusCode, result);
-            }
-        }
     }
 }
 

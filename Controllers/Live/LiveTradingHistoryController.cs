@@ -1,9 +1,9 @@
 ﻿using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Services;
+using PropMT5Service.Services;
 using System.Threading.Tasks;
 using System.Web.Http;
 
-namespace PropMT5ConnectionService.Controllers
+namespace PropMT5Service.Controllers
 {
     /// <summary>
     /// Controller for managing trading history operations
@@ -32,24 +32,6 @@ namespace PropMT5ConnectionService.Controllers
             return Content((System.Net.HttpStatusCode)result.StatusCode, result);
         }
 
-        /// <summary>
-        /// Legacy endpoint for backward compatibility
-        /// </summary>
-        [HttpGet]
-        [System.Obsolete("Use GET /api/trading/history/{loginId} instead")]
-        public async Task<IHttpActionResult> TradingHistoryFromDateToDate(ulong loginId, string fromDatet, string toDatet)
-        {
-            var result = await _tradingService.GetTradingHistoryAsync(loginId, fromDatet, toDatet);
-
-            if (result.Success)
-            {
-                return Ok(result.Data);
-            }
-            else
-            {
-                return Content((System.Net.HttpStatusCode)result.StatusCode, result);
-            }
-        }
     }
 }
 

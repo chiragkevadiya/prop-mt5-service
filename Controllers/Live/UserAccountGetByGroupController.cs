@@ -1,14 +1,14 @@
 using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Helpers;
-using PropMT5ConnectionService.ViewModels;
+using PropMT5Service.Helpers;
+using PropMT5Service.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web.Http;
 
-namespace PropMT5ConnectionService.Controllers
+namespace PropMT5Service.Controllers
 {
     /// <summary>
     /// Controller for retrieving user accounts filtered by group

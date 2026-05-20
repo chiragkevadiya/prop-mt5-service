@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 
-namespace PropMT5ConnectionService.Services
+namespace PropMT5Service.Services
 {
     /// <summary>
     /// Interface for performance monitoring

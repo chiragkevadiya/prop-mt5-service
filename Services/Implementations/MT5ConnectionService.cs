@@ -45,12 +45,10 @@ namespace PropMT5ConnectionService.Services.Implementations
             }
 
             _liveManager = liveConnector.m_manager;
-            Console.WriteLine("[INFO] Live MT5 Manager connected successfully");
 
             // Initialize Demo Manager
             if (!_settings.Demo.Enabled || _settings.Demo.Login == 0)
             {
-                Console.WriteLine("[INFO] MT5 Demo client is disabled or not configured, skipping.");
                 return;
             }
 
@@ -58,7 +56,6 @@ namespace PropMT5ConnectionService.Services.Implementations
             var demoInitResult = demoConnector.Initialize_demo();
             if (demoInitResult != MTRetCode.MT_RET_OK)
             {
-                Console.WriteLine($"[WARNING] MT5 Demo API Factory initialization failed: {demoInitResult}");
                 return;
             }
 
@@ -70,12 +67,10 @@ namespace PropMT5ConnectionService.Services.Implementations
 
             if (demoConnectResult != MTRetCode.MT_RET_OK)
             {
-                Console.WriteLine($"[WARNING] MT5 Demo Manager Login failed: {demoConnectResult}");
                 return;
             }
 
             _demoManager = demoConnector.m_manager;
-            Console.WriteLine("[INFO] Demo MT5 Manager connected successfully");
         }
 
         public CIMTManagerAPI GetLiveManager()

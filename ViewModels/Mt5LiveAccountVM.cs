@@ -1,6 +1,6 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 
-namespace PropMT5ConnectionService.ViewModels
+namespace PropMT5Service.ViewModels
 {
     public class Mt5LiveAccountVM
     {

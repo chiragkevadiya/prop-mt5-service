@@ -1,17 +1,11 @@
-﻿using PropMT5ConnectionService.ApiResponse;
+﻿using PropMT5Service.ApiResponse;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace PropMT5ConnectionService.Services
+namespace PropMT5Service.Services
 {
     public interface IHttpClientService
     {
-        //Task<ResponseHttpMessage> GetAsync(string BaseAddress, string getUrl);
-        //Task<ResponseHttpMessage> PostAsync(string BaseAddress, string postUrl, object modelPass);
-        //Task<ResponseHttpMessage> PostAsync(string BaseAddress, string getUrl);
-        //Task<ResponseHttpMessage> PostAsync(string url, object data, string apiKeyName = null, string apiKeyValue = null);
-        //Task<BaseResponse> GetBrokerLicenseAsync(string Url);
-
         Task<ResponseHttpMessage> PostAsync(string baseUrl, string url);
     }
 

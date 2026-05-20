@@ -1,19 +1,21 @@
 using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Helpers;
-using PropMT5ConnectionService.Utilities;
-using PropMT5ConnectionService.ViewModels;
+using PropMT5Service.Constants;
+using PropMT5Service.Helpers;
+using PropMT5Service.Utilities;
+using PropMT5Service.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 
-namespace PropMT5ConnectionService.Services
+namespace PropMT5Service.Services
 {
     public interface IMT5AccountService
     {
         Mt5LiveAccountVM GetSingleAccount(ulong loginId);
         IEnumerable<Mt5LiveAccountVM> GetAllAccounts();
-        BaseResponse<Mt5AccountCreatedVM> CreateAccount(UserIdModel model, AccountCreationConfig config);
+        BaseResponse<Mt5AccountCreatedVM> CreateAccount(UserIdModel model, MT5Constants.AccountCreationConfig config);
         BaseResponse ChangePassword(ulong loginId, string newPassword, CIMTUser.EnUsersPasswords passwordType);
         BaseResponse SetAccountStatus(Mt5AccountStatusVM model);
     }
@@ -21,12 +23,12 @@ namespace PropMT5ConnectionService.Services
     public class MT5AccountService : IMT5AccountService
     {
         private readonly CIMTManagerAPI _manager;
-        private readonly AccountCreationConfig _config;
+        private readonly MT5Constants.AccountCreationConfig _config;
 
-        public MT5AccountService(CIMTManagerAPI manager, AccountCreationConfig config = null)
+        public MT5AccountService(CIMTManagerAPI manager, MT5Constants.AccountCreationConfig config = null)
         {
             _manager = manager ?? throw new ArgumentNullException(nameof(manager));
-            _config = config ?? new AccountCreationConfig();
+            _config = config ?? new MT5Constants.AccountCreationConfig();
         }
 
         public Mt5LiveAccountVM GetSingleAccount(ulong loginId)
@@ -39,14 +41,14 @@ namespace PropMT5ConnectionService.Services
             return MT5AccountOperations.GetAllAccounts(_manager);
         }
 
-        public BaseResponse<Mt5AccountCreatedVM> CreateAccount(UserIdModel model, AccountCreationConfig config)
+        public BaseResponse<Mt5AccountCreatedVM> CreateAccount(UserIdModel model, MT5Constants.AccountCreationConfig config)
         {
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
 
             config = config ?? _config;
             int attemptCount = 0;
-            const int maxAttempts = 100;
+            const int maxAttempts = MT5Constants.AccountOperations.MaxCreateAttempts;
 
             while (attemptCount < maxAttempts)
             {
@@ -206,9 +208,12 @@ namespace PropMT5ConnectionService.Services
 
         private ulong GenerateLoginId(string prefix)
         {
-            Random random = new Random();
-            string randomPart = random.Next(0, 1000).ToString("D3");
-            string loginString = prefix + randomPart;
+            byte[] bytes = new byte[4];
+            using (var rng = new RNGCryptoServiceProvider())
+                rng.GetBytes(bytes);
+
+            uint randomNumber = BitConverter.ToUInt32(bytes, 0) % 1000;
+            string loginString = prefix + randomNumber.ToString("D3");
             return ulong.Parse(loginString);
         }
 
@@ -229,15 +234,5 @@ namespace PropMT5ConnectionService.Services
         #endregion
     }
 
-    /// <summary>
-    /// Configuration for account creation
-    /// </summary>
-    public class AccountCreationConfig
-    {
-        public string LoginPrefix { get; set; } = "555";
-        public int MasterPasswordLength { get; set; } = 11;
-        public int InvestorPasswordLength { get; set; } = 9;
-        public string ServerName { get; set; } = "PropTradingMT5";
-        public string AccountType { get; set; } = "Live";
-    }
+
 }

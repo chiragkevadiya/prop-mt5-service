@@ -1,133 +1,129 @@
+using PropMT5Service.Constants;
 using System;
 using System.IO;
 
-namespace PropMT5ConnectionService.Helpers
+namespace PropMT5Service.Helpers
 {
     public static class AccountLogHelper
     {
-        private static string _baseLogDirectory = @"C:\PropMT5WindowsService\MT5ServicesLogSave";
-
-        public static void SetLogDirectory(string basePath)
-        {
-            _baseLogDirectory = basePath;
-        }
+        // ──────────────────────────────────────────────────────────────
+        // Public API
+        // ──────────────────────────────────────────────────────────────
 
         public static void LogSuccess(Guid userId, string groupName, uint leverage, string firstName,
             string lastName, string email, string phone, string address, string country,
             ulong login, string masterPass, string investorPass, string prefix = "")
         {
-            string logDirectory = Path.Combine(_baseLogDirectory, "Success");
-            string filePrefix = string.IsNullOrEmpty(prefix) ? "" : prefix + "_";
-            string logFileName = $"{filePrefix}Success_log_{login}_{DateTime.Now:yyyyMMddHHmmssfff}.txt";
-            string logFilePath = Path.Combine(logDirectory, logFileName);
+            string filePrefix = BuildFilePrefix(prefix, "Success", login.ToString());
+            string body = BuildAccountBody(userId, groupName, leverage, firstName, lastName,
+                email, phone, address, country)
+                + $"MT5 Account No.: {login}{Environment.NewLine}"
+                + $"Master Password: {masterPass}{Environment.NewLine}"
+                + $"Investor Password: {investorPass}{Environment.NewLine}";
 
-            try
-            {
-                if (!Directory.Exists(logDirectory))
-                {
-                    Directory.CreateDirectory(logDirectory);
-                }
-
-                using (StreamWriter writer = File.AppendText(logFilePath))
-                {
-                    writer.WriteLine($"UserId: {userId}");
-                    writer.WriteLine($"GroupName: {groupName}");
-                    writer.WriteLine($"Leverage: {leverage}");
-                    writer.WriteLine($"FirstName: {firstName}");
-                    writer.WriteLine($"LastName: {lastName}");
-                    writer.WriteLine($"EMail: {email}");
-                    writer.WriteLine($"Phone: {phone}");
-                    writer.WriteLine($"Address: {address}");
-                    writer.WriteLine($"Country: {country}");
-                    writer.WriteLine("-----------------MT5 Account Create--------------------------");
-                    writer.WriteLine($"MT5 Account No.: {login}");
-                    writer.WriteLine($"Master Password: {masterPass}");
-                    writer.WriteLine($"Investor Password: {investorPass}");
-                    writer.WriteLine();
-                    writer.WriteLine($"Logged at: {DateTime.Now}");
-                    writer.WriteLine("-------------------------------------------");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
-            }
+            WriteLog(MT5Constants.Logging.SuccessPath, filePrefix, body);
         }
 
         public static void LogFailed(Guid userId, string groupName, uint leverage, string firstName,
             string lastName, string email, string phone, string address, string country,
             object errorCode, string masterPass, string investorPass, string prefix = "")
         {
-            string logDirectory = Path.Combine(_baseLogDirectory, "Failed");
-            string filePrefix = string.IsNullOrEmpty(prefix) ? "" : prefix + "_";
-            string logFileName = $"{filePrefix}Failed_log_{DateTime.Now:yyyyMMddHHmmssfff}.txt";
-            string logFilePath = Path.Combine(logDirectory, logFileName);
+            string filePrefix = BuildFilePrefix(prefix, "Failed", null);
+            string body = BuildAccountBody(userId, groupName, leverage, firstName, lastName,
+                email, phone, address, country)
+                + $"Error Code: {errorCode}{Environment.NewLine}"
+                + $"Master Password: {masterPass}{Environment.NewLine}"
+                + $"Investor Password: {investorPass}{Environment.NewLine}";
 
-            try
-            {
-                if (!Directory.Exists(logDirectory))
-                {
-                    Directory.CreateDirectory(logDirectory);
-                }
+            WriteLog(MT5Constants.Logging.FailedPath, filePrefix, body);
+        }
 
-                using (StreamWriter writer = File.AppendText(logFilePath))
-                {
-                    writer.WriteLine($"UserId: {userId}");
-                    writer.WriteLine($"GroupName: {groupName}");
-                    writer.WriteLine($"Leverage: {leverage}");
-                    writer.WriteLine($"FirstName: {firstName}");
-                    writer.WriteLine($"LastName: {lastName}");
-                    writer.WriteLine($"EMail: {email}");
-                    writer.WriteLine($"Phone: {phone}");
-                    writer.WriteLine($"Address: {address}");
-                    writer.WriteLine($"Country: {country}");
-                    writer.WriteLine($"Error Code: {errorCode}");
-                    writer.WriteLine("-----------------Failed--------------------------");
-                    writer.WriteLine($"Master Password: {masterPass}");
-                    writer.WriteLine($"Investor Password: {investorPass}");
-                    writer.WriteLine();
-                    writer.WriteLine($"Logged at: {DateTime.Now}");
-                    writer.WriteLine("-------------------------------------------");
-                }
-            }
-            catch (Exception ex)
+        public static void LogReconnect(bool success, string retCode = null, Exception exception = null)
+        {
+            string outcome = success ? "SUCCESS" : "FAILED";
+            string fileName = $"Reconnect_{outcome}_{DateTime.Now:yyyyMMddHHmmssfff}.txt";
+
+            var body = new System.Text.StringBuilder();
+            body.AppendLine($"Event    : Scheduled MT5 Reconnect");
+            body.AppendLine($"Outcome  : {outcome}");
+            body.AppendLine($"Time     : {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+
+            if (!string.IsNullOrEmpty(retCode))
+                body.AppendLine($"RetCode  : {retCode}");
+
+            if (exception != null)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                body.AppendLine($"Exception: {exception.Message}");
+                body.AppendLine($"StackTrace: {exception.StackTrace}");
             }
+
+            WriteLog(MT5Constants.Logging.ReconnectPath, fileName, body.ToString());
         }
 
         public static void LogAccountStatusChange(ulong[] loginIds, bool isEnabled)
         {
-            string logDirectory = Path.Combine(_baseLogDirectory, @"Success\MT5_Account");
-            string logFileName = $"Trade_{(isEnabled ? "ENABLED" : "DISABLED")}_{DateTime.Now:yyyyMMddHHmmssfff}.txt";
-            string logFilePath = Path.Combine(logDirectory, logFileName);
+            string status = isEnabled ? "ENABLED" : "DISABLED";
+            string logDirectory = Path.Combine(MT5Constants.Logging.SuccessPath, "MT5_Account");
+            string fileName = $"Trade_{status}_{DateTime.Now:yyyyMMddHHmmssfff}.txt";
 
+            var body = new System.Text.StringBuilder();
+            body.AppendLine($"Operation: Trade {status}");
+            body.AppendLine("Account Details:");
+            foreach (var loginId in loginIds)
+                body.AppendLine($"  - MT5 Account No.: {loginId}");
+
+            WriteLog(logDirectory, fileName, body.ToString(), appendSeparator: true);
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        // Private helpers
+        // ──────────────────────────────────────────────────────────────
+
+        private static string BuildFilePrefix(string prefix, string outcome, string loginSuffix)
+        {
+            string p = string.IsNullOrEmpty(prefix) ? "" : prefix + "_";
+            string l = loginSuffix != null ? $"_{loginSuffix}" : "";
+            return $"{p}{outcome}_log{l}_{DateTime.Now:yyyyMMddHHmmssfff}.txt";
+        }
+
+        private static string BuildAccountBody(Guid userId, string groupName, uint leverage,
+            string firstName, string lastName, string email,
+            string phone, string address, string country)
+        {
+            return $"UserId: {userId}{Environment.NewLine}"
+                 + $"GroupName: {groupName}{Environment.NewLine}"
+                 + $"Leverage: {leverage}{Environment.NewLine}"
+                 + $"FirstName: {firstName}{Environment.NewLine}"
+                 + $"LastName: {lastName}{Environment.NewLine}"
+                 + $"EMail: {email}{Environment.NewLine}"
+                 + $"Phone: {phone}{Environment.NewLine}"
+                 + $"Address: {address}{Environment.NewLine}"
+                 + $"Country: {country}{Environment.NewLine}";
+        }
+
+        private static void WriteLog(string directory, string fileName, string body,
+            bool appendSeparator = false)
+        {
             try
             {
-                if (!Directory.Exists(logDirectory))
+                if (!Directory.Exists(directory))
+                    Directory.CreateDirectory(directory);
+
+                string path = Path.Combine(directory, fileName);
+
+                using (StreamWriter writer = File.AppendText(path))
                 {
-                    Directory.CreateDirectory(logDirectory);
-                }
-
-                using (StreamWriter writer = new StreamWriter(logFilePath, true))
-                {
-                    writer.WriteLine("-----------------MT5 Account Log--------------------------");
-                    writer.WriteLine($"Operation: Trade {(isEnabled ? "ENABLED" : "DISABLED")}");
-                    writer.WriteLine($"Timestamp: {DateTime.Now}");
-                    writer.WriteLine("Account Details: ");
-
-                    foreach (var loginId in loginIds)
-                    {
-                        writer.WriteLine($"- MT5 Account No.: {loginId}");
-                    }
-
-                    writer.WriteLine("----------------------------------------------------------");
+                    writer.WriteLine("-------------------------------------------");
+                    writer.Write(body);
+                    if (appendSeparator)
+                        writer.WriteLine("----------------------------------------------------------");
+                    writer.WriteLine($"Logged at: {DateTime.Now}");
+                    writer.WriteLine("-------------------------------------------");
                     writer.WriteLine();
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error logging information: {ex.Message}");
             }
         }
     }

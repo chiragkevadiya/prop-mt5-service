@@ -1,7 +1,7 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using System;
 
-namespace PropMT5ConnectionService.ViewModels
+namespace PropMT5Service.ViewModels
 {
     public class Mt5TradingHistoryVM
     {

@@ -1,12 +1,11 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Helpers;
-using PropMT5ConnectionService.Services;
-using PropMT5ConnectionService.ViewModels.Password;
-using System;
+using PropMT5Service.Helpers;
+using PropMT5Service.Services;
+using PropMT5Service.ViewModels.Password;
 using System.Web.Http;
 
-namespace PropMT5ConnectionService.Controllers
+namespace PropMT5Service.Controllers
 {
     /// <summary>
     /// Controller for managing MT5 password changes
@@ -58,16 +57,6 @@ namespace PropMT5ConnectionService.Controllers
                     } : null
                 };
             });
-        }
-
-        /// <summary>
-        /// Legacy endpoint for backward compatibility
-        /// </summary>
-        [HttpGet]
-        [Obsolete("Use POST /api/password/change instead")]
-        public IHttpActionResult MT5LiveMasterInvestorPasswordChange(ulong loginId, string newPassword, int pType)
-        {
-            return ChangePassword(loginId, newPassword, pType);
         }
     }
 }

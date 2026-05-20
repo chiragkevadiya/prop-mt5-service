@@ -1,4 +1,4 @@
-﻿namespace PropMT5ConnectionService.ViewModels.ChallengeSettlement
+﻿namespace PropMT5Service.ViewModels.ChallengeSettlement
 {
     public class ChallengeSettlementResult
     {

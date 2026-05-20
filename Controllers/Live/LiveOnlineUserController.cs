@@ -1,12 +1,12 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Helpers;
-using PropMT5ConnectionService.ViewModels;
+using PropMT5Service.Helpers;
+using PropMT5Service.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Web.Http;
 
-namespace PropMT5ConnectionService.Controllers
+namespace PropMT5Service.Controllers
 {
     [RoutePrefix("api/liveonlineuser")]
     public class LiveOnlineUserController : ApiController
@@ -91,77 +91,5 @@ namespace PropMT5ConnectionService.Controllers
                 };
             }
         }
-
-
-        //[HttpGet]
-        //public BaseResponseModel<Mt5OnlineUserVM> MT5LiveOnlineUserActiveDetail(string groupNames)
-        //{
-        //    try
-        //    {
-        //        Mt5OnlineUserVM mT5LiveOnlineUserActiveVM = new Mt5OnlineUserVM();
-
-        //        uint onlineTotal = _manager.OnlineTotal();
-        //        CIMTOnline onlineConnection = _manager.OnlineCreate();
-
-        //        for (uint i = 0; i < onlineTotal; i++)
-        //        {
-        //            MTRetCode mTRetCode3 = _manager.OnlineNext(i, onlineConnection);
-        //            if (mTRetCode3 == MTRetCode.MT_RET_OK)
-        //            {
-        //                mT5LiveOnlineUserActiveVM.OnlineTrader.Add(new UserLogin { Login = onlineConnection.Login() });
-        //            }
-        //        }
-
-        //        // MT5 Active Accounts and Inactive Accounts
-        //        CIMTUserArray cIMTUserArray = _manager.UserCreateArray();
-
-        //        MTRetCode mTRetCode = _manager.UserGetByGroup(groupNames, cIMTUserArray);
-
-        //        for (uint i = 0; i < cIMTUserArray.Total(); i++)
-        //        {
-        //            CIMTUser cIMTUser = cIMTUserArray.Next(i);
-
-        //            //--- Check permission
-        //            uint user_rights = (uint)cIMTUser.Rights();
-
-        //            if ((user_rights & (uint)CIMTUser.EnUsersRights.USER_RIGHT_TRADE_DISABLED) > 0)
-        //            {
-        //                // If the user is not enabled (inactive), increment the inactive accounts counter
-        //                mT5LiveOnlineUserActiveVM.InActiveTrader.Add(new UserLogin { Login = cIMTUser.Login() });
-        //            }
-        //            else
-        //            {
-        //                // If the user is enabled (active), increment the active accounts counter
-        //                mT5LiveOnlineUserActiveVM.ActiveTrader.Add(new UserLogin { Login = cIMTUser.Login() });
-        //            }
-        //        }
-
-
-        //        //Release User Array: After processing the user array, release it to free up memory.
-        //        cIMTUserArray.Release();
-
-        //        //Release Online Connection: Ensure the online connection is released once it's no longer needed.
-        //        onlineConnection.Release();
-
-        //        return new BaseResponseModel<Mt5OnlineUserVM>
-        //        {
-        //            Data = mT5LiveOnlineUserActiveVM,
-        //            Message = "online or active inactive data retrieved successfully.",
-        //            Success = true,
-        //            MTRetErrorCode = MTRetCode.MT_RET_OK
-        //        };
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return new BaseResponseModel<Mt5OnlineUserVM>
-        //        {
-        //            Data = null,
-        //            Message = $"An error occurred: {ex.Message}",
-        //            Success = false,
-        //            MTRetErrorCode = MTRetCode.MT_RET_ERROR
-        //        };
-        //    }
-        //}
     }
 }

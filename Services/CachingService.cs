@@ -1,8 +1,9 @@
+using PropMT5Service.Constants;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace PropMT5ConnectionService.Services
+namespace PropMT5Service.Services
 {
     /// <summary>
     /// Interface for caching service
@@ -28,10 +29,10 @@ namespace PropMT5ConnectionService.Services
         public MemoryCachingService(TimeSpan? defaultExpiration = null)
         {
             _cache = new ConcurrentDictionary<string, CacheEntry>();
-            _defaultExpiration = defaultExpiration ?? TimeSpan.FromMinutes(15);
+            _defaultExpiration = defaultExpiration ?? TimeSpan.FromMinutes(MT5Constants.Cache.DefaultExpirationMinutes);
 
-            // Cleanup expired entries every minute
-            _cleanupTimer = new System.Threading.Timer(CleanupExpiredEntries, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
+            var cleanupInterval = TimeSpan.FromMinutes(MT5Constants.Cache.CleanupIntervalMinutes);
+            _cleanupTimer = new System.Threading.Timer(CleanupExpiredEntries, null, cleanupInterval, cleanupInterval);
         }
 
         /// <summary>
@@ -176,13 +177,13 @@ namespace PropMT5ConnectionService.Services
         /// </summary>
         public static class CacheKeys
         {
-            public const string AccountPrefix = "account";
-            public const string TradingHistoryPrefix = "trading:history";
-            public const string TradingDataPrefix = "trading:data";
-            public const string GroupPrefix = "group";
-            public const string SymbolPrefix = "symbol";
-            public const string LeaderboardPrefix = "leaderboard";
-            public const string DashboardPrefix = "dashboard";
+            public const string AccountPrefix = MT5Constants.Cache.AccountPrefix;
+            public const string TradingHistoryPrefix = MT5Constants.Cache.TradingHistoryPrefix;
+            public const string TradingDataPrefix = MT5Constants.Cache.TradingDataPrefix;
+            public const string GroupPrefix = MT5Constants.Cache.GroupPrefix;
+            public const string SymbolPrefix = MT5Constants.Cache.SymbolPrefix;
+            public const string LeaderboardPrefix = MT5Constants.Cache.LeaderboardPrefix;
+            public const string DashboardPrefix = MT5Constants.Cache.DashboardPrefix;
 
             public static string Account(ulong loginId) => GenerateKey(AccountPrefix, loginId);
             public static string TradingHistory(ulong loginId, string date) => GenerateKey(TradingHistoryPrefix, loginId, date);

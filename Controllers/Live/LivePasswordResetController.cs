@@ -1,46 +1,47 @@
-﻿using MetaQuotes.MT5CommonAPI;
+using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Helpers;
-using PropMT5ConnectionService.Utilities;
-using PropMT5ConnectionService.ViewModels.Password;
+using PropMT5Service.Constants;
+using PropMT5Service.Helpers;
+using PropMT5Service.Utilities;
+using PropMT5Service.ViewModels.Password;
 using System.Web.Http;
 
-namespace PropMT5ConnectionService.Controllers
+namespace PropMT5Service.Controllers
 {
     [RoutePrefix("api/livepasswordreset")]
-    public class LivePasswordResetController : ApiController
+    public class LivePasswordResetController : BaseApiController
     {
-        CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
+        public LivePasswordResetController(CIMTManagerAPI manager) : base(manager) { }
 
-        public LivePasswordResetController()
-        {
-
-        }
-
-        [HttpGet]
+        [HttpPost]
         [Route("")]
-        public UserPasswordChangeVM UserPasswordChange(ulong LoginId)
+        public IHttpActionResult ResetPassword(ulong loginId)
         {
-
-            // Set master and investor passwords (replace with your logic)
-            string master_pass = PasswordGenerator.GenerateMasterPassword(11); // Replace with a valid master password
-            string investor_pass = PasswordGenerator.GenerateInvestorPassword(9); // Replace with a valid investor password
-
-            // Password Change
-            MTRetCode investor_pass_mTRetCode = _manager.UserPasswordChange(CIMTUser.EnUsersPasswords.USER_PASS_INVESTOR, LoginId, investor_pass);
-            MTRetCode master_pass_mTRetCode = _manager.UserPasswordChange(CIMTUser.EnUsersPasswords.USER_PASS_MAIN, LoginId, master_pass);
-
-            UserPasswordChangeVM userPasswordChangeVM = new UserPasswordChangeVM()
+            return ExecuteSafe(() =>
             {
-                Login = LoginId,
-                InvestorPassword = investor_pass,
-                MasterPassword = master_pass,
-                mTRetCode1 = investor_pass_mTRetCode,
-                mTRetCode2 = master_pass_mTRetCode
-            };
+                string masterPass = PasswordGenerator.GenerateMasterPassword(MT5Constants.PasswordConfig.DefaultMasterPasswordLength);
+                string investorPass = PasswordGenerator.GenerateInvestorPassword(MT5Constants.PasswordConfig.DefaultInvestorPasswordLength);
 
-            return userPasswordChangeVM;
+                MTRetCode masterRet = _manager.UserPasswordChange(CIMTUser.EnUsersPasswords.USER_PASS_MAIN, loginId, masterPass);
+                MTRetCode investorRet = _manager.UserPasswordChange(CIMTUser.EnUsersPasswords.USER_PASS_INVESTOR, loginId, investorPass);
 
+                if (!IsSuccessful(masterRet))
+                    return new BaseResponse<UserPasswordChangeVM>().WithError(
+                        $"Master password reset failed: {GetMT5ErrorMessage(masterRet)}", 400);
+
+                if (!IsSuccessful(investorRet))
+                    return new BaseResponse<UserPasswordChangeVM>().WithError(
+                        $"Investor password reset failed: {GetMT5ErrorMessage(investorRet)}", 400);
+
+                return new BaseResponse<UserPasswordChangeVM>().WithSuccess(
+                    new UserPasswordChangeVM
+                    {
+                        Login = loginId,
+                        MasterPassword = masterPass,
+                        InvestorPassword = investorPass
+                    },
+                    "Passwords reset successfully.");
+            });
         }
     }
 }

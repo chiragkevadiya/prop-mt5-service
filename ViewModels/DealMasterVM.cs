@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace PropMT5ConnectionService.ViewModels
+namespace PropMT5Service.ViewModels
 {
     public class DealMasterVM
     {

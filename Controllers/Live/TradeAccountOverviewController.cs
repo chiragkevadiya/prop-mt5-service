@@ -1,15 +1,15 @@
 ﻿using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Helpers;
-using PropMT5ConnectionService.Utilities;
-using PropMT5ConnectionService.ViewModels;
-using PropMT5ConnectionService.ViewModels.TradePosition;
+using PropMT5Service.Helpers;
+using PropMT5Service.Utilities;
+using PropMT5Service.ViewModels;
+using PropMT5Service.ViewModels.TradePosition;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 
-namespace PropMT5ConnectionService
+namespace PropMT5Service
 {
     [RoutePrefix("api/TradeAccountOverview")]
     public class TradeAccountOverviewController : ApiController

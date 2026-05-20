@@ -1,14 +1,14 @@
 using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Helpers;
-using PropMT5ConnectionService.Utilities;
-using PropMT5ConnectionService.ViewModels;
+using PropMT5Service.Helpers;
+using PropMT5Service.Utilities;
+using PropMT5Service.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PropMT5ConnectionService.Services
+namespace PropMT5Service.Services
 {
     /// <summary>
     /// Interface for trading operations
@@ -27,6 +27,8 @@ namespace PropMT5ConnectionService.Services
     /// </summary>
     public class MT5TradingService : IMT5TradingService
     {
+        private const uint EntryTypeClose = 1;
+
         private readonly CIMTManagerAPI _manager;
 
         public MT5TradingService(CIMTManagerAPI manager)
@@ -256,7 +258,7 @@ namespace PropMT5ConnectionService.Services
         /// </summary>
         public async Task<BaseResponse<List<Mt5TradingDataVM>>> GetClosedTradesAsync(ulong loginId, string fromDate, string toDate)
         {
-            return await GetTradingDataAsync(loginId, 1, fromDate, toDate); // Entry type 1 = closed
+            return await GetTradingDataAsync(loginId, EntryTypeClose, fromDate, toDate);
         }
 
         /// <summary>

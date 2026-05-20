@@ -1,10 +1,10 @@
 using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Helpers;
+using PropMT5Service.Helpers;
 using System.Collections.Generic;
 using System.Web.Http;
 
-namespace PropMT5ConnectionService.Controllers
+namespace PropMT5Service.Controllers
 {
     /// <summary>
     /// Controller for managing MT5 symbols and symbol configurations
@@ -220,21 +220,6 @@ namespace PropMT5ConnectionService.Controllers
 
                 return new BaseResponse<object>().WithSuccess(symbolInfo, $"Symbol info retrieved for '{symbolName}'");
             });
-        }
-
-        private string GetDayName(int dayOfWeek)
-        {
-            switch (dayOfWeek)
-            {
-                case 0: return "Sunday";
-                case 1: return "Monday";
-                case 2: return "Tuesday";
-                case 3: return "Wednesday";
-                case 4: return "Thursday";
-                case 5: return "Friday";
-                case 6: return "Saturday";
-                default: return "Unknown";
-            }
         }
     }
 }

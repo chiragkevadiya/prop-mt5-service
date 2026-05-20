@@ -1,9 +1,10 @@
 using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.ViewModels;
+using PropMT5Service.Constants;
+using PropMT5Service.ViewModels;
 using System.Collections.Generic;
 
-namespace PropMT5ConnectionService.Helpers
+namespace PropMT5Service.Helpers
 {
     public static class MT5AccountOperations
     {
@@ -12,23 +13,29 @@ namespace PropMT5ConnectionService.Helpers
             Mt5LiveAccountVM liveAccountVM = new Mt5LiveAccountVM();
 
             CIMTUser cIMTUser = manager.UserCreate();
-            MTRetCode mTRetCode = manager.UserGet(loginId, cIMTUser);
-
             CIMTAccount cIMTAccountInfo = manager.UserCreateAccount();
-            manager.UserAccountGet(loginId, cIMTAccountInfo);
 
-            if (MTRetCode.MT_RET_OK == mTRetCode)
+            try
             {
-                liveAccountVM = MT5UserMapper.MapToLiveAccountVM(cIMTUser, cIMTAccountInfo);
-            }
-            else
-            {
-                liveAccountVM.Status = "Data Not Found.";
-                liveAccountVM.MTRetCodeError = mTRetCode;
-            }
+                MTRetCode mTRetCode = manager.UserGet(loginId, cIMTUser);
+                manager.UserAccountGet(loginId, cIMTAccountInfo);
 
-            cIMTUser.Clear();
-            cIMTUser.Release();
+                if (MTRetCode.MT_RET_OK == mTRetCode)
+                {
+                    liveAccountVM = MT5UserMapper.MapToLiveAccountVM(cIMTUser, cIMTAccountInfo);
+                }
+                else
+                {
+                    liveAccountVM.Status = "Data Not Found.";
+                    liveAccountVM.MTRetCodeError = mTRetCode;
+                }
+            }
+            finally
+            {
+                cIMTUser.Clear();
+                cIMTUser.Release();
+                cIMTAccountInfo.Release();
+            }
 
             return liveAccountVM;
         }
@@ -38,22 +45,27 @@ namespace PropMT5ConnectionService.Helpers
             List<Mt5LiveAccountVM> accounts = new List<Mt5LiveAccountVM>();
 
             CIMTUserArray cIMTUserArray = manager.UserCreateArray();
-            MTRetCode mTRetCode = manager.UserGetByGroup("*", cIMTUserArray);
 
-            if (MTRetCode.MT_RET_OK == mTRetCode)
+            try
             {
-                for (uint i = 0; i < cIMTUserArray.Total(); i++)
-                {
-                    CIMTUser cIMTUser = cIMTUserArray.Next(i);
-                    accounts.Add(MT5UserMapper.MapToBasicLiveAccountVM(cIMTUser));
-                }
+                MTRetCode mTRetCode = manager.UserGetByGroup(MT5Constants.AccountOperations.WildcardGroup, cIMTUserArray);
 
+                if (MTRetCode.MT_RET_OK == mTRetCode)
+                {
+                    for (uint i = 0; i < cIMTUserArray.Total(); i++)
+                    {
+                        CIMTUser cIMTUser = cIMTUserArray.Next(i);
+                        accounts.Add(MT5UserMapper.MapToLiveAccountVM(cIMTUser));
+                    }
+                }
+            }
+            finally
+            {
                 cIMTUserArray.Clear();
                 cIMTUserArray.Release();
-                return accounts;
             }
 
-            return null;
+            return accounts;
         }
 
         public static List<Mt5LiveAccountVM> GetAccountsByLoginIds(CIMTManagerAPI manager, List<ulong> loginIds)
@@ -63,17 +75,21 @@ namespace PropMT5ConnectionService.Helpers
             foreach (ulong loginId in loginIds)
             {
                 CIMTUser cIMTUser = manager.UserCreate();
-                MTRetCode mTRetCode = manager.UserGet(loginId, cIMTUser);
-
                 CIMTAccount cIMTAccountInfo = manager.UserCreateAccount();
-                manager.UserAccountGet(loginId, cIMTAccountInfo);
 
-                if (MTRetCode.MT_RET_OK == mTRetCode)
+                try
                 {
-                    liveAccounts.Add(MT5UserMapper.MapToAccountWithMargin(cIMTUser, cIMTAccountInfo));
+                    MTRetCode mTRetCode = manager.UserGet(loginId, cIMTUser);
+                    manager.UserAccountGet(loginId, cIMTAccountInfo);
 
+                    if (MTRetCode.MT_RET_OK == mTRetCode)
+                        liveAccounts.Add(MT5UserMapper.MapToLiveAccountVM(cIMTUser, cIMTAccountInfo));
+                }
+                finally
+                {
                     cIMTUser.Clear();
                     cIMTUser.Release();
+                    cIMTAccountInfo.Release();
                 }
             }
 
@@ -85,20 +101,23 @@ namespace PropMT5ConnectionService.Helpers
             foreach (ulong loginId in entity.LoginId)
             {
                 CIMTUser cIMTUser = manager.UserCreate();
-                MTRetCode resultCode = manager.UserGet(loginId, cIMTUser);
 
-                if (MTRetCode.MT_RET_OK == resultCode)
+                try
                 {
-                    if (entity.UserStatus)
-                    {
-                        cIMTUser.Rights(CIMTUser.EnUsersRights.USER_RIGHT_ENABLED);
-                    }
-                    else
-                    {
-                        cIMTUser.Rights(CIMTUser.EnUsersRights.USER_RIGHT_TRADE_DISABLED);
-                    }
+                    MTRetCode resultCode = manager.UserGet(loginId, cIMTUser);
 
-                    manager.UserUpdate(cIMTUser);
+                    if (MTRetCode.MT_RET_OK == resultCode)
+                    {
+                        cIMTUser.Rights(entity.UserStatus
+                            ? CIMTUser.EnUsersRights.USER_RIGHT_ENABLED
+                            : CIMTUser.EnUsersRights.USER_RIGHT_TRADE_DISABLED);
+
+                        manager.UserUpdate(cIMTUser);
+                    }
+                }
+                finally
+                {
+                    cIMTUser.Release();
                 }
             }
 
@@ -121,11 +140,11 @@ namespace PropMT5ConnectionService.Helpers
                     return MTRetCode.MT_RET_ERROR;
                 }
 
-                mTRetCode = manager.DealerBalanceRaw(entity.Login, -entity.Amount, 2, entity.Comment, out variable);
+                mTRetCode = manager.DealerBalanceRaw(entity.Login, -entity.Amount, MT5Constants.AccountOperations.DealerBalanceType, entity.Comment, out variable);
             }
             else
             {
-                mTRetCode = manager.DealerBalanceRaw(entity.Login, entity.Amount, 2, entity.Comment, out variable);
+                mTRetCode = manager.DealerBalanceRaw(entity.Login, entity.Amount, MT5Constants.AccountOperations.DealerBalanceType, entity.Comment, out variable);
             }
 
             if (MTRetCode.MT_RET_REQUEST_DONE == mTRetCode)
@@ -139,14 +158,16 @@ namespace PropMT5ConnectionService.Helpers
         public static double GetBalanceForLogin(CIMTManagerAPI manager, ulong login)
         {
             CIMTUser cIMTUser = manager.UserCreate();
-            MTRetCode mTRetCode = manager.UserGet(login, cIMTUser);
 
-            if (MTRetCode.MT_RET_OK == mTRetCode)
+            try
             {
-                return cIMTUser.Balance();
+                MTRetCode mTRetCode = manager.UserGet(login, cIMTUser);
+                return mTRetCode == MTRetCode.MT_RET_OK ? cIMTUser.Balance() : 0;
             }
-
-            return 0;
+            finally
+            {
+                cIMTUser.Release();
+            }
         }
     }
 }

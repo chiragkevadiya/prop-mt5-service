@@ -1,9 +1,10 @@
 using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Services;
+using PropMT5Service.Constants;
+using PropMT5Service.Services;
 using System;
 using System.Web.Http;
 
-namespace PropMT5ConnectionService.Controllers
+namespace PropMT5Service.Controllers
 {
     /// <summary>
     /// Health check and diagnostics controller
@@ -34,9 +35,9 @@ namespace PropMT5ConnectionService.Controllers
         {
             var health = new
             {
-                Status = "Healthy",
-                Service = "PropMT5ConnectionService",
-                Version = "1.0.0",
+                Status = MT5Constants.HealthCheck.StatusHealthy,
+                Service = MT5Constants.ServiceInfo.Name,
+                Version = MT5Constants.ServiceInfo.Version,
                 Timestamp = DateTime.UtcNow,
                 Uptime = GetUptime()
             };
@@ -57,20 +58,20 @@ namespace PropMT5ConnectionService.Controllers
 
             var health = new
             {
-                Status = mt5Status && cacheStatus ? "Healthy" : "Degraded",
-                Service = "PropMT5ConnectionService",
-                Version = "1.0.0",
+                Status = mt5Status && cacheStatus ? MT5Constants.HealthCheck.StatusHealthy : MT5Constants.HealthCheck.StatusDegraded,
+                Service = MT5Constants.ServiceInfo.Name,
+                Version = MT5Constants.ServiceInfo.Version,
                 Timestamp = DateTime.UtcNow,
                 Dependencies = new
                 {
                     MT5Connection = new
                     {
-                        Status = mt5Status ? "Connected" : "Disconnected",
+                        Status = mt5Status ? MT5Constants.HealthCheck.MT5Connected : MT5Constants.HealthCheck.MT5Disconnected,
                         Healthy = mt5Status
                     },
                     CacheService = new
                     {
-                        Status = cacheStatus ? "Running" : "Down",
+                        Status = cacheStatus ? MT5Constants.HealthCheck.CacheRunning : MT5Constants.HealthCheck.CacheDown,
                         Healthy = cacheStatus
                     }
                 },
@@ -111,7 +112,7 @@ namespace PropMT5ConnectionService.Controllers
         public IHttpActionResult ResetMetrics()
         {
             _performanceMonitor.Reset();
-            return Ok(new { Message = "Metrics reset successfully", Timestamp = DateTime.UtcNow });
+            return Ok(new { Message = MT5Constants.HealthCheck.MetricsResetSuccess, Timestamp = DateTime.UtcNow });
         }
 
         /// <summary>
@@ -121,7 +122,7 @@ namespace PropMT5ConnectionService.Controllers
         [Route("live")]
         public IHttpActionResult GetLiveness()
         {
-            return Ok(new { Status = "Alive", Timestamp = DateTime.UtcNow });
+            return Ok(new { Status = MT5Constants.HealthCheck.StatusAlive, Timestamp = DateTime.UtcNow });
         }
 
         /// <summary>
@@ -134,14 +135,10 @@ namespace PropMT5ConnectionService.Controllers
             var mt5Ready = CheckMT5Connection();
 
             if (mt5Ready)
-            {
-                return Ok(new { Status = "Ready", Timestamp = DateTime.UtcNow });
-            }
-            else
-            {
-                return Content(System.Net.HttpStatusCode.ServiceUnavailable,
-                    new { Status = "Not Ready", Reason = "MT5 Connection Not Available", Timestamp = DateTime.UtcNow });
-            }
+                return Ok(new { Status = MT5Constants.HealthCheck.StatusReady, Timestamp = DateTime.UtcNow });
+
+            return Content(System.Net.HttpStatusCode.ServiceUnavailable,
+                new { Status = MT5Constants.HealthCheck.StatusNotReady, Reason = MT5Constants.HealthCheck.MT5NotAvailable, Timestamp = DateTime.UtcNow });
         }
 
         #region Private Helper Methods
@@ -172,11 +169,11 @@ namespace PropMT5ConnectionService.Controllers
         {
             try
             {
-                var testKey = "__health_check__";
-                _cache.Set(testKey, "test", TimeSpan.FromSeconds(1));
-                var value = _cache.Get<string>(testKey);
-                _cache.Remove(testKey);
-                return value == "test";
+                _cache.Set(MT5Constants.HealthCheck.CacheTestKey, MT5Constants.HealthCheck.CacheTestValue,
+                    TimeSpan.FromSeconds(MT5Constants.HealthCheck.CacheTestTimeoutSeconds));
+                var value = _cache.Get<string>(MT5Constants.HealthCheck.CacheTestKey);
+                _cache.Remove(MT5Constants.HealthCheck.CacheTestKey);
+                return value == MT5Constants.HealthCheck.CacheTestValue;
             }
             catch
             {

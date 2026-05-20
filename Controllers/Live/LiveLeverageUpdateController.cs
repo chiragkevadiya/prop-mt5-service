@@ -1,55 +1,39 @@
-﻿using MetaQuotes.MT5CommonAPI;
+using MetaQuotes.MT5CommonAPI;
 using MetaQuotes.MT5ManagerAPI;
-using PropMT5ConnectionService.Helpers;
-using System;
+using PropMT5Service.Helpers;
 using System.Web.Http;
 
-namespace PropMT5ConnectionService.Controllers
+namespace PropMT5Service.Controllers
 {
     [RoutePrefix("api/liveleverageupdate")]
-    public class LiveLeverageUpdateController : ApiController
+    public class LiveLeverageUpdateController : BaseApiController
     {
-        CIMTManagerAPI _manager = Mt5ManagerFactory.GetManager();
+        public LiveLeverageUpdateController(CIMTManagerAPI manager) : base(manager) { }
 
         [HttpGet]
         [Route("")]
-        public BaseResponseModel<int> MT5LiveLeverageUpdate(ulong LoginId, uint Leverage)
+        public IHttpActionResult MT5LiveLeverageUpdate(ulong loginId, uint leverage)
         {
-            try
+            return ExecuteSafe(() =>
             {
-                //Update Leverage
-
-                CIMTUser cIMTUser = _manager.UserCreate();
-                MTRetCode mTRetCode = _manager.UserGet(LoginId, cIMTUser);
-
-                if (mTRetCode == MTRetCode.MT_RET_ERR_NOTFOUND)
+                return WithUser(loginId, (user, ret) =>
                 {
-                    return new BaseResponseModel<int>
-                    {
-                        Data = 0,
-                        Message = "Login ID could not be found or does not exist within the system.",
-                        Success = false,
-                        MTRetErrorCode = mTRetCode
-                    };
-                }
+                    if (ret == MTRetCode.MT_RET_ERR_NOTFOUND)
+                        return new BaseResponse<int>().WithError(
+                            "Login ID could not be found or does not exist within the system.", 404);
 
-                cIMTUser.Leverage(Leverage);
-                MTRetCode mTRetCode1 = _manager.UserUpdate(cIMTUser);
+                    if (!IsSuccessful(ret))
+                        return new BaseResponse<int>().WithError(GetMT5ErrorMessage(ret), 400);
 
+                    user.Leverage(leverage);
+                    MTRetCode updateRet = _manager.UserUpdate(user);
 
-                return new BaseResponseModel<int>
-                {
-                    Data = 0,
-                    Message = "Leverage update successfully.",
-                    Success = true,
-                    MTRetErrorCode = MTRetCode.MT_RET_OK
-                };
-            }
-            catch (Exception)
-            {
+                    if (!IsSuccessful(updateRet))
+                        return new BaseResponse<int>().WithError(GetMT5ErrorMessage(updateRet), 400);
 
-                throw;
-            }
+                    return new BaseResponse<int>().WithSuccess(0, "Leverage updated successfully.");
+                });
+            });
         }
     }
 }
